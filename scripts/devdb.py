@@ -58,9 +58,9 @@ def install() -> None:
 
 
 def init() -> None:
+    install()  # also when a copied data folder is already in place - the binaries are not part of it
     if (PGDATA / "PG_VERSION").exists():
         return
-    install()
     print("Initialising the cluster in tools/devdb/pgdata ...")
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".pw") as fh:
         fh.write(PASSWORD)

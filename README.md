@@ -144,7 +144,7 @@ After signing in as `admin@lumora.example`:
 ## 4. Automated tests
 
 ```bat
-backend\.venv\Scripts\python -m pytest           # 191 backend unit, API, integration and end-to-end tests
+backend\.venv\Scripts\python -m pytest           # 206 backend unit, API, integration and end-to-end tests
 cd frontend && npm test && npm run lint && npm run typecheck
 backend\.venv\Scripts\python -m ruff check .     # lint (backend, scripts, tests)
 cd backend && .venv\Scripts\python -m mypy       # type check

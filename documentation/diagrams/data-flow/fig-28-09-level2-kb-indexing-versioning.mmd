@@ -1,0 +1,38 @@
+flowchart TB
+  PREV["From 6.5: stored<br/>version, sections"]
+  ADM["Administrator"]
+  P66("6.6 Chunk, embed<br/>and screen")
+  D2a[("D2 Knowledge Base")]
+  P67("6.7 Apply version<br/>control")
+  D2b[("D2 Knowledge Base")]
+  NEXT["To 6.8 Analyse revision<br/>impact (Figure 28.10)"]
+  P69("6.9 Bump revision<br/>and audit")
+  D7[("D7 Audit log")]
+  D2c[("D2 Knowledge Base")]
+  P34("3.4 Retrieve policy<br/>evidence")
+
+  PREV -->|"sections"| P66
+  P66 -->|"chunks, vectors,<br/>quarantine flags"| D2a
+  P66 -->|"new version,<br/>flagged chunks"| P67
+  ADM -->|"status change"| P67
+  P67 -->|"version statuses"| D2b
+  P67 -->|"old and new<br/>Active version"| NEXT
+  P67 -->|"demotions,<br/>warnings"| P69
+  P69 -->|"audit entry"| D7
+  P69 -->|"kb_revision"| D2c
+  D2c -->|"active chunks,<br/>rebuilt snapshot"| P34
+
+  class PREV,ADM,NEXT ext
+  class P66,P67,P69,P34 rules
+  class D2a,D2b,D2c,D7 data
+  style PREV stroke-dasharray:5 4
+  style NEXT stroke-dasharray:5 4
+  style P34 stroke-dasharray:5 4
+
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

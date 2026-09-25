@@ -1,0 +1,30 @@
+flowchart TB
+  FROM["From 6.7: previous and<br/>new Active version"]
+  D2a[("D2 Knowledge Base")]
+  D3[("D3 Rule Matrix")]
+  P68("6.8 Analyse<br/>revision impact")
+  D4[("D4 Analyses<br/>and AI runs")]
+  D1[("D1 Complaints")]
+  D2b[("D2 Knowledge Base")]
+  ADM["Administrator"]
+
+  FROM -->|"version pair"| P68
+  D2a -->|"sections and facts<br/>of both versions"| P68
+  D3 -->|"rule and parameter<br/>policy references"| P68
+  D4 -->|"citations of the<br/>previous version"| P68
+  D1 -->|"status of citing<br/>complaints"| P68
+  P68 -->|"impact stored on<br/>the new version"| D2b
+  P68 -->|"changed sections, rules,<br/>parameters, complaints"| ADM
+
+  class FROM,ADM ext
+  class P68 rules
+  class D1,D2a,D2b,D3,D4 data
+  style FROM stroke-dasharray:5 4
+
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

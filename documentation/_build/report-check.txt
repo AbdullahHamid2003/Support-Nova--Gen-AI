@@ -1,0 +1,54 @@
+33 parts, 471 headings, 68 figures, 230 tables, 134215 words outside code blocks, PDF 327 pages
+00-executive-summary.md: first line must be '# Chapter N — Title' or '# Appendix X — Title'
+cross-reference to missing Figure 23.4
+cross-reference to missing Chapter 4
+cross-reference to missing Chapter 12
+cross-reference to missing Chapter 13
+cross-reference to missing Chapter 14
+cross-reference to missing Chapter 15
+cross-reference to missing Chapter 20
+cross-reference to missing Chapter 23
+cross-reference to missing Chapter 24
+cross-reference to missing Chapter 27
+cross-reference to missing Chapter 40
+cross-reference to missing Appendix A
+cross-reference to missing Appendix E
+cross-reference to missing Appendix G
+cross-reference to missing Appendix H
+cross-reference to missing Appendix I
+cross-reference to missing Appendix J
+cross-reference to missing Appendix K
+cross-reference to missing Appendix L
+cross-reference to missing Appendix M
+cross-reference to missing Appendix O
+diagram not used in any chapter: diagrams/architecture/fig-04-01-high-level-architecture.mmd
+diagram not used in any chapter: diagrams/architecture/fig-04-02-frontend-architecture.mmd
+diagram not used in any chapter: diagrams/architecture/fig-04-03-backend-packages.mmd
+diagram not used in any chapter: diagrams/architecture/fig-04-04-data-storage-architecture.mmd
+diagram not used in any chapter: diagrams/architecture/fig-04-05-genai-provider-layer.mmd
+diagram not used in any chapter: diagrams/architecture/fig-04-06-validation-layer.mmd
+diagram not used in any chapter: diagrams/architecture/fig-40-01-deployment-architecture.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-01-context-dfd.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-02-level1-intake-processing.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-03-level1-case-workflow-review.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-04-level1-knowledge-rules.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-05-level1-analytics-evaluation.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-06-level2-complaint-preprocessing.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-07-level2-complaint-analysis-validation.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-08-level2-kb-intake.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-09-level2-kb-indexing-versioning.mmd
+diagram not used in any chapter: diagrams/data-flow/fig-28-10-level2-kb-revision-impact.mmd
+diagram not used in any chapter: diagrams/pipelines/fig-12-01-comparison-flow.mmd
+diagram not used in any chapter: diagrams/pipelines/fig-12-02-evaluation-comparison.mmd
+diagram not used in any chapter: diagrams/pipelines/fig-13-01-routing-decision.mmd
+diagram not used in any chapter: diagrams/pipelines/fig-14-01-urgency-decision.mmd
+diagram not used in any chapter: diagrams/pipelines/fig-15-01-resolution-validation.mmd
+diagram not used in any chapter: diagrams/pipelines/fig-20-01-duplicate-repeat-decision.mmd
+diagram not used in any chapter: diagrams/security/fig-04-07-security-request-path.mmd
+diagram not used in any chapter: diagrams/security/fig-04-08-security-untrusted-content.mmd
+diagram not used in any chapter: diagrams/security/fig-23-01-injection-input-protection.mmd
+diagram not used in any chapter: diagrams/security/fig-23-02-injection-output-protection.mmd
+diagram not used in any chapter: diagrams/security/fig-24-01-role-permission-overview.mmd
+diagram not used in any chapter: diagrams/security/fig-24-02-sign-in-sequence.mmd
+diagram not used in any chapter: diagrams/uml/fig-29-01-use-cases-customer.mmd
+diagram not used in any chapter: diagrams/uml/fig-29-02-use-cases-agent.mmd

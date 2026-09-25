@@ -1,0 +1,52 @@
+flowchart TB
+  subgraph R1["Step 1: Candidates"]
+    direction LR
+    COMP["Complaint<br/>normalised and screened"]
+    CLS["Python classifier<br/>top 3 subcategories"]
+    KB[("Approved Knowledge Base<br/>484 chunks")]
+    FIL["Metadata filter<br/>Active, in effect,<br/>not quarantined"]
+    COMP --> CLS
+    KB --> FIL
+  end
+
+  subgraph R2["Step 2: Hybrid retrieval"]
+    direction LR
+    LEX["Lexical<br/>BM25, top 30"]
+    SEM["Semantic<br/>hashed vectors, top 30"]
+    RUL["Rule-guided<br/>sections cited by rules"]
+    FUS["Fusion and selection<br/>RRF, precedence,<br/>4 per document, top 10"]
+    LEX --> FUS
+    SEM --> FUS
+    RUL --> FUS
+  end
+
+  subgraph R3["Step 3: Prompt and answer"]
+    direction LR
+    VERS["Version selection<br/>Active as evidence,<br/>older as context"]
+    CTX["Context construction<br/>reference data, evidence,<br/>conflicts, facts"]
+    GEN["GenAI analysis<br/>policy_id, section,<br/>evidence_id"]
+    VERS --> CTX --> GEN
+  end
+
+  subgraph R4["Step 4: Python validation"]
+    direction LR
+    PYV["Policy checks<br/>SCH-004, POL-001 to 006,<br/>HAL-001, HAL-004"]
+    REF[("policy_references<br/>ai, retrieval, rule")]
+    REV["Manual review<br/>REV-004, REV-007,<br/>REV-012"]
+    PYV --> REF
+    PYV --> REV
+  end
+
+  R1 --> R2 --> R3 --> R4
+
+  class GEN genai
+  class CLS,FIL,LEX,SEM,RUL,FUS,VERS,CTX,PYV rules
+  class COMP,KB,REF data
+  class REV human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

@@ -1,0 +1,64 @@
+erDiagram
+  COMPLAINTS ||--o{ RESOLUTIONS : "complaint_id"
+  COMPLAINTS ||--o{ CUSTOMER_RESPONSES : "complaint_id"
+  ANALYSES |o--o{ RESOLUTIONS : "SET NULL"
+  ANALYSES |o--o{ CUSTOMER_RESPONSES : "SET NULL"
+  COMPLAINTS ||--o{ REVIEWS : "complaint_id"
+  VALIDATION_RESULTS |o--o{ REVIEWS : "SET NULL"
+  REVIEWS ||--o{ REVIEW_ACTIONS : "review_id"
+  USERS |o--o{ REVIEW_ACTIONS : "actor_id"
+
+  COMPLAINTS {
+    int id PK
+    string complaint_ref "unique"
+  }
+  ANALYSES {
+    int id PK
+    int complaint_id FK
+    int version_no
+  }
+  VALIDATION_RESULTS {
+    int id PK
+    int analysis_id FK
+    string decision
+  }
+  RESOLUTIONS {
+    int id PK
+    int complaint_id FK
+    int analysis_id FK
+    json ai_steps
+    json validated_steps
+    string status
+  }
+  CUSTOMER_RESPONSES {
+    int id PK
+    int complaint_id FK
+    int analysis_id FK
+    int approved_by_id FK
+    int version_no
+    string status
+    json validation
+  }
+  REVIEWS {
+    int id PK
+    int complaint_id FK
+    int analysis_id FK
+    int validation_result_id FK
+    int assigned_to_id FK
+    string status
+    json reason_codes
+    json original_snapshot
+    json final_snapshot
+  }
+  REVIEW_ACTIONS {
+    int id PK
+    int review_id FK
+    int actor_id FK
+    string action
+    json before
+    json after
+  }
+  USERS {
+    int id PK
+    string email "unique"
+  }

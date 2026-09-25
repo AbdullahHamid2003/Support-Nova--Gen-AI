@@ -1,0 +1,24 @@
+sequenceDiagram
+  participant BR as Browser
+  participant API as FastAPI backend
+  participant DB as PostgreSQL
+  participant AU as Audit log
+  BR->>API: POST /api/v1/auth/login
+  API->>DB: load user, check locked_until
+  alt wrong password
+    API->>DB: failed_logins + 1, lock 5 min at 5
+    API->>AU: auth.login_failed with client IP
+    API-->>BR: 401 invalid_credentials
+  else correct password
+    API->>DB: reset counters, set last_login_at
+    API->>AU: auth.login
+    API-->>BR: 200, HttpOnly JWT cookie, CSRF cookie
+  end
+  BR->>API: POST with cookie and X-CSRF-Token
+  API->>DB: verify JWT and CSRF, load role
+  alt permission missing
+    API->>AU: access.denied
+    API-->>BR: 403 permission_denied
+  else allowed
+    API-->>BR: 2xx response
+  end

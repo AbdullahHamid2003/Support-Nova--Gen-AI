@@ -1,0 +1,38 @@
+flowchart TB
+  LED[("Order ledger<br/>and parameters")]
+  FAC["Eligibility facts<br/>true, false or unknown"]
+  SEL["Rule selection<br/>highest true precedence"]
+  PEN["Pending rules<br/>facts unknown"]
+  OUTR["Rule outcome<br/>actions and eligibility"]
+  ESC["ESC-028 to ESC-030<br/>window and limits"]
+  AIS["GenAI steps<br/>and eligibility"]
+  RES["RES-001 to RES-004<br/>action checks"]
+  ELG["ELG-001 to ELG-003<br/>eligibility verdicts"]
+  VS["Validated steps<br/>accept, exclude, add"]
+  COMM["GenAI customer response"]
+  RSP["RSP-002, RSP-003,<br/>RSP-004, RSP-006"]
+  OK1["Response ready"]
+  HOLD["Requires review"]
+  LED --> FAC --> SEL --> OUTR
+  SEL --> PEN -->|"requires_verification"| OUTR
+  FAC --> ESC
+  OUTR --> RES
+  AIS --> RES
+  OUTR --> ELG
+  AIS --> ELG
+  RES --> VS
+  ESC --> VS
+  VS --> COMM --> RSP
+  RSP -->|"no failure, Verified"| OK1
+  RSP -->|"failure or review"| HOLD
+  class FAC,SEL,PEN,OUTR,ESC,RES,ELG,VS,RSP,OK1 rules
+  class LED data
+  class AIS,COMM genai
+  class HOLD human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

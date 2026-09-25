@@ -1,0 +1,27 @@
+stateDiagram-v2
+  direction TB
+  state "Draft<br/>never evidence" as Draft
+  state "Previous<br/>outdated context only" as Previous
+  state "Superseded<br/>outdated context only" as Superseded
+
+  state Active {
+    direction TB
+    state "Pending<br/>not yet effective" as Pending
+    state "In effect<br/>primary evidence" as InEffect
+    state "Expired<br/>expiry date passed" as Expired
+    [*] --> Pending : future effective date
+    [*] --> InEffect : effective date reached
+    Pending --> InEffect : effective date reached
+    InEffect --> Expired : expiry date passed
+  }
+
+  [*] --> Draft : upload as Draft
+  [*] --> Active : upload as Active
+  Draft --> Active : status change
+  Active --> Previous : newer version activated
+  Previous --> Superseded : later Active upload
+
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  class InEffect rules
+  class Draft,Previous,Superseded,Pending,Expired ext

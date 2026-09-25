@@ -1,0 +1,49 @@
+erDiagram
+  DOCUMENTS ||--o{ DOCUMENT_VERSIONS : "document_id"
+  USERS |o--o{ DOCUMENT_VERSIONS : "uploaded_by_id"
+  DOCUMENT_VERSIONS ||--o{ DOCUMENT_SECTIONS : "version_id"
+  DOCUMENT_VERSIONS ||--o{ DOCUMENT_CHUNKS : "version_id"
+  DOCUMENT_CHUNKS |o..o{ POLICY_REFERENCES : "chunk_uid, no FK"
+
+  DOCUMENTS {
+    int id PK
+    string doc_id "unique"
+    string title
+    string doc_type
+  }
+  USERS {
+    int id PK
+    string email "unique"
+  }
+  DOCUMENT_VERSIONS {
+    int id PK
+    int document_id FK
+    int uploaded_by_id FK
+    string version "unique per doc"
+    string status
+    date effective_date
+    string sha256 "unique"
+    json facts
+  }
+  DOCUMENT_SECTIONS {
+    int id PK
+    int version_id FK
+    string section_id
+    string heading
+    int page_start
+  }
+  DOCUMENT_CHUNKS {
+    int id PK
+    int version_id FK
+    string chunk_uid "unique"
+    text text
+    binary embedding
+    bool is_quarantined
+  }
+  POLICY_REFERENCES {
+    int id PK
+    int analysis_id FK
+    string doc_id
+    string version
+    string chunk_uid
+  }

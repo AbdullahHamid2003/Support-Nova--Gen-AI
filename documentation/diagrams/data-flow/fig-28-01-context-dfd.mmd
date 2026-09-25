@@ -1,0 +1,33 @@
+flowchart TB
+  CUS["Customer"]
+  AGT["Support Agent"]
+  REV["Reviewer"]
+  SN("0 SupportNova<br/>complaint intelligence<br/>system")
+  MGR["Support Manager"]
+  ADM["Administrator"]
+  OAI["OpenAI API<br/>gpt-4.1-mini"]
+
+  CUS <-->|"in: complaint, clarification<br/>out: reference, status, replies"| SN
+  AGT <-->|"in: case actions, edits<br/>out: validated intelligence"| SN
+  REV <-->|"in: review decisions<br/>out: review queue, evidence"| SN
+  SN <-->|"in: report requests<br/>out: dashboards, reports"| MGR
+  SN <-->|"in: documents, rules, prompts<br/>out: previews, impact, audit"| ADM
+  SN <-->|"out: redacted prompt, schema<br/>in: structured JSON"| OAI
+
+  subgraph LEG["Legend"]
+    direction TB
+    L1["External entity"]
+    L2("SupportNova process")
+  end
+  ADM ~~~ LEG
+
+  class CUS,AGT,REV,MGR,ADM,OAI,L1 ext
+  class SN,L2 rules
+
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

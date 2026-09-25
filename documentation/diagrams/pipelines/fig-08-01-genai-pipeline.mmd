@@ -1,0 +1,40 @@
+flowchart LR
+  subgraph S1["Stage 1 - complaint analysis"]
+    direction TB
+    CIN["Case inputs<br/>complaint, verified facts,<br/>evidence, conflicts"]
+    REFD["Reference data<br/>taxonomy, departments,<br/>actions, routing, priority"]
+    R1["Render prompt and schema<br/>complaint_analysis 1.2.0,<br/>strict, live code enums"]
+    G1["GenAI analysis call<br/>OpenAI gpt-4.1-mini,<br/>temperature 0.1, 6000 tokens"]
+    V1["ComplaintAnalysis<br/>37 fields, validated,<br/>attempts logged"]
+    CIN --> R1
+    REFD --> R1
+    R1 --> G1 --> V1
+  end
+  subgraph S2["Stage 2 - customer communication"]
+    direction TB
+    PA["Pipeline 2 Phase A<br/>validated decision"]
+    R2["Render prompt<br/>customer_communication<br/>1.0.0"]
+    G2["GenAI response call<br/>OpenAI gpt-4.1-mini,<br/>temperature 0.3, 2500 tokens"]
+    V2["CustomerCommunication<br/>7 fields, validated,<br/>attempts logged"]
+    PB["Pipeline 2 Phase B<br/>response checks"]
+    PA --> R2 --> G2 --> V2 --> PB
+    subgraph LEG["Legend"]
+      L1["GenAI"]
+      L2["Python"]
+      L3["Data"]
+    end
+    PB ~~~ L1
+    PB ~~~ L2
+    L1 ~~~ L3
+  end
+  S1 --> S2
+  class G1,V1,G2,V2,L1 genai
+  class R1,PA,R2,PB,L2 rules
+  class CIN,REFD,L3 data
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

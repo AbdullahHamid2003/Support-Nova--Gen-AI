@@ -1,0 +1,40 @@
+flowchart LR
+  subgraph G1["Reply generation"]
+    direction TB
+    VD["Validated decision,<br/>timelines, questions"]
+    CT["Complaint text<br/>redacted, nonce-tagged"]
+    PR["Prompt customer_<br/>communication 1.0.0"]
+    GEN["gpt-4.1-mini reply<br/>JSON schema checked"]
+    VD --> PR
+    CT --> PR
+    PR --> GEN
+  end
+  subgraph G2["Checks and release"]
+    direction TB
+    PB["Phase B checks<br/>RSP-001 to 007, SEC-002"]
+    SC{"Verified and<br/>no check failed?"}
+    RD["Draft ready"]
+    RR["Draft requires_review"]
+    RV["Reviewer approves,<br/>edits or regenerates"]
+    AG["Agent sends reply<br/>simulated delivery"]
+    PB --> SC
+    SC -->|"yes"| RD
+    SC -->|"no"| RR
+    RR --> RV
+    RD --> AG
+    RV -->|"approve"| AG
+  end
+  G1 --> G2
+
+  class PR,GEN genai
+  class VD,PB,SC,RD rules
+  class CT data
+  class RV,AG human
+  class RR risk
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

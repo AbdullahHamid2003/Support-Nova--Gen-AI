@@ -1,0 +1,8 @@
+﻿field,type,required,enum_values,description
+schema_version,string,yes,0,
+complaint_id,string,yes,0,
+tone,string,yes,4,
+subject,string,yes,0,
+customer_response,string,yes,0,
+follow_up_message,object,yes,0,
+claims,array,yes,0,

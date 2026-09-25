@@ -1,0 +1,36 @@
+flowchart TB
+  UI["Customer or support agent<br/>Submit complaint page"]
+  API["Complaint API<br/>field and duplicate checks,<br/>202 Accepted, queued"]
+  PRE["Preprocessing<br/>normalise, screen, redact,<br/>signals, history, duplicates"]
+  KB[("Approved Knowledge Base<br/>Active chunks")]
+  RET["Knowledge retrieval (RAG)<br/>BM25, vectors, rule-cited<br/>sections"]
+  GEN["GenAI analysis<br/>prompt complaint_analysis"]
+  OAI["OpenAI API<br/>gpt-4.1-mini"]
+  JSN["Structured JSON proposal<br/>complaint_analysis.v1"]
+  VAL["Python Ground-Truth<br/>Validation, Phase A"]
+  CMP["Comparison Engine<br/>AI vs rules, field by field"]
+
+  UI --> API --> PRE --> RET
+  KB --> RET
+  RET --> GEN
+  GEN <-->|"HTTPS"| OAI
+  GEN --> JSN --> VAL --> CMP
+
+  subgraph LEG["Legend"]
+    L1["GenAI step"]
+    L2["Deterministic Python"]
+  end
+  CMP ~~~ L1
+
+  class GEN,JSN,L1 genai
+  class API,PRE,RET,VAL,CMP,L2 rules
+  class KB data
+  class UI ui
+  class OAI ext
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

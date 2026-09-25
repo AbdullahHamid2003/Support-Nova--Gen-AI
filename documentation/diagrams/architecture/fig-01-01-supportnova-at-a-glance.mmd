@@ -1,0 +1,47 @@
+flowchart TB
+  PROB["Manual handling: slow triage,<br/>missed escalations, unsupported<br/>promises, no traceability"]
+  KB[("Knowledge Base<br/>24 documents, 29 versions")]
+  subgraph SN["SupportNova"]
+    C["Complaint submitted<br/>by a customer or agent"]
+    PRE["Pre-processing and<br/>RAG policy retrieval"]
+    G1["Pipeline 1 - GenAI analysis<br/>gpt-4.1-mini, JSON schema"]
+    V1["Pipeline 2 - Rule Matrix<br/>decision and AI checks"]
+    G2["Pipeline 1 - response from<br/>the validated decision"]
+    V2["Pipeline 2 - response checks<br/>and verification score"]
+  end
+  RM[("Rule Matrix<br/>276 rules")]
+  OPS["Escalation, follow-up, SLA<br/>records and audit trail"]
+  VER["Verified: response<br/>ready for the agent"]
+  REV["Manual review queue:<br/>a reviewer decides"]
+  PROB -->|"addressed by"| PRE
+  C --> PRE
+  KB --> PRE
+  PRE --> G1
+  G1 -->|"proposal"| V1
+  RM --> V1
+  V1 -->|"validated decision"| G2
+  V1 --> OPS
+  G2 -->|"draft"| V2
+  V2 -->|"Verified"| VER
+  V2 -->|"Manual Review"| REV
+  subgraph LEG["Legend"]
+    LG1["GenAI step"]
+    LG2["Deterministic Python"]
+    LG3["Data"]
+    LG4["People"]
+    LG5["Problem"]
+  end
+  REV ~~~ LG3
+  class G1,G2,LG1 genai
+  class PRE,V1,V2,OPS,LG2 rules
+  class KB,RM,LG3 data
+  class REV,LG4 human
+  class PROB,LG5 risk
+  class C,VER ui
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

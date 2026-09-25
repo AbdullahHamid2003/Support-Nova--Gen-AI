@@ -1,0 +1,35 @@
+flowchart TB
+  SENT["Lexicon sentiment<br/>and customer type"]
+  NOTU["No effect on urgency<br/>URG-100, URG-101"]
+  SIG["Risk signals and facts<br/>text, order, history"]
+  RULE["Selected resolution rule<br/>base urgency and impact"]
+  FLO["Urgency floors URG-001 to<br/>URG-015, raise only"]
+  PM["Priority matrix<br/>urgency x impact"]
+  SLA["SLA target<br/>SLA-P0 to SLA-P3"]
+  AIU["GenAI urgency<br/>and priority"]
+  P1{"PRI-001<br/>AI vs rules urgency"}
+  LOWR["Lower: fail, critical<br/>if rules High or Critical"]
+  HIGH["Higher: warn,<br/>PRI-003 if emotional"]
+  PSEC["PRI-002 and PRI-004<br/>priority checks"]
+  SENT -.-> NOTU
+  SIG --> RULE
+  SIG --> FLO
+  RULE --> FLO
+  FLO --> PM --> SLA
+  FLO --> P1
+  AIU --> P1
+  P1 -->|"lower"| LOWR
+  P1 -->|"higher"| HIGH
+  PM --> PSEC
+  AIU --> PSEC
+  class SIG,SENT,RULE,FLO,PM,SLA,P1,HIGH,PSEC rules
+  class NOTU ext
+  class AIU genai
+  class LOWR risk
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

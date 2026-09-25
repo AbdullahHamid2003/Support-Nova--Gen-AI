@@ -1,0 +1,30 @@
+flowchart TB
+  ATK["Browser or API client<br/>untrusted request"]
+  RC["RequestContextMiddleware<br/>request ID, CSP, headers"]
+  CO["CORSMiddleware<br/>CORS_ORIGINS allow-list"]
+  RL["RateLimitMiddleware<br/>240 per min, login 20"]
+  LG["POST /auth/login<br/>bcrypt, lockout 5 x 5 min"]
+  JWT["Session cookie sn_access<br/>HS256 JWT, HttpOnly, Lax"]
+  CSRF["CSRF check on writes<br/>cookie equals header"]
+  RB["RBAC guard<br/>5 roles, 27 permissions"]
+  EP["Route handler<br/>and service layer"]
+  ERR["Error handlers<br/>no stack traces"]
+  AUD[("Hash-chained audit log<br/>append-only trigger")]
+  KEY[("Server-only secret<br/>SECRET_KEY")]
+
+  ATK --> RC --> CO --> RL --> LG --> JWT --> CSRF --> RB --> EP
+  RB -->|"403 denied"| ERR
+  ERR -->|"access.denied"| AUD
+  EP --> AUD
+  KEY -.->|"signs"| JWT
+
+  class ATK risk
+  class RC,CO,RL,LG,JWT,CSRF,RB,EP,ERR rules
+  class AUD,KEY data
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

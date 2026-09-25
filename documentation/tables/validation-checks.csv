@@ -1,0 +1,53 @@
+﻿code,dimension,severity,name
+SCH-001,schema,critical,AI answer is complete and well-formed
+SCH-002,schema,critical,Category and subcategory are valid
+SCH-003,schema,critical,Departments are valid
+SCH-004,schema,major,Cited policies exist
+SCH-005,schema,major,Escalation details are consistent
+SCH-006,schema,major,Resolution steps use known actions
+CLS-001,classification,major,Category matches the rules
+CLS-002,classification,minor,Subcategory matches the rules
+CLS-003,classification,minor,Secondary issues identified
+CLS-004,classification,info,Sentiment matches the rule check
+CLS-005,classification,minor,Reference numbers captured
+RTE-001,routing,critical,Primary department matches the routing rules
+RTE-002,routing,major,Required supporting departments included
+PRI-001,priority,critical,Urgency matches the rules
+PRI-002,priority,major,Priority matches the priority matrix
+PRI-003,priority,minor,Urgency not inflated by emotional language
+PRI-004,priority,minor,AI priority fits its urgency and impact
+POL-001,policy,major,At least one policy cited
+POL-002,policy,critical,No outdated policy cited
+POL-003,policy,major,Cited policies are in the case evidence
+POL-004,policy,minor,Policies required by the rules are cited
+POL-005,policy,minor,Policy applicability matches the rules
+POL-006,policy,major,Higher-ranking policy followed in conflicts
+RES-001,resolution,major,Required actions present
+RES-002,resolution,critical,No prohibited actions
+RES-003,resolution,minor,Recommended actions considered
+RES-004,resolution,major,No contradictory actions
+ELG-001,eligibility,major,Refund eligibility matches the rules
+ELG-002,eligibility,major,Replacement eligibility matches the rules
+ELG-003,eligibility,major,Compensation and amount match the rules
+ESC-001,escalation,critical,Required escalation identified
+ESC-002,escalation,major,Escalation level meets the rules
+ESC-003,escalation,minor,No unnecessary escalation
+ESC-004,escalation,major,Escalation notes are complete
+FUP-001,follow_up,minor,Follow-up requirement matches the rules
+FUP-002,follow_up,minor,Follow-up type matches the rules
+MIS-001,follow_up,major,Missing information identified
+MIS-002,follow_up,major,Questions ask for the missing information
+RSP-001,communication,major,Response includes the required parts
+RSP-002,communication,critical,No unsupported promises
+RSP-003,communication,major,Timelines supported by policy or SLA
+RSP-004,communication,major,Amounts and references match the case
+RSP-005,communication,minor,Requested tone used
+RSP-006,communication,critical,No prohibited statements in the response
+RSP-007,communication,minor,Follow-up message is safe to send
+HAL-001,grounding,major,"Claims backed by the complaint, policies or rules"
+HAL-002,grounding,major,Extracted details appear in the complaint
+HAL-003,grounding,minor,Summary sticks to the facts
+HAL-004,grounding,major,Policies named in the text exist
+SEC-001,security,critical,AI ignored instructions in the complaint
+SEC-002,security,major,No sensitive data in the response
+SEC-003,security,info,Complaint screened for manipulation

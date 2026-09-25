@@ -1,0 +1,45 @@
+flowchart LR
+  CUS["Customer"]
+  subgraph SYS["SupportNova"]
+    UC01(["UC-01 Sign in<br/>and sign out"])
+    UC02(["UC-02 Submit<br/>complaint"])
+    UC05(["UC-05 Track status<br/>and messages"])
+    UC06(["UC-06 Add<br/>clarification"])
+    UC07(["UC-07 Reopen<br/>complaint"])
+    UC03(["UC-03 Pre-check fields<br/>and duplicates"])
+    UC04(["UC-04 Analyse and<br/>validate complaint"])
+  end
+  OAI["OpenAI API<br/>(secondary actor)"]
+
+  CUS --- UC01
+  CUS --- UC02
+  CUS --- UC05
+  CUS --- UC06
+  CUS --- UC07
+  UC02 -.->|"«include»"| UC03
+  UC02 -.->|"«include»"| UC04
+  UC06 -.->|"«include»"| UC04
+  UC07 -.->|"«include»"| UC04
+  UC04 --- OAI
+
+  subgraph LEG["Legend"]
+    direction TB
+    L1(["Use case"])
+    L2(["Deterministic check"])
+    L3(["Uses the GenAI API"])
+  end
+  OAI ~~~ LEG
+
+  class CUS human
+  class OAI ext
+  class UC01,UC02,UC05,UC06,UC07,L1 ui
+  class UC03,L2 rules
+  class UC04,L3 genai
+
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

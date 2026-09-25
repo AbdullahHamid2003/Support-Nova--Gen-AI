@@ -1,0 +1,35 @@
+flowchart TB
+  REF["Reference subcategory"]
+  RR[("Routing rule<br/>RTE-001 to RTE-035")]
+  PRI["Rules primary<br/>department"]
+  FINAL[("department_code =<br/>rules primary")]
+  SUP["Rules supporting departments<br/>routing, rule, secondary issues,<br/>conditional, escalation"]
+  AI["GenAI department and<br/>supporting departments"]
+  C1{"Check RTE-001<br/>same primary?"}
+  C2{"Check RTE-002<br/>required supporting<br/>departments covered?"}
+  PASS["Pass"]
+  FAIL["Fail, critical<br/>REV-002"]
+  MR["Manual Review"]
+  P2["All: pass, some: warn,<br/>none: fail"]
+  REF --> RR --> PRI
+  PRI --> FINAL
+  PRI --> C1
+  AI --> C1
+  PRI --> SUP
+  SUP --> C2
+  AI --> C2
+  C1 -->|"yes"| PASS
+  C1 -->|"no"| FAIL --> MR
+  C2 --> P2
+  class REF,PRI,SUP,C1,C2,PASS,P2 rules
+  class RR,FINAL data
+  class AI genai
+  class FAIL risk
+  class MR human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

@@ -1,0 +1,44 @@
+erDiagram
+  ROLES ||--o{ USERS : "role_id"
+  DEPARTMENTS |o--o{ USERS : "department_id"
+  CUSTOMERS |o--o{ USERS : "customer_id"
+  USERS |o--o{ AUDIT_LOGS : "actor_id"
+  AUDIT_LOGS |o..o| AUDIT_LOGS : "prev_hash = hash"
+
+  ROLES {
+    int id PK
+    string code "unique"
+    string name
+    json permissions
+  }
+  DEPARTMENTS {
+    int id PK
+    string code "unique"
+    string name
+    bool is_active
+  }
+  CUSTOMERS {
+    int id PK
+    string customer_ref "unique"
+  }
+  USERS {
+    int id PK
+    int role_id FK
+    int department_id FK
+    int customer_id FK
+    string email "unique"
+    string password_hash
+    int failed_logins
+    datetime locked_until
+  }
+  AUDIT_LOGS {
+    int id PK
+    int actor_id FK
+    datetime created_at
+    string action
+    string entity_type
+    string entity_id
+    json details
+    string prev_hash
+    string hash
+  }

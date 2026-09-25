@@ -1,0 +1,35 @@
+flowchart TB
+  DOC["Uploaded policy<br/>document, untrusted"]
+  DSC["Chunk injection<br/>scan at upload"]
+  QUA["Quarantined chunk:<br/>never evidence"]
+  KB[("Active, clean chunks<br/>used as evidence")]
+  LLM["GenAI analysis:<br/>untrusted proposal"]
+  RMX["Rule Matrix decision:<br/>eligibility, urgency,<br/>escalation"]
+  SEC["SEC-001 outcome check,<br/>SEC-003 screen result"]
+  CLEAN["Validated output:<br/>flagged sentences removed"]
+  COMM["GenAI reply written<br/>from validated decision"]
+  RSP["RSP-002, RSP-004,<br/>RSP-006 checks"]
+  REV["Manual review queue"]
+
+  DOC --> DSC
+  DSC -->|"suspicious"| QUA
+  DSC -->|"clean"| KB
+  KB -->|"evidence"| LLM
+  LLM --> SEC
+  RMX --> SEC
+  SEC --> CLEAN
+  RMX --> CLEAN
+  CLEAN --> COMM --> RSP --> REV
+
+  class DOC,KB data
+  class DSC,RMX,SEC,CLEAN,RSP rules
+  class QUA risk
+  class LLM,COMM genai
+  class REV human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

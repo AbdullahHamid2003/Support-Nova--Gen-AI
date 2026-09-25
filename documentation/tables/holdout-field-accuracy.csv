@@ -1,0 +1,16 @@
+﻿field,python_accuracy,genai_accuracy,genai_python_agreement,n
+urgency,84.2%,68.4%,66.5%,152
+category,75.7%,89.5%,69.7%,152
+priority,88.8%,62.5%,61.2%,152
+department,84.9%,92.1%,84.9%,152
+subcategory,68.4%,77.6%,58.6%,152
+follow_up_type,75.7%,44.1%,39.5%,152
+resolution_rule,75.0%,0.0%,0.0%,152
+escalation_level,94.1%,84.9%,82.9%,152
+policy_references,76.3%,5.9%,5.9%,152
+refund_eligibility,93.4%,60.5%,62.5%,152
+escalation_required,94.7%,92.8%,91.5%,152
+missing_information,77.0%,59.2%,47.4%,152
+supporting_departments,74.3%,73.7%,61.8%,152
+replacement_eligibility,93.4%,85.5%,82.9%,152
+compensation_eligibility,95.4%,79.0%,76.3%,152

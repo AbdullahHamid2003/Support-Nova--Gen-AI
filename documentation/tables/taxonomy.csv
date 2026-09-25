@@ -1,0 +1,36 @@
+﻿category_code,category_name,subcategory_code,subcategory_name,description
+PRD,Product Defect,PRD-DOA,Damaged on Arrival,Product arrived physically damaged or broken (cracked
+PRD,Product Defect,PRD-MAL,Product Malfunction,Device powers on but fails
+PRD,Product Defect,PRD-MIS,Missing Parts,Package is missing an accessory
+BIL,Billing,BIL-DUP,Duplicate Charge,The same order or subscription was charged more than once.
+BIL,Billing,BIL-INC,Incorrect Charge,Charged amount differs from the agreed price
+BIL,Billing,BIL-RFM,Refund Missing,Lumora confirmed a refund was issued but it has not appeared on the customer's statement.
+BIL,Billing,BIL-SUB,Subscription Renewal,Dispute about an automatic renewal charge for Cloud Vault or Care+.
+BIL,Billing,BIL-CAN,Cancellation Not Honored,Customer cancelled an order or subscription but was still charged or the cancellation was not processed.
+DEL,Delivery,DEL-DLY,Delayed Delivery,Order not delivered by the estimated delivery date.
+DEL,Delivery,DEL-LST,Lost Package,Package has no tracking updates for an extended period
+DEL,Delivery,DEL-WRG,Wrong Item Delivered,Customer received a different product
+REF,Refund,REF-REQ,Refund Request,Customer asks for their money back for a product or service.
+REF,Refund,REF-DLY,Refund Delay,Return received or cancellation approved but Lumora has not issued the refund within the policy timeline.
+REF,Refund,REF-PAR,Partial Refund Dispute,Customer received less than expected (restocking fee
+ACC,Account,ACC-LGN,Login Problem,Customer cannot sign in
+ACC,Account,ACC-UNA,Unauthorized Account Access,Someone else accessed or changed the customer's account
+ACC,Account,ACC-UPD,Account Update Issue,Customer cannot update profile details such as email
+TEC,Technical Support,TEC-CON,Connectivity Issue,Device will not connect to Wi-Fi
+TEC,Technical Support,TEC-APP,App or Software Issue,Lumora Home app crashes
+TEC,Technical Support,TEC-SET,Setup Issue,Customer cannot complete initial set-up or configuration of a device.
+SVC,Service Quality,SVC-SUP,Poor Support Experience,Long waits
+SVC,Service Quality,SVC-INS,Installation Service Quality,Pro Install visit was late
+SVC,Service Quality,SVC-OUT,Service Outage,Cloud Vault
+WAR,Warranty,WAR-CLM,Warranty Claim,Product failed within the warranty period and the customer requests repair or replacement.
+WAR,Warranty,WAR-DEN,Warranty Denial Dispute,Customer disputes a rejected warranty claim.
+WAR,Warranty,WAR-CPL,Care+ Coverage Issue,Problem with a Care+ claim
+PRV,Privacy,PRV-BRC,Data Exposure,Customer's personal data or footage exposed
+PRV,Privacy,PRV-CON,Consent and Marketing,Unwanted marketing after opt-out or data shared without consent.
+PRV,Privacy,PRV-DSR,Data Rights Request,Request to access
+SAF,Safety,SAF-OVH,Overheating or Fire Hazard,Product overheats
+SAF,Safety,SAF-ELC,Electrical Hazard,Sparks
+SAF,Safety,SAF-INJ,Injury Incident,A person or pet was physically injured by a product.
+STF,Staff Behavior,STF-RUD,Rude or Unprofessional Staff,Staff member was rude
+STF,Staff Behavior,STF-MIS,Technician Misconduct,Technician damaged property
+STF,Staff Behavior,STF-MIN,Misinformation by Staff,Staff member gave incorrect information or made a commitment Lumora did not honour.

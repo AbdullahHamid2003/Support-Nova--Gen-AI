@@ -1,0 +1,62 @@
+erDiagram
+  CUSTOMERS |o--o{ ORDERS : "customer_id"
+  CUSTOMERS |o--o{ USERS : "customer_id"
+  CUSTOMERS |o--o{ COMPLAINTS : "customer_id"
+  USERS |o--o{ COMPLAINTS : "submitted_by, assigned_agent"
+  PRODUCTS |o..o{ COMPLAINTS : "sku, no FK"
+  ORDERS |o..o{ COMPLAINTS : "order_ref, no FK"
+  COMPLAINTS |o--o{ COMPLAINTS : "duplicate_of, repeat_of"
+  COMPLAINTS ||--o{ COMPLAINT_ATTACHMENTS : "complaint_id"
+  COMPLAINTS ||--o{ COMPLAINT_HISTORY : "complaint_id"
+
+  CUSTOMERS {
+    int id PK
+    string customer_ref "unique"
+    string full_name
+    string customer_type
+  }
+  ORDERS {
+    int id PK
+    int customer_id FK
+    string order_ref "unique"
+    date order_date
+    json data
+  }
+  PRODUCTS {
+    int id PK
+    string sku "unique"
+    string name
+    string hazard_class
+  }
+  USERS {
+    int id PK
+    int customer_id FK
+    int role_id FK
+    string email "unique"
+  }
+  COMPLAINTS {
+    int id PK
+    int customer_id FK
+    int submitted_by_id FK
+    int assigned_agent_id FK
+    int duplicate_of_id FK
+    int repeat_of_id FK
+    string complaint_ref "unique"
+    string status
+    string verification_status
+    string text_hash
+    json preprocessing
+  }
+  COMPLAINT_ATTACHMENTS {
+    int id PK
+    int complaint_id FK
+    string file_name
+    string sha256
+  }
+  COMPLAINT_HISTORY {
+    int id PK
+    int complaint_id FK
+    int actor_id FK
+    string event_type
+    string to_status
+  }

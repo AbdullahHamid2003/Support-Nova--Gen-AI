@@ -1,0 +1,16 @@
+﻿rule_id,name,when,urgency,impact,policy_refs
+URG-001,Fire,"{""signal"": ""fire_event""}",Critical,High,SLA-RUL-15:5.1; SAF-POL-10:3
+URG-002,Overheating or battery hazard,"{""signal"": ""overheating""}",Critical,High,SLA-RUL-15:5.1; SAF-POL-10:3
+URG-003,Electrical hazard,"{""signal"": ""electrical_hazard""}",Critical,High,SLA-RUL-15:5.1; SAF-POL-10:3
+URG-004,Injury,"{""signal"": ""injury""}",Critical,High,SLA-RUL-15:5.1
+URG-005,Account compromise,"{""signal"": ""security_breach""}",Critical,High,SLA-RUL-15:5.1; SEC-POL-09:4.3
+URG-006,Physical home security compromised,"{""signal"": ""lock_security""}",Critical,High,SLA-RUL-15:5.1; SEC-POL-09:5.1
+URG-007,Privacy exposure,"{""signal"": ""privacy_breach""}",High,High,SLA-RUL-15:5.2; PRV-POL-08:7.1
+URG-008,Legal threat,"{""signal"": ""legal_threat""}",High,Medium,SLA-RUL-15:5.2; CMP-GDL-19:3
+URG-009,Critical impact on the home,"{""signal"": ""critical_impact""}",High,High,SLA-RUL-15:5.2; ESC-SOP-12:4.8
+URG-010,Vulnerable person with critical impact,"{""all"": [{""signal"": ""vulnerable_customer""}, {""signal"": ""critical_impact""}]}",Critical,High,ESC-SOP-12:4.8; CMP-GDL-19:5.2
+URG-011,Repeat unresolved complaint,"{""fact"": ""history.unresolved_prior_same_issue"", ""op"": ""gte"", ""value"": ""$param:repeat_supervisor_threshold""}",High,Medium,SLA-RUL-15:5.2; ESC-SOP-12:4.5
+URG-012,High financial impact,"{""fact"": ""complaint.max_amount"", ""op"": ""gte"", ""value"": ""$param:high_value_supervisor_usd""}",(unchanged),High,SLA-RUL-15:6
+URG-013,Severe service failure,"{""signal"": ""severe_service_failure""}",High,High,SLA-RUL-15:5.2; ESC-SOP-12:4.7
+URG-014,Fraudulent payment,"{""signal"": ""fraud""}",High,High,SLA-RUL-15:5.2; ESC-SOP-12:4.2
+URG-015,Staff harassment or discrimination,"{""signal"": ""staff_harassment""}",High,Medium,ESC-SOP-12:4.10

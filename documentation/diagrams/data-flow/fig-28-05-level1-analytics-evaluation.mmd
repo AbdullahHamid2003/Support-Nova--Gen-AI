@@ -1,0 +1,34 @@
+flowchart LR
+  MGR["Support Manager"]
+  REV["Reviewer"]
+  ADM["Administrator"]
+  D4[("D4 Analyses<br/>and AI runs")]
+  D5[("D5 Validation<br/>results")]
+  D6[("D6 Workflow")]
+  P8("8.0 Analyse, report<br/>and evaluate")
+  D1[("D1 Complaints")]
+  D11[("D11 Evaluation")]
+  P3("3.0 Process complaint<br/>(Figure 28.2)")
+
+  MGR <-->|"in: filters, report key<br/>out: dashboards, reports"| P8
+  REV <-->|"in: lab scenario<br/>out: analytics, lab result"| P8
+  ADM <-->|"in: evaluation run<br/>out: metrics, report"| P8
+  D4 -->|"policy usage,<br/>AI runs"| P8
+  D5 -->|"checks, scores,<br/>comparisons"| P8
+  D6 -->|"escalations, SLA,<br/>reviews"| P8
+  P8 <-->|"in: complaints<br/>out: sandboxed cases"| D1
+  P8 -->|"run metrics,<br/>case results"| D11
+  P8 -->|"process sandboxed<br/>case"| P3
+
+  class MGR,REV,ADM ext
+  class P3,P8 rules
+  class D1,D4,D5,D6,D11 data
+  style P3 stroke-dasharray:5 4
+
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

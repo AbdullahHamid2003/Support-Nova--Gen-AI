@@ -1,0 +1,46 @@
+flowchart TB
+  TPL["prompts.py + context.py<br/>versioned template, evidence,<br/>nonce-tagged complaint"]
+  SC["schemas.py<br/>enums from live catalog"]
+  RN["runner.py<br/>1 + AI_MAX_RETRIES attempts,<br/>errors sent back on retry"]
+  LOG[("ai_runs table<br/>every attempt")]
+  FAC["providers factory<br/>AI_PROVIDER, AI_MODEL"]
+  OA["OpenAI adapter<br/>strict json_schema"]
+  AN["Anthropic adapter<br/>output_config.format"]
+  GM["Gemini adapter<br/>responseJsonSchema"]
+  UC["No key<br/>not_configured"]
+  VEND["Vendor API"]
+  PS["parsing.py<br/>jsonschema + Pydantic"]
+  PV2["Pipeline 2<br/>python_validation"]
+
+  TPL --> RN
+  SC --> RN
+  RN --> FAC
+  RN --> LOG
+  FAC --> OA
+  FAC --> AN
+  FAC --> GM
+  FAC --> UC
+  OA --> VEND
+  AN --> VEND
+  GM --> VEND
+  VEND -->|"JSON text"| PS
+  PS -->|"ComplaintAnalysis"| PV2
+
+  subgraph LEG["Legend"]
+    L1["GenAI component"]
+    L2["Deterministic Python"]
+  end
+  PV2 ~~~ L1
+
+  class TPL,SC,RN,FAC,PS,OA,AN,GM,L1 genai
+  class PV2,L2 rules
+  class LOG data
+  class VEND ext
+  class UC risk
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

@@ -1,0 +1,51 @@
+flowchart TB
+  USR["Customers and staff<br/>5 roles"]
+
+  subgraph BRW["Browser"]
+    SPA["React 19 single-page app<br/>served from frontend/dist"]
+  end
+
+  subgraph APP["FastAPI application"]
+    API["REST API /api/v1<br/>middleware, RBAC, 95 routes"]
+    SVC["Service layer<br/>+ background worker pool"]
+    P1["Pipeline 1<br/>genai_pipeline"]
+    P2["Pipeline 2<br/>python_validation, rule_engine"]
+    KNL["Knowledge layer<br/>documents, retrieval"]
+  end
+
+  subgraph DAT["Data tier"]
+    PG[("PostgreSQL 17<br/>35 tables")]
+    FS[("storage/<br/>documents, attachments")]
+  end
+
+  LLM["GenAI provider API<br/>OpenAI gpt-4.1-mini"]
+
+  USR --> SPA
+  SPA -->|"JSON, cookie + CSRF"| API
+  API --> SVC
+  SVC --> P1
+  SVC --> P2
+  SVC --> KNL
+  P1 -->|"HTTPS, server-side key"| LLM
+  SVC --->|"SQLAlchemy"| PG
+  KNL --> FS
+
+  subgraph LEG["Legend"]
+    L1["GenAI step"]
+    L2["Deterministic Python"]
+  end
+  PG ~~~ L1
+
+  class P1,L1 genai
+  class API,SVC,P2,KNL,L2 rules
+  class PG,FS data
+  class USR human
+  class SPA ui
+  class LLM ext
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

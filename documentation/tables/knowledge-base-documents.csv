@@ -1,0 +1,30 @@
+﻿doc_id,title,doc_type,version,status,effective_date,format,owner_department,supersedes,bytes,sha256
+BIL-POL-05,Billing and Payments Policy,policy,2.0,Active,2025-11-01,pdf,DEPT-BIL,,5898,153a247f363ed758685b9adf4b17c5f3517bdf434c7cd573b784432be0ccbd73
+CAN-POL-06,Cancellation Policy,policy,1.2,Active,2025-09-01,docx,DEPT-BIL,,38348,6b2a7a7077cac0f3af72ba5bcd397412094ba207ea84fcef9e70918856f466b0
+CHP-POL-01,Complaint Handling Policy,policy,3.0,Active,2026-01-15,pdf,DEPT-CRL,,11511,a127cad4615e2d39f2bce5bec13152ff727b21cbb3cd8bc5943c7ca0bff9a181
+CHP-SOP-13,Complaint Handling Standard Operating Procedure,sop,2.0,Active,2026-01-15,docx,DEPT-CRL,,39684,9f955ace229d66c806ca174944f498d524832f2903696c93124a76d7f3f53220
+CMP-GDL-19,Compliance Guidelines,guideline,1.1,Active,2025-12-01,pdf,DEPT-CMP,,6483,950bdd0d88749a320dc1a0e9ea4efde966a9c5edb14c4a14a0efd5b60894c53b
+CPN-POL-11,Compensation and Goodwill Policy,policy,1.3,Active,2026-01-01,docx,DEPT-CRL,,38789,23dce17d6f0ffda347b3ea2465ae3eb45b639dbc10d8114975b9267aa78a75aa
+DEL-POL-04,Delivery and Shipping Policy,policy,2.0,Previous,2025-01-01,docx,DEPT-LOG,,39259,7bdc2a5d6da02516cbe9cdf24e84ed5437af80c042cd96ba80743f8b0045fc26
+DEL-POL-04,Delivery and Shipping Policy,policy,3.0,Active,2026-01-10,pdf,DEPT-LOG,2.0,6276,8fb7d488bf9c030c0cfbbf69ed3c586a96ccb16529a725657cee0cfde1230ead
+ESC-SOP-12,Escalation Procedure,sop,3.0,Previous,2025-01-01,docx,DEPT-MGT,,40790,05a517aabca992a83f8c2267559b9fa6d6e7ef49e4af8899c3d648b974f6696b
+ESC-SOP-12,Escalation Procedure,sop,3.1,Active,2026-01-01,pdf,DEPT-MGT,3.0,9464,3df035c4084fd57cb2222001d7f3a0255a693caae6228bb86a5518495a17685c
+ESC-SOP-12,Escalation Procedure,sop,3.2,Draft,2026-12-01,docx,DEPT-MGT,,40939,baa914efe8bc06d23d6d85b5286d0df711f671845dce18f3e50482b144d05646
+FAQ-BIL-17,Billing and Refunds FAQ,faq,1.0,Previous,2024-06-01,docx,DEPT-BIL,,38138,7f3e6546259223043499caf1279b9ba776b4241afdade22efe7107dbe4d8cb33
+FAQ-BIL-17,Billing and Refunds FAQ,faq,2.0,Active,2026-02-01,md,DEPT-BIL,1.0,3304,d60b8f8955f8d2eaa9b8227140af1b625c8c83ac30c16367869a421a8c2f52a7
+FAQ-GEN-16,Customer FAQ,faq,5.0,Active,2026-02-15,docx,DEPT-CRL,,39308,74df658772a90efa71e24c4cffd8596ab71d9f3350a841c8c41ba93c143d4c73
+INS-POL-24,Professional Installation Service Policy,policy,1.0,Active,2025-09-01,pdf,DEPT-CRL,,4598,afa6fa4dfd39d74aaf5a93d6a0dfcd7b067098bceab6da8e4976d42abbe9cd60
+PRV-POL-08,Privacy and Data Protection Policy,policy,4.0,Active,2026-03-01,pdf,DEPT-CMP,,6712,ac95155ef49887204b654d0ad9a9597c25c5609543b4ea8d70b93722249c1618
+REF-POL-02,Refund Policy,policy,1.0,Superseded,2024-03-01,docx,DEPT-RET,,37980,fd815ad8cb4c62be5b366c5d4b94b9845919db9869d4013bc768630369e522a5
+REF-POL-02,Refund Policy,policy,2.0,Active,2026-01-01,pdf,DEPT-RET,1.0,7437,1dfbc42419a22721fc42bb5633840dbe7a453d3297f414efbb23e40ed8555c61
+RET-SOP-23,Legacy Returns Handling SOP,sop,1.4,Superseded,2023-05-01,docx,DEPT-RET,,37818,03d17ce0eda95cfa40e5e46ffe275dd376635313d42c976beeaf3d1b0088f424
+RPL-POL-03,Replacement and Returns Policy,policy,2.1,Active,2026-02-01,docx,DEPT-RET,,39146,c3d0bbeafa38f37dad07d23fea581a96e7c1fc92f23fef944f07adfa00759df2
+RTE-RUL-14,Department Routing Rules,rules,2.0,Active,2026-01-01,pdf,DEPT-MGT,,10342,0d6fc65be506ae0cfd4caa86c735b0fa59abdf22e74f0ab83f60fe8cf1f66777
+SAF-POL-10,Product Safety Policy,policy,2.0,Active,2025-08-15,pdf,DEPT-SAF,,6099,ff582f4ca1c9c96b544640a801c3a2891b7a6e399afee8d9dd14767cc1bb5333
+SEC-POL-09,Account Security Policy,policy,2.0,Active,2025-10-01,docx,DEPT-SEC,,39005,343545e8ee1ec7f29f0ba80010507bb9b6906a2fa03e6a2be6c23cd32ce88638
+SLA-RUL-15,Service Level Rules,rules,2.0,Active,2026-01-01,pdf,DEPT-MGT,,6948,56eb70b5b5b3e27a44539a6b44c03d8a9f0753261dfc0c153d6694e28293ac45
+STF-POL-21,Staff Conduct and Service Standards,policy,1.0,Active,2025-06-01,pdf,DEPT-CRL,,4647,a3dd5dc0ff026fc1daaead91d3fd5160f4ca23ebf0c6ce9183d180555467c3c6
+SUB-POL-22,Subscription Services Policy,policy,2.0,Active,2025-10-15,docx,DEPT-BIL,,38630,7074f34c7e49da2e418186efd8aa418d6681a3754668879ecf0d0dcebbd18b5d
+TEC-GDL-20,Product Support Guidelines,guideline,3.0,Active,2025-11-15,docx,DEPT-TEC,,38979,fca4c32ab350a499855133eba91eca134143f0a6178814d0fc326711466963ed
+TPL-COM-18,Customer Communication Templates,template,2.0,Active,2026-01-15,docx,DEPT-CRL,,39128,c03fe052aa8177ae4e190272f19011d494ef345fc685c484edbd97efbbd9448b
+WAR-POL-07,Warranty Policy,policy,2.0,Active,2025-07-01,pdf,DEPT-WAR,,7094,8a5cb614ea9b21edde257d4382fdd0af1ba959b0724591e352553f7a004dee22

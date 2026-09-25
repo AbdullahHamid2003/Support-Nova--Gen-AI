@@ -1,0 +1,66 @@
+erDiagram
+  COMPLAINTS ||--o{ ESCALATIONS : "complaint_id"
+  COMPLAINTS ||--o{ FOLLOW_UPS : "complaint_id"
+  COMPLAINTS ||--o| SLA_RECORDS : "complaint_id, unique"
+  USERS |o--o{ ESCALATIONS : "created_by_id"
+  USERS |o--o{ EVALUATION_RUNS : "created_by_id"
+  EVALUATION_RUNS ||--o{ EVALUATION_RESULTS : "run_id"
+  EVALUATION_RESULTS |o..o| COMPLAINTS : "case_id, no FK"
+
+  COMPLAINTS {
+    int id PK
+    string complaint_ref "unique"
+    string dataset_case_id
+  }
+  USERS {
+    int id PK
+    string email "unique"
+  }
+  ESCALATIONS {
+    int id PK
+    int complaint_id FK
+    int created_by_id FK
+    string level
+    int rank
+    string source
+    json rule_ids
+    string status
+  }
+  FOLLOW_UPS {
+    int id PK
+    int complaint_id FK
+    int created_by_id FK
+    string type
+    datetime due_at
+    string status
+  }
+  SLA_RECORDS {
+    int id PK
+    int complaint_id FK "unique"
+    string priority
+    datetime resolution_due_at
+    string resolution_state
+    bool breach_escalated
+  }
+  EVALUATION_RUNS {
+    int id PK
+    int created_by_id FK
+    string status
+    string split
+    string ruleset_hash
+    json metrics
+  }
+  EVALUATION_RESULTS {
+    int id PK
+    int run_id FK
+    string case_id
+    json ai
+    json python
+    json comparison
+  }
+  EVALUATION_CASES {
+    int id PK
+    string case_id "unique"
+    string split
+    json record
+  }

@@ -1,0 +1,13 @@
+﻿urgency,impact,priority
+Critical,High,P0
+Critical,Medium,P0
+Critical,Low,P1
+High,High,P1
+High,Medium,P2
+High,Low,P2
+Medium,High,P2
+Medium,Medium,P2
+Medium,Low,P3
+Low,High,P2
+Low,Medium,P3
+Low,Low,P3

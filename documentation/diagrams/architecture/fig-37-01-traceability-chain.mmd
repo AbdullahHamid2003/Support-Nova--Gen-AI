@@ -1,0 +1,40 @@
+flowchart TB
+  CMP["Complaint<br/>complaints, complaint_history"]
+  ANA["AI analysis<br/>analyses: model, prompt<br/>version and sha256"]
+  RUL["Rule Matrix decision<br/>selected rule, fired rules,<br/>ruleset hash"]
+  RUN["Every AI attempt<br/>ai_runs: request, raw reply"]
+  EVI["Policy evidence<br/>policy_references"]
+  VAL["Validation and comparison<br/>validation_results,<br/>validation_checks"]
+  RES["Resolution<br/>AI vs validated steps"]
+  ESC["Escalation<br/>level, rule IDs, source"]
+  REV["Manual review<br/>original and final snapshots"]
+  RSP["Customer response<br/>version, status, checks"]
+  AUD[("Audit log<br/>append-only, hash-chained")]
+  VIEW["Evaluator views<br/>case report PDF, timeline,<br/>AI vs rules, AI runs"]
+  CMP --> ANA
+  CMP --> RUL
+  ANA --> RUN
+  ANA --> EVI
+  ANA --> VAL
+  RUL --> VAL
+  EVI --> VAL
+  VAL --> RES
+  VAL --> ESC
+  VAL --> REV
+  RES --> RSP
+  REV --> AUD
+  ESC --> AUD
+  RSP --> AUD
+  AUD --> VIEW
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A
+  class CMP,EVI,AUD data
+  class ANA,RUN,RSP genai
+  class RUL,VAL,RES,ESC rules
+  class REV human
+  class VIEW ui

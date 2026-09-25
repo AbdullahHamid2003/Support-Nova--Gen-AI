@@ -1,0 +1,19 @@
+stateDiagram-v2
+  state "On Track" as OnTrack
+  state "At Risk" as AtRisk
+  state "Breached" as Breached
+  state "Met" as Met
+
+  [*] --> OnTrack : SLA record created after analysis
+  OnTrack --> AtRisk : 75 percent elapsed, flag and sla.at_risk event
+  OnTrack --> Met : recorded before the due time
+  AtRisk --> Met : recorded before the due time
+  AtRisk --> Breached : due time passed
+  OnTrack --> Breached : due time passed
+  Met --> [*]
+  Breached --> [*] : resolved late, stays Breached
+
+  note right of Breached
+    P0 or P1: ESC-039 raises one
+    Department Manager escalation
+  end note

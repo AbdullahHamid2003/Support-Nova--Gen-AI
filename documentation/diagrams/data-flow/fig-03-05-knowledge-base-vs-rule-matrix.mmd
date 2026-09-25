@@ -1,0 +1,35 @@
+flowchart TB
+  DOCS[("Approved company documents<br/>24 documents, 29 versions")]
+  KB[("Knowledge Base<br/>sections, 484 chunks")]
+  RM[("Complaint Resolution<br/>Rule Matrix, 276 rules")]
+  RAG["RAG retrieval<br/>Active evidence with IDs"]
+  DE["Decision engine<br/>expected outcome"]
+  GEN["GenAI proposal<br/>evidence in the prompt"]
+  VAL["Python Ground-Truth<br/>Validation"]
+
+  DOCS -->|"ingested, versioned"| KB
+  DOCS -->|"authored from, traced<br/>by policy_refs"| RM
+  KB --> RAG
+  RM -->|"rule-cited sections"| RAG
+  RM -->|"decision criteria"| DE
+  RAG -->|"evidence"| GEN
+  GEN -->|"proposal"| VAL
+  DE -->|"ground truth"| VAL
+  KB -.->|"section and version lookup"| VAL
+
+  subgraph LEG["Legend"]
+    L1["GenAI step"]
+    L2["Deterministic Python"]
+  end
+  VAL ~~~ L1
+
+  class GEN,L1 genai
+  class RAG,DE,VAL,L2 rules
+  class DOCS,KB,RM data
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

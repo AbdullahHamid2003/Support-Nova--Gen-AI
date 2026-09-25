@@ -1,0 +1,46 @@
+flowchart TB
+  subgraph R1["Step 1: Author and render"]
+    direction LR
+    SRC[("Markdown sources<br/>checked by kb_spec.yaml")]
+    BUILD["build_knowledge_base.py<br/>render and verify"]
+    MAN[("PDF, DOCX, MD files<br/>and manifest.yaml")]
+    SRC --> BUILD --> MAN
+  end
+
+  subgraph R2["Step 2: Ingest"]
+    direction LR
+    SEED["Seed at first start<br/>oldest version first"]
+    ADMIN["Administrator upload<br/>Knowledge base page"]
+    PIPE["ingest_document<br/>one pipeline for both"]
+    SEED --> PIPE
+    ADMIN --> PIPE
+  end
+
+  subgraph R3["Step 3: Serve as evidence"]
+    direction LR
+    KB[("Approved Knowledge Base<br/>versions, sections, chunks")]
+    SNAP[("KnowledgeSnapshot<br/>BM25, vectors, conflicts")]
+    USE["Retrieval, GenAI context<br/>and Python policy checks"]
+    KB --> SNAP --> USE
+  end
+
+  subgraph R4["Step 4: Revise"]
+    direction LR
+    NEWV["Revised version<br/>old Active to Previous"]
+    IMP["Impact analysis<br/>sections, rules, parameters"]
+    RM["Administrator updates<br/>rule parameters (audited)"]
+    NEWV --> IMP --> RM
+  end
+
+  R1 --> R2 --> R3 --> R4
+
+  class BUILD,SEED,PIPE,USE,IMP rules
+  class SRC,MAN,KB,SNAP data
+  class ADMIN,NEWV,RM human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

@@ -1,0 +1,5 @@
+﻿rule_id,priority,first_response_hours,resolution_hours,policy_refs
+SLA-P0,P0,1,24,SLA-RUL-15:3.1
+SLA-P1,P1,4,48,SLA-RUL-15:3.2
+SLA-P2,P2,24,120,SLA-RUL-15:3.3
+SLA-P3,P3,48,240,SLA-RUL-15:3.4

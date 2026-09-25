@@ -1,0 +1,46 @@
+flowchart TB
+  API["api, 2,355 lines<br/>routers, deps, middleware"]
+  SVC["services, 3,415 lines<br/>pipeline, worker, reviews"]
+  REP["reporting, 992 lines<br/>PDF, Excel, CSV"]
+  PV["python_validation<br/>1,000 lines, Pipeline 2"]
+  GP["genai_pipeline<br/>1,185 lines, Pipeline 1"]
+  HC["hallucination_checks<br/>317 lines"]
+  CP["complaint_processing<br/>709 lines"]
+  RE["rule_engine<br/>1,426 lines"]
+  KB["knowledge_base<br/>631 lines"]
+  DP["document_processing<br/>612 lines"]
+  VEND["Vendor APIs<br/>OpenAI, Anthropic, Gemini"]
+  XC["Shared by all: core 388,<br/>database 1,789, security 669,<br/>audit 137 lines"]
+
+  API --> SVC
+  API --> REP
+  SVC --> PV
+  SVC --> GP
+  SVC --> KB
+  PV -.->|"output models only"| GP
+  PV --> HC
+  PV --> CP
+  HC --> RE
+  CP --> RE
+  GP --> KB
+  GP --> VEND
+  KB --> DP
+  RE ~~~ XC
+  DP ~~~ XC
+
+  subgraph LEG["Legend"]
+    L1["GenAI package"]
+    L2["Deterministic Python"]
+  end
+  XC ~~~ L1
+
+  class GP,L1 genai
+  class API,SVC,REP,PV,HC,CP,RE,KB,DP,XC,L2 rules
+  class VEND ext
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

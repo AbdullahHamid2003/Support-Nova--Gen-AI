@@ -1,0 +1,42 @@
+flowchart TB
+  IN["Complaint + approved evidence"]
+  SN["SupportNova<br/>GenAI proposes. Python validates.<br/>Ground truth decides."]
+
+  subgraph P1["GenAI Intelligence Pipeline"]
+    G1["GenAI analysis<br/>structured JSON proposal"]
+  end
+
+  subgraph P2["Ground-Truth Validation"]
+    R1["Deterministic perception<br/>signals, entities, category"]
+    R2["Rule Matrix decision<br/>routing, urgency, escalation,<br/>eligibility, actions"]
+  end
+
+  CE{"Comparison Engine<br/>+ validation checks"}
+  V["Verified<br/>case continues"]
+  M["Mismatch, risk or doubt<br/>manual review"]
+
+  IN --> SN
+  SN --> G1
+  SN --> R1 --> R2
+  G1 -->|"proposal"| CE
+  R2 -->|"ground truth"| CE
+  CE -->|"score at least 80,<br/>no critical failure,<br/>no review trigger"| V
+  CE -->|"otherwise"| M
+
+  subgraph LEG["Legend"]
+    L1["GenAI step"]
+    L2["Deterministic Python"]
+  end
+  M ~~~ L1
+
+  class G1,L1 genai
+  class R1,R2,CE,V,L2 rules
+  class M human
+  class IN,SN ui
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

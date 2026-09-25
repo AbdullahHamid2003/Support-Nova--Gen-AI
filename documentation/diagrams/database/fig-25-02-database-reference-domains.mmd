@@ -1,0 +1,29 @@
+flowchart TB
+  TX["Taxonomy and catalogue<br/>categories, subcategories,<br/>products"]
+  PR["Prompt registry<br/>prompts, prompt_versions"]
+  KB["Knowledge Base<br/>documents, document_versions,<br/>document_sections, _chunks"]
+  CUS["Complaints<br/>complaints"]
+  RM["Rule Matrix<br/>rules, system_settings"]
+  AIR["AI analysis records<br/>analyses, ai_runs"]
+  EV["Evaluation<br/>evaluation_runs, _results,<br/>evaluation_cases"]
+  VAL["Rule-check records<br/>validation_results,<br/>policy_references"]
+
+  TX -.->|"category, product codes"| CUS
+  TX -.->|"subcategory_code"| RM
+  PR -.->|"prompt version, sha256"| AIR
+  CUS -->|"complaint_id"| AIR
+  CUS -.->|"source evaluation, case_id"| EV
+  AIR -->|"analysis_id"| VAL
+  RM -.->|"ruleset_hash, rule IDs"| VAL
+  KB -.->|"doc_id, version, chunk_uid"| VAL
+
+  class AIR,PR genai
+  class RM,VAL,TX rules
+  class CUS,KB,EV data
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

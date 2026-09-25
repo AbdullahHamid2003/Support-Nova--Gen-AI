@@ -1,0 +1,44 @@
+flowchart TB
+  subgraph R1["Step 1: Scenarios"]
+    direction LR
+    SB[("Scenario bank<br/>17 YAML files,<br/>412 scenarios")]
+    DR["Draft instances<br/>date, customer,<br/>channel, product"]
+    LED["Order ledger<br/>35 order profiles,<br/>catalog prices"]
+    SB --> DR --> LED
+  end
+
+  subgraph R2["Step 2: Text and facts"]
+    direction LR
+    REN["Slot rendering<br/>facts registered,<br/>channel wrapper"]
+    IDS["Chronological IDs<br/>CMP- dev, EVL- holdout"]
+    DEC[("Declared facts<br/>signals, facts,<br/>history, order")]
+    REN --> IDS --> DEC
+  end
+
+  subgraph R3["Step 3: Labels and checks"]
+    direction LR
+    RM[("Rule Matrix<br/>rules/*.yaml")]
+    LAB["Reference labeller<br/>label_declared"]
+    CHK["Checks<br/>intended rule, coherence,<br/>uniqueness"]
+    RM --> LAB --> CHK
+  end
+
+  subgraph R4["Step 4: Files and use"]
+    direction LR
+    OUT[("Dataset files<br/>617 dev, 154 holdout,<br/>summary JSON")]
+    VALD["validate_dataset.py<br/>PASS=78, FAIL=0"]
+    USE["Seed import (dev)<br/>and evaluation (holdout)"]
+    OUT --> VALD --> USE
+  end
+
+  R1 --> R2 --> R3 --> R4
+
+  class DR,LED,REN,IDS,LAB,CHK,VALD,USE rules
+  class SB,DEC,RM,OUT data
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

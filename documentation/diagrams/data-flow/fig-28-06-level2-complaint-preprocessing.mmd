@@ -1,0 +1,41 @@
+flowchart TB
+  TRIG["Queued job from<br/>2.0, 4.0, 5.0 or 8.0"]
+  D1a[("D1 Complaints")]
+  D2a[("D2 Knowledge Base")]
+  P31("3.1 Normalise and<br/>screen text")
+  D3a[("D3 Rule Matrix")]
+  D9[("D9 Identity")]
+  P32("3.2 Build rule-based<br/>perception")
+  D1b[("D1 Complaints")]
+  P33("3.3 Check history<br/>and duplicates")
+  D2b[("D2 Knowledge Base")]
+  D3b[("D3 Rule Matrix")]
+  P34("3.4 Retrieve policy<br/>evidence")
+  NEXT["To 3.5 Generate AI<br/>analysis (Figure 28.7)"]
+
+  TRIG -->|"complaint id, trigger"| P31
+  D1a <-->|"text / preprocessing,<br/>injection flag"| P31
+  D2a -->|"policy IDs,<br/>sections"| P31
+  P31 -->|"normalised text,<br/>injection report"| P32
+  D3a -->|"signals, category<br/>rules, products"| P32
+  D9 -->|"order record"| P32
+  P32 -->|"classification,<br/>signals, entities"| P33
+  D1b <-->|"prior complaints /<br/>duplicate, repeat link"| P33
+  P33 -->|"perception with<br/>history facts"| P34
+  D2b -->|"active chunks"| P34
+  D3b -->|"rule-guided sections,<br/>precedence"| P34
+  P34 -->|"evidence, conflicts,<br/>outdated context"| NEXT
+
+  class TRIG,NEXT ext
+  class P31,P32,P33,P34 rules
+  class D1a,D1b,D2a,D2b,D3a,D3b,D9 data
+  style TRIG stroke-dasharray:5 4
+  style NEXT stroke-dasharray:5 4
+
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

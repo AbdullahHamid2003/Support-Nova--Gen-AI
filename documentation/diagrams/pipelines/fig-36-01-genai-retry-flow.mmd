@@ -1,0 +1,36 @@
+flowchart TB
+  START["run_stage(): attempt n<br/>genai_pipeline/runner.py"]
+  CALL["Provider call<br/>OpenAI, Anthropic or Gemini"]
+  KIND{"Retryable<br/>error kind?"}
+  WAIT["Back-off wait<br/>0.5 s or 2 s, doubling,<br/>at most 8 s"]
+  PARSE["Parse and validate<br/>jsonschema and Pydantic"]
+  CORR["Validation errors sent<br/>back as a correction"]
+  OK["Stage succeeds<br/>attempts stored in ai_runs"]
+  MORE{"Attempts left?<br/>1 + AI_MAX_RETRIES"}
+  STOP["Stage fails<br/>error kept on the analysis"]
+  SCH["SCH-001 fails<br/>REV-009 invalid_ai_output"]
+  MR["Manual Review<br/>rules decision still applies"]
+  START --> CALL
+  CALL -->|"error"| KIND
+  CALL -->|"reply"| PARSE
+  KIND -->|"yes"| WAIT
+  KIND -->|"no"| STOP
+  PARSE -->|"valid"| OK
+  PARSE -->|"invalid"| CORR
+  WAIT --> MORE
+  CORR --> MORE
+  MORE -->|"yes, n + 1"| START
+  MORE -->|"no"| STOP
+  STOP --> SCH --> MR
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A
+  class CALL genai
+  class START,KIND,WAIT,PARSE,CORR,MORE,SCH rules
+  class OK data
+  class STOP risk
+  class MR human

@@ -1,0 +1,40 @@
+flowchart TB
+  CL["Browser SPA or API client<br/>cookie + CSRF, or Bearer"]
+  MW["Middleware<br/>request ID and headers,<br/>CORS, rate limit"]
+  RO["FastAPI routers /api/v1<br/>8 modules, 95 routes"]
+  DEP["Dependencies<br/>db_session, current_user,<br/>require or require_any"]
+  VAL["Pydantic request models"]
+  HD["Route handler<br/>role-aware serializers"]
+  SVC["Service layer<br/>and audit.record"]
+  WK["Background worker<br/>ThreadPoolExecutor"]
+  P1["Pipeline 1<br/>GenAI analysis"]
+  P2["Pipeline 2<br/>Python validation"]
+  OAI["OpenAI API<br/>gpt-4.1-mini"]
+  PG[("PostgreSQL 17")]
+  ER["Error envelope<br/>code, message, details"]
+
+  CL --> MW --> RO --> DEP --> VAL --> HD
+  HD --> SVC --> PG
+  HD -->|"202 Accepted"| WK
+  WK --> P1
+  P1 --> OAI
+  P1 -->|"schema-valid JSON"| P2
+  P2 --> PG
+  MW -->|"429"| ER
+  DEP -->|"401, 403"| ER
+  VAL -->|"422"| ER
+  SVC -->|"404, 409, 422"| ER
+
+  class CL ui
+  class OAI ext
+  class PG data
+  class P1 genai
+  class P2 rules
+  class ER risk
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

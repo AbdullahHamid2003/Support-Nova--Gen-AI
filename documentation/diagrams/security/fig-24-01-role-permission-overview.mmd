@@ -1,0 +1,31 @@
+flowchart TB
+  subgraph ROLES["Five fixed roles"]
+    direction TB
+    CU["Customer<br/>3 permissions"]
+    AG["Support Agent<br/>10 permissions"]
+    RV["Reviewer<br/>14 permissions"]
+    MG["Manager<br/>12 permissions"]
+    AD["Administrator<br/>24 permissions"]
+  end
+  AUTH["current_user: JWT<br/>and CSRF, or Bearer"]
+  REQ["Route guard: require<br/>or require_any"]
+  OWN["Ownership filter:<br/>customer sees own only"]
+  DEN["403 permission_denied<br/>audited access.denied"]
+  API["Route handler and<br/>role-aware output"]
+
+  ROLES --> AUTH
+  AUTH --> REQ
+  REQ -->|"allowed"| OWN
+  REQ -->|"missing"| DEN
+  OWN --> API
+
+  class CU,AG,RV,MG,AD human
+  class AUTH,REQ,OWN,API rules
+  class DEN risk
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

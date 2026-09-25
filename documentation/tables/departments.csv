@@ -1,0 +1,11 @@
+﻿code,name,description
+DEPT-BIL,Billing Operations,"Charges, duplicate/incorrect billing, subscription billing, refund reconciliation and chargebacks."
+DEPT-TEC,Technical Support,"Device troubleshooting, connectivity, app/firmware problems, set-up and service outages."
+DEPT-LOG,Logistics Support,"Shipping, delivery delays, lost packages, wrong items and fulfilment errors (including missing parts)."
+DEPT-RET,Returns & Refunds,"Returns, refund eligibility, refund processing, damaged-on-arrival replacements."
+DEPT-WAR,Warranty Services,"Warranty claims, denials, appeals and Care+ protection-plan claims."
+DEPT-CRL,Customer Relations,"Service quality, staff conduct, installation service quality and customer-experience recovery."
+DEPT-SEC,Account Security,"Login recovery, unauthorized access, account takeover, smart-lock security incidents and fraud."
+DEPT-CMP,Compliance & Privacy,"Privacy incidents, data-rights requests, consent, legal threats and regulatory matters."
+DEPT-SAF,Product Safety,"Overheating, fire, electrical hazards, injuries, recalls and hazardous-product collection."
+DEPT-MGT,Management Escalations,"Critical management escalations, high-value disputes and cross-department failures."

@@ -1,0 +1,55 @@
+erDiagram
+  COMPLAINTS ||--o{ ANALYSES : "complaint_id"
+  ANALYSES |o--o{ AI_RUNS : "analysis_id"
+  ANALYSES ||--o{ POLICY_REFERENCES : "analysis_id"
+  ANALYSES ||--o| VALIDATION_RESULTS : "analysis_id, unique"
+  COMPLAINTS ||--o{ VALIDATION_RESULTS : "complaint_id"
+  VALIDATION_RESULTS ||--o{ VALIDATION_CHECKS : "result_id"
+
+  COMPLAINTS {
+    int id PK
+    string complaint_ref "unique"
+    float verification_score
+  }
+  ANALYSES {
+    int id PK
+    int complaint_id FK
+    int version_no "unique per complaint"
+    string status
+    json prompt_versions
+    string ruleset_hash
+    json output
+  }
+  AI_RUNS {
+    int id PK
+    int complaint_id FK
+    int analysis_id FK
+    string stage
+    int attempt
+    bool parsed_ok
+    string error_type
+  }
+  POLICY_REFERENCES {
+    int id PK
+    int analysis_id FK
+    string doc_id
+    string section_id
+    string cited_by
+    string applicability
+  }
+  VALIDATION_RESULTS {
+    int id PK
+    int analysis_id FK
+    int complaint_id FK
+    float verification_score
+    string decision
+    json comparison
+    json validated_decision
+  }
+  VALIDATION_CHECKS {
+    int id PK
+    int result_id FK
+    string code
+    string severity
+    string status
+  }

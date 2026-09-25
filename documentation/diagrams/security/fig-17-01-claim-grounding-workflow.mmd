@@ -1,0 +1,42 @@
+flowchart TB
+  G["Generated claim<br/>statement, source, ref"]
+  T{"Declared<br/>source type?"}
+  S1["Complaint text<br/>and product field"]
+  S2["Retrieved evidence<br/>or existing policy"]
+  S3["Verified facts<br/>ledger and history"]
+  S4["Rule Matrix<br/>decision text"]
+  OV["Word overlap score<br/>narration words ignored"]
+  TH{"Score at or above<br/>the threshold?"}
+  YES["Supported:<br/>claim accepted"]
+  NO["Unsupported:<br/>claim flagged"]
+  H1["HAL-001 result<br/>pass, warn or fail"]
+  RV["Manual review<br/>REV-012 on fail"]
+
+  G --> T
+  T -->|"complaint"| S1
+  T -->|"policy"| S2
+  T -->|"metadata"| S3
+  T -->|"rule"| S4
+  S1 --> OV
+  S2 --> OV
+  S3 --> OV
+  S4 --> OV
+  OV --> TH
+  TH -->|"yes"| YES
+  TH -->|"no"| NO
+  YES --> H1
+  NO --> H1
+  H1 -->|"fail"| RV
+
+  class G genai
+  class T,OV,TH,YES,H1 rules
+  class S1,S2,S3,S4 data
+  class NO risk
+  class RV human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

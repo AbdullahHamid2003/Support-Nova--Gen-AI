@@ -54,3 +54,11 @@ docs/*.pdf
 
 # ---- Local tool settings (absolute machine paths) --------------------------------
 .claude/
+
+# ---- Report build tooling (documentation/_build) ---------------------------------
+documentation/_build/.tools/
+documentation/_build/.render-cache.json
+documentation/_build/.render.html
+documentation/_build/.body.html
+documentation/diagrams/_selftest/
+documentation/_work/

@@ -1,0 +1,30 @@
+flowchart TB
+  IDN["Identity and access<br/>roles, users, departments"]
+  CUS["Complaints and customers<br/>customers, orders, complaints,<br/>complaint_history, _attachments"]
+  AIR["AI analysis records<br/>analyses, ai_runs"]
+  AUD["Audit trail<br/>audit_logs, append-only"]
+  VAL["Rule-check records<br/>validation_results, _checks,<br/>policy_references, resolutions"]
+  WF["Case workflow<br/>customer_responses, sla_records,<br/>escalations, follow_ups"]
+  REV["Manual review<br/>reviews, review_actions"]
+
+  IDN <-->|"user, customer FKs"| CUS
+  CUS -->|"complaint_id"| AIR
+  IDN -->|"actor_id"| AUD
+  CUS -.->|"entity_id"| AUD
+  AIR -->|"analysis_id"| VAL
+  AIR -->|"analysis_id"| WF
+  CUS -->|"complaint_id"| WF
+  VAL -->|"validation_result_id"| REV
+  CUS -->|"complaint_id"| REV
+
+  class AIR genai
+  class VAL rules
+  class REV human
+  class IDN,CUS,WF,AUD data
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

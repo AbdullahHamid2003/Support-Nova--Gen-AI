@@ -1,0 +1,51 @@
+flowchart LR
+  subgraph COLA["Intake and preprocessing"]
+    direction TB
+    VAL["Submission and validation<br/>POST /api/v1/complaints,<br/>Pydantic and business rules"]
+    REJ["Rejected<br/>422 field errors<br/>or 409 duplicate"]
+    ROW[("complaints row<br/>New, 202 Accepted")]
+    NORM["Normalisation<br/>NFKC, invisible characters,<br/>HTML stripped"]
+    SCAN["Injection screening<br/>28 patterns, base64,<br/>fake policy IDs"]
+    ORD[("Order ledger")]
+    PERC["Perception<br/>signals, entities,<br/>classifier, sentiment"]
+    HIST["History and duplicates<br/>90 days, hash, similarity"]
+    LINK["Duplicate linked<br/>and closed, no AI call"]
+    VAL --> ROW --> NORM --> SCAN --> PERC --> HIST
+    VAL -->|"invalid"| REJ
+    ORD --> PERC
+    HIST -->|"duplicate"| LINK
+  end
+  subgraph COLB["Retrieval and GenAI analysis"]
+    direction TB
+    KB[("Knowledge Base<br/>Active chunks")]
+    RET["Hybrid retrieval<br/>BM25, vectors,<br/>rule-guided, top 10"]
+    CTX["Context assembly<br/>flags, redaction, nonce"]
+    CALL["GenAI analysis<br/>complaint_analysis 1.2.0"]
+    OAI["OpenAI API<br/>gpt-4.1-mini"]
+    OUT["Analysis JSON<br/>to Figure 7.2"]
+    KB --> RET --> CTX --> CALL --> OUT
+    CALL <--> OAI
+    subgraph LEG["Legend"]
+      L1["GenAI"]
+      L2["Python"]
+      L3["Data"]
+      L4["Stop"]
+    end
+    OUT ~~~ L1
+    OUT ~~~ L2
+    L1 ~~~ L3
+    L2 ~~~ L4
+  end
+  COLA --> COLB
+  class CALL,OUT,L1 genai
+  class VAL,NORM,SCAN,PERC,HIST,LINK,RET,CTX,L2 rules
+  class ROW,ORD,KB,L3 data
+  class OAI ext
+  class REJ,L4 risk
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

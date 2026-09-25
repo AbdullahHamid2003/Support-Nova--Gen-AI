@@ -1,0 +1,60 @@
+﻿key,value,unit,source,description
+refund_window_days,30,calendar_days,REF-POL-02:3.1,Standard refund window from delivery date.
+care_plus_refund_window_days,45,calendar_days,REF-POL-02:3.2,Extended refund window for Care+ members.
+defect_refund_window_days,30,calendar_days,REF-POL-02:3.3,Defective products - refund or replacement window before the warranty process applies.
+return_inspection_business_days,3,business_days,REF-POL-02:4.2,Returned items inspected within this period of receipt.
+refund_issue_business_days,5,business_days,REF-POL-02:4.3,Refund issued after inspection approval.
+bank_posting_max_business_days,10,business_days,REF-POL-02:4.4,Maximum bank posting time for issued refunds (not controlled by Lumora).
+refund_delay_status_update_business_days,1,business_days,REF-POL-02:5.1,Status update deadline once a refund is late.
+restocking_fee_pct,10,percent,REF-POL-02:6.1,Restocking fee for opened non-defective items returned after day 14.
+restocking_fee_free_days,14,calendar_days,REF-POL-02:6.1,Returns within this many days incur no restocking fee.
+partial_refund_breakdown_business_days,3,business_days,REF-POL-02:6.3,Itemised breakdown provided after a deduction dispute.
+doa_report_days,7,calendar_days,RPL-POL-03:3.1,Damaged-on-arrival must be reported within this many days of delivery.
+replacement_dispatch_business_days,3,business_days,RPL-POL-03:4.1,Replacement dispatched after verification.
+return_label_business_days,1,business_days,RPL-POL-03:4.2,Prepaid return label issued within this period.
+max_policy_replacements,1,count,RPL-POL-03:3.4,No-cost replacements per order line under the Replacement Policy.
+missing_parts_dispatch_business_days,5,business_days,RPL-POL-03:5.2,Missing parts dispatched at no cost.
+wrong_item_dispatch_business_days,3,business_days,RPL-POL-03:5.1,Correct item dispatched after a wrong-item report.
+delay_comp_threshold_business_days,3,business_days,DEL-POL-04:5.2,Delay beyond the estimated date that qualifies for delay credit.
+delay_credit_usd,10,usd,DEL-POL-04:5.2,Store credit for a qualifying delivery delay (once per order).
+lost_no_update_business_days,7,business_days,DEL-POL-04:6.1,No tracking update for this long -> package treated as lost.
+carrier_trace_business_days,5,business_days,DEL-POL-04:6.1,Carrier trace duration before lost-package resolution.
+lost_to_delay_threshold_business_days,10,business_days,DEL-POL-04:6.1,Delay after which a delayed order is handled as a lost package.
+duplicate_reversal_business_days,2,business_days,BIL-POL-05:4.1,Duplicate-charge reversal initiated after verification.
+incorrect_charge_investigation_business_days,5,business_days,BIL-POL-05:4.2,Incorrect-charge investigation period.
+billing_dispute_window_days,60,calendar_days,BIL-POL-05:4.3,Billing disputes must be raised within this period of the charge.
+refund_trace_after_business_days,10,business_days,BIL-POL-05:6.1,Confirmed refunds not visible after this period trigger a payment trace.
+refund_trace_reference_business_days,3,business_days,BIL-POL-05:6.2,Payment trace reference provided within this period.
+annual_cooling_off_days,14,calendar_days,CAN-POL-06:4.3,Annual plans cancelled within this period of purchase/renewal get a full refund.
+post_cancellation_refund_business_days,5,business_days,CAN-POL-06:5.1,Refund of charges taken after a confirmed cancellation.
+renewal_notice_days,7,calendar_days,SUB-POL-22:4.1,Renewal reminder sent before annual renewal.
+outage_credit_threshold_hours,24,hours,SUB-POL-22:6.1,Cloud Vault outage length that qualifies for one month of subscription credit.
+install_cancellation_notice_hours,24,hours,CAN-POL-06:6.1,Free Pro Install cancellation notice period.
+warranty_decision_business_days,10,business_days,WAR-POL-07:4.2,Warranty claim decision period.
+care_plus_coverage_months,36,months,WAR-POL-07:6.1,Care+ coverage from delivery date.
+care_plus_accidental_claims_per_year,2,count,WAR-POL-07:6.2,Accidental-damage claims per 12 months under Care+.
+care_plus_service_fee_usd,29,usd,WAR-POL-07:6.2,Care+ accidental-damage service fee.
+warranty_appeal_window_days,30,calendar_days,WAR-POL-07:7.1,Warranty denial appeal window.
+dsar_fulfilment_days,30,calendar_days,PRV-POL-08:4.2,Data access/deletion requests fulfilled within this period.
+marketing_optout_business_days,10,business_days,PRV-POL-08:5.2,Marketing opt-out processing period.
+privacy_incident_log_hours,24,hours,PRV-POL-08:7.2,Privacy incident logged and Privacy Officer notified within this period.
+compliance_assessment_hours,72,hours,PRV-POL-08:7.3,Compliance assessment of a privacy incident.
+security_response_hours,1,hours,SEC-POL-09:4.3,Response to suspected unauthorized access.
+account_recovery_business_days,2,business_days,SEC-POL-09:7.2,Account recovery after identity verification.
+safety_incident_log_hours,1,hours,SAF-POL-10:4.2,Safety incident logged within this period.
+recall_response_hours,4,hours,SAF-POL-10:8.1,Recall-related complaints reach Product Safety within this period.
+agent_compensation_limit_usd,25,usd,CPN-POL-11:5.1,Maximum goodwill compensation an agent may approve.
+supervisor_compensation_limit_usd,100,usd,CPN-POL-11:5.2,Supervisor approval limit.
+manager_compensation_limit_usd,500,usd,CPN-POL-11:5.3,Department Manager approval limit.
+high_value_supervisor_usd,500,usd,ESC-SOP-12:4.6,Disputed/claimed amount requiring Supervisor Review.
+high_value_manager_usd,1500,usd,ESC-SOP-12:4.6,Disputed/claimed amount requiring Department Manager review.
+business_high_value_usd,2500,usd,ESC-SOP-12:4.6,Business-account order value requiring Department Manager review.
+repeat_window_days,90,calendar_days,ESC-SOP-12:4.5,Look-back window for repeat complaints.
+repeat_supervisor_threshold,2,count,ESC-SOP-12:4.5,Prior unresolved complaints on the same issue -> Supervisor Review.
+repeat_manager_threshold,3,count,ESC-SOP-12:4.5,Prior unresolved complaints on the same issue -> Department Manager.
+install_revisit_business_days,5,business_days,INS-POL-24:5.1,No-cost re-visit for workmanship issues.
+staff_review_business_days,5,business_days,STF-POL-21:5.1,Review of interaction records after a staff complaint.
+technician_damage_investigation_business_days,5,business_days,INS-POL-24:6.1,Investigation of technician-caused property damage.
+sla_at_risk_pct,75,percent,SLA-RUL-15:7.1,Share of an SLA window elapsed before the complaint is flagged At Risk.
+reopen_window_days,14,calendar_days,CHP-POL-01:8.2,Resolved complaints may be reopened within this period.
+min_description_words,8,count,CHP-POL-01:4.2,Descriptions shorter than this are treated as missing a problem description.

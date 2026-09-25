@@ -1,0 +1,30 @@
+flowchart TB
+  ADM["Administrator<br/>Rule Matrix page"]
+  PRE["Preview<br/>POST /rules/validate"]
+  RPT["Integrity report of the<br/>candidate, nothing saved"]
+  REQ["Save edit, toggle<br/>or parameter"]
+  CAND["Candidate matrix<br/>live rules plus change"]
+  INT{"Integrity<br/>errors?"}
+  REJ["Rejected with 422<br/>live matrix unchanged"]
+  SAVE[("Row saved<br/>as version + 1")]
+  AUD[("Audit entry<br/>before and after")]
+  REV["rules_revision + 1<br/>cache rebuilt"]
+  NEW["New decisions use<br/>the changed rules"]
+  ADM -->|"preview"| PRE --> RPT
+  ADM -->|"save"| REQ --> CAND --> INT
+  INT -->|"yes"| REJ
+  INT -->|"no"| SAVE
+  SAVE --> AUD
+  SAVE --> REV --> NEW
+  class ADM human
+  class PRE,REQ ui
+  class RPT,CAND,INT,REV,NEW rules
+  class SAVE,AUD data
+  class REJ risk
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

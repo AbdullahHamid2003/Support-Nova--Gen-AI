@@ -1,0 +1,36 @@
+flowchart TB
+  BOOT["main.tsx<br/>QueryClient, AuthProvider"]
+  RA["RequireAuth<br/>redirect to /login"]
+  SHELL["AppShell<br/>navigation by permission"]
+  GD["Guard<br/>per-page permission"]
+  PGS["18 lazy-loaded pages<br/>pages/*.tsx"]
+  CX["complaint/ components<br/>intelligence, AI vs rules"]
+  RU["rules/ and knowledge/<br/>editors, simulator, upload"]
+  CH["app/charts.tsx<br/>Recharts dashboards"]
+  UIK["components/ui<br/>Radix UI, CVA, Tailwind 4"]
+  HK["TanStack Query hooks<br/>useQuery, useMutation"]
+  FM["react-hook-form + zod<br/>9 form modules"]
+  AC["lib/api.ts<br/>cookie session, CSRF header"]
+  BE["FastAPI /api/v1"]
+
+  BOOT --> RA --> SHELL --> GD --> PGS
+  PGS --> CX
+  PGS --> RU
+  PGS --> CH
+  CX --> UIK
+  CX --> HK
+  RU --> FM
+  HK --> AC
+  FM --> AC
+  AC --> BE
+
+  class RA,SHELL,GD,PGS,CX,RU,CH,UIK,FM ui
+  class BOOT,HK,AC data
+  class BE rules
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

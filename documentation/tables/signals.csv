@@ -1,0 +1,36 @@
+﻿signal,name,term_count,pattern_count
+fire_event,"Fire, smoke or explosion",13,2
+overheating,Overheating / battery hazard,27,1
+electrical_hazard,Electrical hazard,19,0
+injury,Physical injury,25,0
+child_involved,Child involved,12,2
+recall_mention,Recall mentioned,5,0
+security_breach,Unauthorized access / account compromise,22,3
+lock_security,Smart-lock / physical home security compromised,10,1
+fraud,Fraud / stolen payment,11,0
+privacy_breach,Personal data or footage exposed,20,2
+consent_violation,Consent / marketing violation,12,1
+data_rights_request,Data-rights request,15,0
+minors_data,Children's data involved,0,1
+legal_threat,Legal threat or regulator mention,26,0
+media_threat,Public / media threat,12,1
+chargeback_threat,Chargeback threat,11,0
+staff_harassment,Harassment / discrimination / threats by staff,20,0
+technician_damage_theft,Property damage or theft by technician,10,1
+vulnerable_customer,Vulnerable person affected,20,2
+critical_impact,Critical impact on the home,20,3
+severe_service_failure,Severe service failure,13,1
+business_impact,Business impact,13,0
+repeat_indicator,Repeat complaint language,32,2
+replacement_failed,Replacement also failed,13,0
+refund_request,Refund requested,7,0
+replacement_request,Replacement requested,7,0
+compensation_request,Compensation requested,15,1
+policy_exception_request,Policy exception requested,13,2
+embedded_policy_claim,Customer cites policy or entitlement,10,3
+cancellation_mentioned,Cancellation mentioned,8,0
+customer_address_error,Customer-caused address error,7,0
+force_majeure,Severe weather / force majeure,8,0
+misuse_damage,Customer-caused damage,16,0
+photo_evidence,Photo evidence provided,12,0
+item_unopened,Item unopened,5,0

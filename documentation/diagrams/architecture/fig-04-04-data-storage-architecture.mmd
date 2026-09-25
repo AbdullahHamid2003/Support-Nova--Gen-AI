@@ -1,0 +1,40 @@
+flowchart TB
+  REPO[("Repository baseline<br/>rules, config, prompts,<br/>knowledge_base, data")]
+  MIG["Alembic migrations<br/>run at startup"]
+  ORM["SQLAlchemy 2 ORM<br/>5 model modules"]
+  CACHE["Rule Matrix and KB<br/>caches in memory"]
+  STO["storage_dir()<br/>file storage root"]
+
+  subgraph PGS["PostgreSQL 17, 35 tables"]
+    T1[("identity<br/>7 tables")]
+    T2[("complaints<br/>5 tables")]
+    T3[("intelligence<br/>9 tables")]
+    T4[("knowledge<br/>4 tables")]
+    T5[("workflow<br/>10 tables")]
+  end
+
+  FILES[("storage/<br/>documents, attachments")]
+
+  REPO -->|"seeded when empty"| ORM
+  REPO ~~~ MIG
+  REPO ~~~ CACHE
+  REPO ~~~ STO
+  ORM ~~~ T1
+  ORM ~~~ T2
+  ORM ~~~ T3
+  T1 ~~~ T4
+  T3 ~~~ T5
+  MIG -->|"schema"| PGS
+  ORM -->|"reads and writes"| PGS
+  CACHE -.->|"revision counters"| PGS
+  STO --> FILES
+
+  class MIG,ORM,CACHE,STO rules
+  class REPO,T1,T2,T3,T4,T5,FILES data
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

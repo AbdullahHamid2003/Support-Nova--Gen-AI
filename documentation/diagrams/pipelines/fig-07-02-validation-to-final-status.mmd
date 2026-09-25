@@ -1,0 +1,56 @@
+flowchart LR
+  subgraph COLA["Validation - Phase A"]
+    direction TB
+    IN["GenAI analysis JSON<br/>from Figure 7.1"]
+    SCHEMA["Schema validation<br/>retries as in Figure 8.2,<br/>no valid answer: SCH-001"]
+    DEC["Decision engine<br/>rule, urgency floors,<br/>priority, routing, escalation"]
+    RM[("Rule Matrix<br/>276 rules")]
+    CHKA["Phase A checks<br/>schema to security"]
+    VD["Validated decision"]
+    CMP["Comparison<br/>18 fields"]
+    IN --> SCHEMA --> DEC
+    DEC -.- RM
+    DEC --> CHKA
+    CHKA --> VD
+    CHKA --> CMP
+    subgraph LEG["Legend"]
+      L1["GenAI"]
+      L2["Python"]
+      L3["Data"]
+      L4["Human"]
+    end
+    VD ~~~ L1
+    CMP ~~~ L2
+    L1 ~~~ L3
+    L2 ~~~ L4
+  end
+  subgraph COLB["Response and finalizing"]
+    direction TB
+    COMM["GenAI customer response<br/>customer_communication,<br/>OpenAI gpt-4.1-mini"]
+    CHKB["Phase B checks<br/>RSP-001 to RSP-007, SEC-002"]
+    SCORE["Score and decision<br/>Verified: 80+, no critical<br/>fail, no review trigger"]
+    VER["Verified"]
+    MR["Manual Review"]
+    SAVE[("Stored results<br/>analysis, checks, response,<br/>escalation, follow-up, SLA")]
+    ST1["Escalated"]
+    ST2["Analyzed,<br/>then Assigned"]
+    COMM --> CHKB --> SCORE
+    SCORE -->|"all met"| VER
+    SCORE -->|"otherwise"| MR
+    VER --> SAVE
+    MR --> SAVE
+    SAVE -->|"escalation"| ST1
+    SAVE -->|"none"| ST2
+  end
+  COLA --> COLB
+  class IN,COMM,L1 genai
+  class SCHEMA,DEC,CHKA,VD,CMP,CHKB,SCORE,VER,ST1,ST2,L2 rules
+  class RM,SAVE,L3 data
+  class MR,L4 human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

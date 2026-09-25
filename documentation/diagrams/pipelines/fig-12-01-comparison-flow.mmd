@@ -1,0 +1,43 @@
+flowchart TB
+  OWN["Rule classifier result<br/>own subcategory"]
+  DEC["Rules decision"]
+  AI["GenAI analysis output"]
+  ROWS["build_comparison<br/>18 field rows"]
+  CHK["Phase A checks<br/>judge the same fields"]
+  SC["Scalar fields<br/>match or mismatch"]
+  LS["List fields as sets<br/>match, partial, mismatch"]
+  AGR["Agreement = share<br/>of matching rows"]
+  FLAG[("ai_python_agreement<br/>category, department,<br/>escalation")]
+  VR[("validation_results<br/>comparison")]
+  UI["AI vs rules tab<br/>and Analytics KPI"]
+  OWN --> ROWS
+  DEC --> ROWS
+  AI --> ROWS
+  DEC --> CHK
+  AI --> CHK
+  ROWS --> SC
+  ROWS --> LS
+  SC --> AGR
+  LS --> AGR
+  ROWS -->|"3 key fields"| FLAG
+  AGR --> VR --> UI
+  FLAG --> UI
+  subgraph LEGEND["Legend"]
+    L1["GenAI"]
+    L2["Deterministic Python"]
+    L3["Data store"]
+  end
+  UI ~~~ L1
+  UI ~~~ L2
+  UI ~~~ L3
+  class AI,L1 genai
+  class DEC,OWN,ROWS,SC,LS,AGR,CHK,L2 rules
+  class VR,FLAG,L3 data
+  class UI ui
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

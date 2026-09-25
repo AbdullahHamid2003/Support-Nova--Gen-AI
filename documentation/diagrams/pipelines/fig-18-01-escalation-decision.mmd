@@ -1,0 +1,38 @@
+flowchart TB
+  SIG["Signals and facts<br/>from the complaint"]
+  CLS["Python classification<br/>and selected rule"]
+  ER[("39 escalation rules<br/>in the Rule Matrix")]
+  EV{"Evaluate each<br/>active rule"}
+  MAX["Fired rules merged:<br/>highest level wins"]
+  LVL{"Any rule<br/>fired?"}
+  NOE["No Escalation"]
+  ESCD["Escalation decision<br/>ESCALATE action,<br/>FUP-002 follow-up"]
+  AIE["AI proposal<br/>level and notes"]
+  CHK["Checks ESC-001<br/>to ESC-004"]
+  REC[("Escalation record<br/>notes, status open")]
+  REVQ["Manual review<br/>if a check fails"]
+  SLA["SLA monitor<br/>ESC-039 on breach"]
+
+  SIG --> EV
+  CLS --> EV
+  ER --> EV
+  EV --> MAX --> LVL
+  LVL -->|"no"| NOE
+  LVL -->|"yes"| ESCD
+  ESCD --> CHK
+  AIE --> CHK
+  ESCD --> REC
+  CHK -->|"fail"| REVQ
+  SLA -->|"P0 or P1"| REC
+
+  class SIG,CLS,EV,MAX,LVL,NOE,ESCD,CHK,SLA rules
+  class ER,REC data
+  class AIE genai
+  class REVQ human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

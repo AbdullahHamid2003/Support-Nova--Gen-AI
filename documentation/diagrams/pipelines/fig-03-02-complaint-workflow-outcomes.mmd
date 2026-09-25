@@ -1,0 +1,39 @@
+flowchart TB
+  CMP["Comparison Engine result<br/>from Figure 3.1"]
+  VI["Validated intelligence<br/>rule-enforced decision"]
+  RES["Resolution steps<br/>and eligibility"]
+  ESC["Escalation, follow-up<br/>and SLA timers"]
+  GENR["GenAI customer response<br/>from the validated decision"]
+  DEC("Response checks,<br/>score and decision")
+  SEND["Agent sends the<br/>validated response"]
+  REV["Manual review queue<br/>approve, modify, reclassify,<br/>regenerate, reject"]
+  REC[("Audit trail, analytics<br/>and reports")]
+
+  CMP --> VI
+  VI --> RES
+  VI --> ESC
+  VI --> GENR --> DEC
+  DEC -->|"Verified"| SEND
+  DEC -->|"Manual Review"| REV
+  RES --> REC
+  ESC --> REC
+  SEND --> REC
+  REV --> REC
+
+  subgraph LEG["Legend"]
+    L1["GenAI step"]
+    L2["Deterministic Python"]
+  end
+  REC ~~~ L1
+
+  class GENR,L1 genai
+  class CMP,VI,RES,ESC,DEC,L2 rules
+  class SEND,REV human
+  class REC data
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

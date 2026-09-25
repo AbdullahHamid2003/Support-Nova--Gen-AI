@@ -1,0 +1,30 @@
+flowchart TB
+  SUB["New complaint<br/>for a known customer"]
+  INT{"Same text hash<br/>within 24 hours?"}
+  REJ["HTTP 409<br/>duplicate_complaint"]
+  DUP{"Same hash or<br/>similarity 0.86+?"}
+  LNK["Linked duplicate:<br/>Closed, no AI call"]
+  REL{"Related earlier<br/>complaint found?"}
+  REP["Repeat flagged:<br/>URG-011, ESC-017 to 019"]
+  PIPE["Analysis continues<br/>with history as facts"]
+
+  SUB --> INT
+  INT -->|"yes, at intake"| REJ
+  INT -->|"no"| DUP
+  DUP -->|"yes"| LNK
+  DUP -->|"no"| REL
+  REL -->|"yes"| REP
+  REL -->|"no"| PIPE
+  REP --> PIPE
+
+  class SUB ui
+  class INT,DUP,LNK,REL,REP rules
+  class REJ risk
+  class PIPE genai
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

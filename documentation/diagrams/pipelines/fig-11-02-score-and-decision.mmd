@@ -1,0 +1,29 @@
+flowchart TB
+  C["52 check results<br/>pass, warn, fail,<br/>not_applicable"]
+  X["not_applicable<br/>left out"]
+  WV["Weights: critical 5, major 3,<br/>minor 1, info 0<br/>Values: pass 1, warn 0.5, fail 0"]
+  TRG["14 review triggers<br/>REV-001 to REV-014"]
+  S["Score = 100 x sum(w x v)<br/>divided by sum(w)"]
+  G{"Critical failure,<br/>score below 80 or<br/>trigger fired?"}
+  MR["Manual Review<br/>review queue"]
+  VER["Verified"]
+  RSP{"RSP or SEC<br/>check failed?"}
+  R1["Response ready"]
+  R2["Response requires review"]
+  C -->|"excluded"| X
+  C --> WV --> S --> G
+  C --> TRG --> G
+  G -->|"yes"| MR
+  G -->|"no"| VER --> RSP
+  RSP -->|"no"| R1
+  RSP -->|"yes"| R2
+  MR --> R2
+  class C,X,WV,TRG,S,G,VER,RSP,R1 rules
+  class MR,R2 human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

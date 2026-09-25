@@ -1,0 +1,28 @@
+flowchart TB
+  SUB["POST /api/v1/complaints<br/>HTTP 202, queued"]
+  PRE["Preprocessing<br/>avg 21 ms"]
+  RET["Retrieval<br/>avg 3.6 ms"]
+  AIA["GenAI analysis call<br/>avg 17.2 s, p95 24.9 s"]
+  VAL["Python validation<br/>avg 2.2 ms"]
+  REC(["Recommendation computed<br/>avg 17.2 s from start<br/>80.8% within 20 s"])
+  COM["GenAI response call<br/>avg 5.9 s, p95 9.8 s"]
+  RVA["Response validation<br/>avg 2.4 ms"]
+  FIN[("Saved and shown<br/>p50 21.7 s, p95 33.9 s<br/>32.4% within 20 s")]
+  SUB --> PRE --> RET --> AIA --> VAL
+  VAL -.-> REC
+  VAL --> COM --> RVA --> FIN
+  subgraph LEG["Legend"]
+    L1["GenAI call"]
+    L2["Python step"]
+  end
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A
+  class SUB ui
+  class AIA,COM,L1 genai
+  class PRE,RET,VAL,RVA,REC,L2 rules
+  class FIN data

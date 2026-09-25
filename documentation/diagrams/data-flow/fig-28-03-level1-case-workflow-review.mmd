@@ -1,0 +1,45 @@
+flowchart TB
+  CUS["Customer"]
+  AGT["Support Agent"]
+  REV["Reviewer"]
+  MGR["Support Manager"]
+  P4("4.0 Handle case<br/>workflow and SLA")
+  P5("5.0 Review<br/>flagged cases")
+  D1a[("D1 Complaints")]
+  D6[("D6 Workflow")]
+  P3("3.0 Process complaint<br/>(Figure 28.2)")
+  D1b[("D1 Complaints")]
+
+  CUS <-->|"in: clarification, reopen<br/>out: status, replies"| P4
+  AGT <-->|"in: assign, send, escalate<br/>out: case view, warnings"| P4
+  REV <-->|"in: claim, decision<br/>out: queue, evidence"| P5
+  MGR -->|"decision"| P5
+  P4 <-->|"status,<br/>assignment"| D1a
+  P4 <-->|"responses, escalations,<br/>follow-ups, SLA"| D6
+  P4 -->|"re-analysis<br/>request"| P3
+  P5 <-->|"reviews, actions,<br/>responses"| D6
+  P5 -->|"reclassify,<br/>regenerate"| P3
+  P5 -->|"Human Verified,<br/>corrections"| D1b
+
+  subgraph LEG["Legend"]
+    direction TB
+    L1["External entity"]
+    L2("Python process")
+    L3("Human decision process")
+    L4[("Data store")]
+  end
+  P3 ~~~ LEG
+
+  class CUS,AGT,REV,MGR,L1 ext
+  class P3,P4,L2 rules
+  class P5,L3 human
+  class D1a,D1b,D6,L4 data
+  style P3 stroke-dasharray:5 4
+
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

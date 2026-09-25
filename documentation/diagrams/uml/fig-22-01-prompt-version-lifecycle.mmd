@@ -1,0 +1,14 @@
+stateDiagram-v2
+  direction TB
+  [*] --> Draft: created on the Prompts page or by POST versions
+  [*] --> Active: seeded from a file with status active
+  [*] --> Retired: seeded from a file with status retired
+  Draft --> Active: activated
+  Active --> Retired: another version of the key is activated
+  Retired --> Active: rollback, activated again
+  note right of Active
+    One active version per key.
+    New AI calls use it at once.
+    Past analyses keep their
+    key, version and sha256.
+  end note

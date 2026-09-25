@@ -1,0 +1,31 @@
+flowchart TB
+  RMX[("Rule Matrix and<br/>reference data")]
+  KB[("Knowledge Base:<br/>active, clean chunks")]
+  ATK["Embedded attack:<br/>ignore rules, fake note"]
+  SYS["System prompt:<br/>trusted instructions"]
+  EVD["Evidence: the only<br/>citable policy source"]
+  CMPL["Complaint text<br/>untrusted input"]
+  SCN["Normalise and screen:<br/>28 patterns and more"]
+  PREP["Mark flagged spans,<br/>redact cards, passwords"]
+  REV["Manual review<br/>REV-010"]
+  UNC["Complaint element<br/>with a random nonce"]
+  LLM["GenAI analysis<br/>strict JSON schema"]
+
+  ATK -.->|"hidden in"| CMPL
+  CMPL --> SCN --> PREP --> UNC --> LLM
+  SCN -->|"suspicious"| REV
+  RMX --> SYS --> LLM
+  KB --> EVD --> LLM
+
+  class ATK risk
+  class RMX,KB,SYS,EVD,CMPL,UNC data
+  class SCN,PREP rules
+  class LLM genai
+  class REV human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

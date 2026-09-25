@@ -1,0 +1,38 @@
+flowchart TB
+  subgraph LOC["Local: tested"]
+    LB["Browser<br/>127.0.0.1:8000"]
+    LU["uvicorn + FastAPI<br/>API and React build"]
+    LP[("Embedded PostgreSQL 17.10<br/>devdb.py, port 5433")]
+  end
+
+  subgraph DKR["Docker: not tested"]
+    IMG["Dockerfile, two stages<br/>node:22-alpine build,<br/>python:3.14-slim runtime"]
+    DA["app container<br/>port 8000, storage volume"]
+    DD[("db container<br/>postgres:17-alpine")]
+  end
+
+  subgraph RND["Render: not deployed"]
+    RS["Render dashboard<br/>AI_API_KEY, DEMO_PASSWORD"]
+    RW["Web service, Docker<br/>APP_ENV=production"]
+    RD[("Managed PostgreSQL<br/>supportnova-db")]
+  end
+
+  OAI["OpenAI API<br/>gpt-4.1-mini"]
+
+  LB --> LU -->|"DATABASE_URL"| LP
+  IMG --> DA -->|"db:5432"| DD
+  RS -.->|"secrets"| RW -->|"DATABASE_URL"| RD
+  LU --->|"HTTPS"| OAI
+  DA -.-> OAI
+  RW -.-> OAI
+
+  class LU,IMG,DA,RW rules
+  class LP,DD,RD data
+  class LB,RS,OAI ext
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

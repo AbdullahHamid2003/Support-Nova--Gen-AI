@@ -1,0 +1,36 @@
+flowchart TB
+  KBS[("Knowledge base<br/>24 documents, 29 versions")]
+  YAML[("rules/ and config/<br/>YAML baseline")]
+  KBB["KB build check<br/>must-state facts and<br/>routing table = routing rules"]
+  DB[("Table rules<br/>276 rules, 14 config rows")]
+  RM["RuleMatrix<br/>integrity-checked, hashed,<br/>cached by revision"]
+  DE["DecisionEngine<br/>Pipeline 2"]
+  SIM["Simulator and<br/>reference labeler"]
+  RET["Rule-guided retrieval<br/>of KB sections"]
+  GEN["GenAI Pipeline 1<br/>vocabulary only"]
+  KBS --> KBB
+  YAML --> KBB
+  YAML -->|"seed or reset"| DB
+  DB --> RM
+  RM --> DE
+  RM --> SIM
+  RM --> RET
+  RM -.->|"codes, levels,<br/>priority matrix"| GEN
+  subgraph LEGEND["Legend"]
+    L1["GenAI"]
+    L2["Deterministic Python"]
+    L3["Data store"]
+  end
+  SIM ~~~ L1
+  RET ~~~ L2
+  GEN ~~~ L3
+  class GEN,L1 genai
+  class KBB,RM,DE,SIM,RET,L2 rules
+  class KBS,YAML,DB,L3 data
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

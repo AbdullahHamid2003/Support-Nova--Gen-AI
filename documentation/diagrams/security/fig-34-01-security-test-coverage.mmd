@@ -1,0 +1,53 @@
+flowchart LR
+  subgraph ATK["Attacks tested"]
+    A1["Prompt injection,<br/>fake system messages"]
+    A2["Fake or outdated<br/>policy references"]
+    A3["Unsupported refund or<br/>compensation demands"]
+    A4["Card numbers and<br/>passwords in text"]
+    A5["Malicious document<br/>MAL-DOC-99"]
+    A6["Executable or<br/>oversized uploads"]
+    A7["No session, wrong role,<br/>no CSRF token"]
+    A8["UPDATE or DELETE<br/>on audit_logs"]
+  end
+  subgraph CTL["Controls exercised"]
+    C1["Injection screening<br/>security/injection.py"]
+    C2["PII redaction<br/>security/pii.py"]
+    C3["Python validation checks<br/>SEC, SCH, POL, ELG, RSP"]
+    C4["Upload validation,<br/>chunk quarantine"]
+    C5["Auth, RBAC, CSRF,<br/>lockout, rate limit"]
+    C6["Append-only trigger,<br/>hash chain"]
+  end
+  subgraph OUT["Outcome"]
+    O1["Manual Review<br/>never auto-verified"]
+    O2["Request refused<br/>401, 403, 422, 429"]
+    O3["Change blocked<br/>chain still valid"]
+  end
+  A1 --> C1
+  A2 --> C1
+  A1 --> C3
+  A2 --> C3
+  A3 --> C3
+  A4 --> C2
+  A4 --> C3
+  A5 --> C4
+  A6 --> C4
+  A7 --> C5
+  A8 --> C6
+  C1 --> O1
+  C2 --> O1
+  C3 --> O1
+  C4 --> O2
+  C5 --> O2
+  C6 --> O3
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A
+  class A1,A2,A3,A4,A5,A6,A7,A8 risk
+  class C1,C2,C3,C4,C5 rules
+  class C6 data
+  class O1 human
+  class O2,O3 rules

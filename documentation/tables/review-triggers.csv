@@ -1,0 +1,15 @@
+﻿rule_id,code,name,enabled,categories,signals,policy_refs
+REV-001,ai_python_category_mismatch,AI and rules disagree on the category,True,,,CHP-SOP-13:7
+REV-002,critical_validation_failure,A critical check failed,True,,,CHP-SOP-13:3.6
+REV-003,low_verification_score,Verification score too low,True,,,CHP-SOP-13:3.6
+REV-004,missing_policy_support,No policy supports the decision,True,,,CHP-SOP-13:7; CHP-POL-01:6.2
+REV-005,ambiguous_complaint,Unclear complaint,True,,,CHP-SOP-13:7
+REV-006,escalation_unclear,Escalation level unclear,True,,,CHP-SOP-13:7
+REV-007,policy_contradiction,Conflicting policy information,True,,,CHP-SOP-13:7; CHP-POL-01:10.5
+REV-008,sensitive_case,Sensitive case needs human approval,True,SAF; PRV,legal_threat; staff_harassment; injury; lock_security,CHP-SOP-13:7; CMP-GDL-19:8.2
+REV-009,invalid_ai_output,No usable AI answer,True,,,CHP-SOP-13:7
+REV-010,prompt_injection_detected,Attempt to manipulate the AI,True,,,CHP-POL-01:6.4; CMP-GDL-19:8.3
+REV-011,unsupported_promise,Response makes unsupported promises,True,,,CHP-POL-01:6.1
+REV-012,hallucination_detected,Unsupported claims,True,,,CHP-POL-01:6.2
+REV-013,unknown_category,Unknown category,True,,,CHP-POL-01:5.1
+REV-014,reference_mismatch,Order not found for this customer,True,,,SEC-POL-09:6

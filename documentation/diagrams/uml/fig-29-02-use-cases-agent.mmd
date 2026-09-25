@@ -1,0 +1,50 @@
+flowchart LR
+  AGT["Support Agent"]
+  subgraph SYS["SupportNova"]
+    UC02(["UC-02 Submit complaint<br/>for a customer"])
+    UC08(["UC-08 View assigned<br/>complaints"])
+    UC09(["UC-09 Search and<br/>filter complaints"])
+    UC10(["UC-10 Inspect case<br/>intelligence"])
+    UC11(["UC-11 Assign<br/>complaint"])
+    UC12(["UC-12 Edit and<br/>send response"])
+    UC14(["UC-14 Change<br/>status"])
+    UC15(["UC-15 Escalate<br/>complaint"])
+    UC16(["UC-16 Re-run<br/>analysis"])
+    UC17(["UC-17 Complete<br/>follow-up"])
+    UC18(["UC-18 Consult knowledge<br/>base and rules"])
+    UC03(["UC-03 Pre-check fields<br/>and duplicates"])
+    UC13(["UC-13 Check response<br/>for promises"])
+    UC04(["UC-04 Analyse and<br/>validate complaint"])
+  end
+  OAI["OpenAI API<br/>(secondary actor)"]
+
+  AGT --- UC02
+  AGT --- UC08
+  AGT --- UC09
+  AGT --- UC10
+  AGT --- UC11
+  AGT --- UC12
+  AGT --- UC14
+  AGT --- UC15
+  AGT --- UC16
+  AGT --- UC17
+  AGT --- UC18
+  UC02 -.->|"«include»"| UC03
+  UC02 -.->|"«include»"| UC04
+  UC12 -.->|"«include»"| UC13
+  UC16 -.->|"«include»"| UC04
+  UC04 --- OAI
+
+  class AGT human
+  class OAI ext
+  class UC02,UC08,UC09,UC10,UC11,UC12,UC14,UC15,UC16,UC17,UC18 ui
+  class UC03,UC13 rules
+  class UC04 genai
+
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

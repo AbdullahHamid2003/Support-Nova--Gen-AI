@@ -1,0 +1,49 @@
+flowchart TB
+  subgraph R1["Upload and file checks"]
+    direction LR
+    UP["Upload PDF or DOCX<br/>dialog or API"]
+    VAL["File validation<br/>type, size, empty,<br/>executable, duplicate"]
+    REJ["Rejected<br/>422 or 409,<br/>nothing stored"]
+    UP --> VAL
+    VAL -->|"fails"| REJ
+  end
+
+  subgraph R2["Parsing and metadata"]
+    direction LR
+    PAR["Parsing<br/>PyMuPDF,<br/>python-docx"]
+    MET["Metadata validation<br/>ID, version, type,<br/>status, dates"]
+    SEC["Section extraction<br/>numbered headings,<br/>page span"]
+    PAR --> MET --> SEC
+  end
+
+  subgraph R3["Chunks and versions"]
+    direction LR
+    CH["Chunking<br/>chunk_uid per section,<br/>quarantine screen"]
+    EMB["Embedding<br/>local-hash-v1-768"]
+    VER["Version control<br/>and impact analysis"]
+    CH --> EMB --> VER
+  end
+
+  subgraph R4["Approved knowledge in use"]
+    direction LR
+    KB[("Approved<br/>Knowledge Base")]
+    RET["Semantic retrieval<br/>eligible chunks"]
+    EV[("Evidence<br/>E1 to E10")]
+    CTX["GenAI<br/>context"]
+    KB --> RET --> EV --> CTX
+  end
+
+  R1 --> R2 --> R3 --> R4
+
+  class CTX genai
+  class VAL,PAR,MET,SEC,CH,EMB,VER,RET rules
+  class KB,EV data
+  class UP ui
+  class REJ risk
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

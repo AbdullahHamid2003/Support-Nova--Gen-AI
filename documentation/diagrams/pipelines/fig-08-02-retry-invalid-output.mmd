@@ -1,0 +1,37 @@
+flowchart TB
+  START["Attempt n<br/>at most 1 + AI_MAX_RETRIES = 3"]
+  CALL["Provider call<br/>request plus any correction"]
+  LOG[("ai_runs<br/>one row per attempt")]
+  VALIDATE["Validate the reply<br/>extract_json, jsonschema<br/>Draft 2020-12, Pydantic"]
+  ACC["Accepted output<br/>stage result ok"]
+  RETRYQ["Retry decision<br/>attempts left and error<br/>retryable (Table 8.6)?"]
+  MR["Stage failed<br/>SCH-001 fails, REV-009,<br/>Manual Review, rules apply"]
+  START --> CALL
+  CALL -.- LOG
+  CALL -->|"reply"| VALIDATE
+  CALL -->|"provider error"| RETRYQ
+  VALIDATE -->|"valid"| ACC
+  VALIDATE -->|"invalid output"| RETRYQ
+  RETRYQ -->|"yes, pause and correct"| START
+  RETRYQ -->|"no"| MR
+  subgraph LEG["Legend"]
+    L1["GenAI"]
+    L2["Python"]
+    L3["Data"]
+    L4["Human"]
+  end
+  MR ~~~ L1
+  MR ~~~ L2
+  MR ~~~ L3
+  MR ~~~ L4
+  class CALL,ACC,L1 genai
+  class START,VALIDATE,RETRYQ,L2 rules
+  class LOG,L3 data
+  class MR,L4 human
+classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A

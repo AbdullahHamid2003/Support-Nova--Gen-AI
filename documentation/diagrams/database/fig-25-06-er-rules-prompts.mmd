@@ -1,0 +1,52 @@
+erDiagram
+  CATEGORIES ||--o{ SUBCATEGORIES : "category_id"
+  SUBCATEGORIES |o..o{ RULES : "code, no FK"
+  USERS |o--o{ RULES : "updated_by_id"
+  USERS |o--o{ SYSTEM_SETTINGS : "updated_by_id"
+  USERS |o--o{ PROMPT_VERSIONS : "created_by_id"
+  PROMPTS ||--o{ PROMPT_VERSIONS : "prompt_id"
+
+  CATEGORIES {
+    int id PK
+    string code "unique"
+    string name
+    bool is_active
+  }
+  SUBCATEGORIES {
+    int id PK
+    int category_id FK
+    string code "unique"
+    string name
+  }
+  USERS {
+    int id PK
+    string email "unique"
+  }
+  RULES {
+    int id PK
+    int updated_by_id FK
+    string rule_type
+    string rule_id
+    string subcategory_code
+    json body
+    bool is_active
+    int version
+  }
+  SYSTEM_SETTINGS {
+    string key PK
+    int updated_by_id FK
+    json value
+  }
+  PROMPTS {
+    int id PK
+    string prompt_key "unique"
+  }
+  PROMPT_VERSIONS {
+    int id PK
+    int prompt_id FK
+    int created_by_id FK
+    string version
+    string status
+    string output_schema
+    string sha256
+  }

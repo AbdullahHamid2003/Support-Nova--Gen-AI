@@ -1,0 +1,79 @@
+﻿list,code,name,group,description
+actions,VERIFY_IDENTITY,Verify customer identity,verification,Verify identity using the registered email and last four card digits or an order reference.
+actions,VERIFY_ACCOUNT,Verify account,verification,Confirm the account and its recent activity.
+actions,VERIFY_ORDER,Verify order,verification,Confirm the order reference
+actions,CHECK_TRANSACTION,Check transaction,verification,Check the transaction records for the disputed charge.
+actions,VERIFY_SHIPMENT_STATUS,Verify shipment status,verification,Check tracking and carrier status for the shipment.
+actions,VERIFY_WARRANTY_STATUS,Verify warranty status,verification,Confirm warranty coverage period and exclusions.
+actions,VERIFY_CAREPLUS_COVERAGE,Verify Care+ coverage,verification,Confirm the customer's Care+ plan and remaining claims.
+actions,VERIFY_CANCELLATION_RECORD,Verify cancellation record,verification,Confirm when the cancellation was requested and confirmed.
+actions,REVIEW_INTERACTION_RECORDS,Review interaction records,verification,Review call
+actions,REVIEW_ACCOUNT_ACTIVITY,Review account activity,verification,Review logins
+actions,CHECK_REFUND_STATUS,Check refund status,verification,Check whether the refund was approved
+actions,CHECK_SERVICE_STATUS,Check service status,verification,Check the status history of the affected Lumora service.
+actions,LINK_PREVIOUS_COMPLAINT,Link previous complaint,verification,Link the complaint to the earlier related complaint.
+actions,REQUEST_ORDER_REFERENCE,Request order reference,information,Ask the customer for the order reference.
+actions,REQUEST_PHOTO_EVIDENCE,Request photo evidence,information,Ask for photos of the product and packaging.
+actions,REQUEST_ADDITIONAL_INFO,Request additional information,information,Ask focused clarification questions.
+actions,CONTACT_CARRIER,Contact carrier,logistics,Contact the carrier for a status update or revised estimate.
+actions,INITIATE_CARRIER_TRACE,Initiate carrier trace,logistics,Open a carrier trace (up to 5 business days).
+actions,RESHIP_ORDER,Reship order,logistics,Reship the order at no cost.
+actions,SHIP_REPLACEMENT,Ship replacement,logistics,Dispatch a replacement product.
+actions,SHIP_ADVANCE_REPLACEMENT,Ship advance replacement,logistics,Dispatch a replacement before the original is returned (Care+).
+actions,SHIP_CORRECT_ITEM,Ship correct item,logistics,Dispatch the item that was ordered.
+actions,SHIP_MISSING_PART,Ship missing part,logistics,Dispatch the missing part at no cost.
+actions,ISSUE_RETURN_LABEL,Issue prepaid return label,logistics,Send a prepaid return label.
+actions,INSPECT_RETURNED_ITEM,Inspect returned item,logistics,Inspect the returned item within 3 business days of receipt.
+actions,PROCESS_REFUND,Process refund after verification,billing,Issue a refund to the original payment method once eligibility is verified.
+actions,REVERSE_DUPLICATE_CHARGE,Reverse duplicate charge,billing,Reverse a verified duplicate charge.
+actions,CORRECT_BILLING_ERROR,Correct billing error,billing,Refund the verified overcharge or correct the invoice.
+actions,OPEN_PAYMENT_TRACE,Open payment trace,billing,Open a payment trace with the processor and provide the trace reference.
+actions,REFUND_POST_CANCELLATION_CHARGE,Refund post-cancellation charge,billing,Refund a charge taken after a confirmed cancellation.
+actions,CANCEL_SUBSCRIPTION,Cancel subscription,billing,Cancel the subscription / switch off auto-renew.
+actions,CANCEL_ORDER,Cancel order,billing,Cancel an order that has not been dispatched.
+actions,PROVIDE_FEE_BREAKDOWN,Provide itemised fee breakdown,billing,Send an itemised breakdown of refund deductions.
+actions,REVERSE_UNAUTHORIZED_PURCHASES,Reverse unauthorized purchases,billing,Reverse purchases confirmed as unauthorized after investigation.
+actions,OFFER_STORE_CREDIT,Offer store credit (policy entitlement or within approval limit),compensation,Offer store credit only where a policy entitlement exists or within the approver's limit.
+actions,REFUND_SHIPPING_FEE,Refund shipping fee,compensation,Refund the shipping fee where policy allows (late express order
+actions,OFFER_SUBSCRIPTION_CREDIT,Offer one month subscription credit,compensation,One month of subscription credit for a qualifying outage.
+actions,REMOTE_TROUBLESHOOTING,Remote troubleshooting,technical,Walk through the troubleshooting steps in TEC-GDL-20.
+actions,FIRMWARE_UPDATE_GUIDANCE,Firmware / app update guidance,technical,Guide the customer through firmware or app updates or a rollback.
+actions,SCHEDULE_TECHNICIAN_VISIT,Schedule technician visit,technical,Offer a technician visit when remote troubleshooting fails.
+actions,SCHEDULE_INSTALL_REVISIT,Schedule installation re-visit,technical,Book a no-cost installation re-visit within 5 business days.
+actions,GUIDE_PASSWORD_RESET,Guide password reset,technical,Guide the customer through password reset and recovery.
+actions,UPDATE_ACCOUNT_DETAILS,Update account details,technical,Update account profile details after verification.
+actions,OPEN_WARRANTY_CLAIM,Open warranty claim,warranty,Open a warranty claim with Warranty Services.
+actions,REVIEW_WARRANTY_APPEAL,Review warranty appeal,warranty,Route the appeal to a Warranty Services supervisor.
+actions,LOCK_ACCOUNT,Lock account,security,Lock the account after identity verification.
+actions,REVOKE_SESSIONS,Revoke active sessions,security,Sign out all sessions and devices.
+actions,FORCE_PASSWORD_RESET,Force password reset,security,Require a new password.
+actions,ADVISE_PHYSICAL_KEY,Advise physical key and disable remote access,security,For smart-lock incidents
+actions,LOG_PRIVACY_INCIDENT,Log privacy incident,privacy,Log the incident and notify the Privacy Officer within 24 hours.
+actions,CONTAIN_DATA_EXPOSURE,Contain data exposure,privacy,Revoke links and sessions
+actions,PROCESS_DATA_REQUEST,Process data-rights request,privacy,Fulfil access/export/deletion within 30 days after identity verification.
+actions,UPDATE_CONSENT_PREFERENCES,Update consent preferences,privacy,Apply the opt-out / consent change.
+actions,ADVISE_STOP_USING,Advise customer to stop using the product,safety,Advise stopping use and disconnecting power only if safe.
+actions,LOG_SAFETY_INCIDENT,Log safety incident,safety,Log the safety incident within 1 hour.
+actions,NOTIFY_PRODUCT_SAFETY,Notify Product Safety team,safety,Notify the Product Safety team.
+actions,ARRANGE_SPECIALIST_COLLECTION,Arrange specialist collection,safety,Arrange specialist collection of a hazardous product.
+actions,NOTIFY_STAFF_MANAGER,Notify staff manager,service,Inform the staff member's manager of the complaint.
+actions,CORRECT_MISINFORMATION,Correct misinformation,service,Give the customer the correct policy information.
+actions,INVESTIGATE_PROPERTY_DAMAGE,Investigate property damage,service,Investigate damage caused by a technician within 5 business days.
+actions,ESCALATE_SUPERVISOR,Escalate to supervisor,escalation,Supervisor Review.
+actions,ESCALATE_DEPARTMENT_MANAGER,Escalate to department manager,escalation,Department Manager review.
+actions,ESCALATE_SPECIALIST_TEAM,Escalate to specialist team,escalation,Product Safety or Account Security specialist team.
+actions,ESCALATE_COMPLIANCE,Escalate to compliance review,escalation,Compliance Review.
+actions,ESCALATE_CRITICAL_MANAGEMENT,Critical management escalation,escalation,Critical Management Escalation.
+actions,SCHEDULE_FOLLOW_UP,Schedule follow-up,follow_up,Record a follow-up communication and due time.
+prohibited_actions,PROMISE_REFUND_BEFORE_VERIFICATION,Promising a refund before verification,,
+prohibited_actions,GUARANTEE_COMPENSATION,Guaranteeing compensation,,
+prohibited_actions,CASH_COMPENSATION,Offering cash compensation,,
+prohibited_actions,GRANT_POLICY_EXCEPTION,Granting or promising a policy exception without approval,,
+prohibited_actions,ADMIT_LIABILITY,Admitting liability,,
+prohibited_actions,REQUEST_SENSITIVE_CREDENTIALS,"Requesting passwords, full card numbers, CVV or one-time codes",,
+prohibited_actions,SHIP_DAMAGED_BATTERY_BY_MAIL,Instructing postal return of a damaged lithium battery,,
+prohibited_actions,UNSUPPORTED_DELIVERY_DEADLINE,Promising a delivery date not confirmed by the carrier,,
+prohibited_actions,DISMISS_SAFETY_CONCERN,Dismissing or minimising a safety concern,,
+prohibited_actions,DISCLOSE_OTHER_CUSTOMER_DATA,Disclosing another customer's personal data,,
+prohibited_actions,PROMISE_REGULATORY_OUTCOME,Promising a regulatory or legal outcome,,
+prohibited_actions,CLOSE_WITHOUT_RESOLUTION,Closing a complaint without a resolution path,,

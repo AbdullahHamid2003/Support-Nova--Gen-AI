@@ -1,0 +1,34 @@
+flowchart TB
+  UI["Reports page<br/>dates, department, category"]
+  API["GET /api/v1/reports/key<br/>permission reports:export"]
+  DB[("PostgreSQL<br/>live complaint data")]
+  BLD["reporting/builders.py<br/>10 report builders"]
+  AUD[("Audit log<br/>report.exported")]
+  MOD["Report model<br/>sections, metrics, tables"]
+  CSV["CSV<br/>formulas neutralised"]
+  XLS["Excel<br/>text never a formula"]
+  PDF["PDF<br/>core-font safe text"]
+  JSN["JSON<br/>in-page preview"]
+  DL["Browser download<br/>lib/api.ts download()"]
+  UI --> API
+  API --> BLD
+  DB --> BLD
+  API -.->|"file formats"| AUD
+  BLD --> MOD
+  MOD --> CSV
+  MOD --> XLS
+  MOD --> PDF
+  MOD --> JSN
+  CSV --> DL
+  XLS --> DL
+  PDF --> DL
+  classDef genai fill:#EEF0FF,stroke:#4F46E5,color:#1E1B4B,stroke-width:1.5px
+  classDef rules fill:#E7F6EC,stroke:#15803D,color:#052E16,stroke-width:1.5px
+  classDef data fill:#E6F1FB,stroke:#0369A1,color:#082F49
+  classDef ext fill:#F3F4F6,stroke:#4B5563,color:#111827
+  classDef human fill:#FEF3E2,stroke:#B45309,color:#431407
+  classDef ui fill:#FFFFFF,stroke:#334155,color:#0F172A
+  classDef risk fill:#FDECEC,stroke:#B91C1C,color:#450A0A
+  class UI,DL ui
+  class API,BLD,MOD,CSV,XLS,PDF,JSN rules
+  class DB,AUD data

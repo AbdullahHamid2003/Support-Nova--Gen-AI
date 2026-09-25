@@ -1,0 +1,77 @@
+# =============================================================================
+# SupportNova - Fictional organization definition
+# -----------------------------------------------------------------------------
+# SRS 1.8(1) requires a unique fictional organization. Everything in this
+# repository (knowledge base, rule matrix, complaint dataset, simulated orders)
+# belongs to this single organization and must stay consistent with it.
+# =============================================================================
+organization:
+  id: LUMORA
+  name: Lumora Home Technologies
+  short_name: Lumora
+  legal_name: Lumora Home Technologies Ltd.
+  disclaimer: >-
+    Lumora Home Technologies is a fictional organization created for the
+    SupportNova project. All customers, products, orders, policies, staff and
+    complaints are simulated. No real customer or company data is used. Any
+    resemblance to a real organization is coincidental.
+  industry: Consumer electronics and smart-home e-commerce with subscription services
+  description: >-
+    Lumora designs and sells smart-home devices directly to consumers and small
+    businesses through its online store and mobile app. It also runs two
+    subscription services (Lumora Cloud Vault camera storage and the Lumora
+    Care+ protection plan) and a professional installation service (Lumora Pro
+    Install).
+  currency: USD
+  timezone: UTC
+  support_email: support@lumora.example
+  website: https://lumora.example
+
+# Complaint channels (SRS 1.2 / architecture diagram: web form, email, chat, uploaded complaint)
+channels:
+  - {code: web_form, name: Web Form}
+  - {code: email, name: Email}
+  - {code: chat, name: Live Chat}
+  - {code: phone, name: Phone (transcribed)}
+  - {code: mobile_app, name: Mobile App}
+  - {code: social_media, name: Social Media}
+  - {code: uploaded, name: Uploaded Complaint}
+
+# Customer types. Customer type never changes urgency on its own (see SLA-RUL-15 5.4);
+# it can change eligibility (e.g. Care+ refund window) as defined in policy.
+customer_types:
+  - {code: individual, name: Individual, description: Standard retail customer.}
+  - {code: care_plus, name: Care+ Member, description: Customer with an active Lumora Care+ protection plan.}
+  - {code: business, name: Business, description: Small-business account (offices, rentals, retail premises).}
+  - {code: vip, name: VIP (Lumora Circle), description: Top-tier loyalty member. Customer type never changes urgency or priority (SLA-RUL-15 5.4).}
+
+preferred_contact_methods:
+  - {code: email, name: Email}
+  - {code: phone, name: Phone}
+  - {code: sms, name: SMS}
+  - {code: chat, name: Chat}
+
+# Requested resolution captured at submission (SRS 1.2 "Requested resolution")
+requested_resolutions:
+  - {code: refund, name: Refund}
+  - {code: replacement, name: Replacement}
+  - {code: repair, name: Repair}
+  - {code: compensation, name: Compensation}
+  - {code: explanation, name: Explanation / Information}
+  - {code: cancellation, name: Cancellation}
+  - {code: other, name: Other}
+  - {code: none, name: Not specified}
+
+# Response tones (SRS Step 33)
+response_tones:
+  - {code: professional, name: Professional}
+  - {code: empathetic, name: Empathetic}
+  - {code: concise, name: Concise}
+  - {code: formal, name: Formal}
+
+# Reference formats used for validation of submitted references (SRS Step 10)
+reference_formats:
+  complaint: '^CMP-\d{5,}$'
+  order: '^LMR-\d{6}$'
+  transaction: '^TXN-\d{8}$'
+  customer: '^CUST-\d{5}$'

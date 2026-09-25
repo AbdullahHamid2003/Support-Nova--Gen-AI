@@ -1,0 +1,603 @@
+# =============================================================================
+# Scenario bank - DEL (Delivery): DEL-DLY, DEL-LST, DEL-WRG
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ DEL-DLY
+  - scenario_id: DEL-DLY-CREDIT
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-02
+    primary_issue: "Standard delivery more than 3 business days late"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [4, 9]}}
+    products: [LUM-TH-100, LUM-CAM-210, LUM-VAC-300, LUM-SPK-500, LUM-AIR-900, LUM-HUB-800, LUM-BLB-610]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Order {order_ref} is late"
+        body: >-
+          My order {order_ref} for a {product} was due on {date:eta} but it has not arrived yet. The tracking page
+          just says in transit. Could you check with the courier and let me know when to expect it?
+      - style: frustrated
+        title: "Still waiting for my {product:short}"
+        body: >-
+          My {product} was supposed to arrive on {date:eta}. Every day I check the tracking and it just sits at the
+          depot. I booked a day off to wait in for it last week. Can someone actually find out where it is? Order
+          {order_ref}.
+      - style: angry
+        title: "Late delivery - I want compensation"
+        requested_resolution: compensation
+        signals_add: [compensation_request]
+        params: {demand: [40, 50, 75]}
+        body: >-
+          This is a joke. Order {order_ref} was due on {date:eta} and it is STILL not here. I want {comp:demand} in
+          compensation for all the time I have wasted chasing your useless courier. Do not fob me off with a
+          tracking link.
+      - style: polite
+        title: "Question about my delivery"
+        body: >-
+          Hello, I hope you are well. I was expecting my {product} (order {order_ref}) on {date:eta} and it has not
+          turned up yet. Would you be able to look into it for me? Many thanks.
+
+  - scenario_id: DEL-DLY-EXPRESS
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-03
+    primary_issue: "Express order delivered late - express fee refund"
+    order_profile: {name: late_express, params: {bdays_late: [1, 3], delivered: false}}
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-TH-100, LUM-PLG-600, LUM-LCK-700]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Paid for express, still waiting"
+        body: >-
+          I paid {amt:shipping_fee} extra for express shipping on order {order_ref} because I needed the {product}
+          for the weekend. It was meant to arrive on {date:eta} and it is still in transit. I want the express fee
+          refunded.
+      - style: calm
+        title: "Express delivery missed its date"
+        body: >-
+          Order {order_ref} was sent express with delivery promised for {date:eta}. It has not been delivered yet.
+          As I paid {amt:shipping_fee} for the faster service, could the express charge be refunded?
+      - style: angry
+        title: "Express shipping? What a joke"
+        body: >-
+          Express shipping, what a joke. {amt:shipping_fee} for "1-2 business days" and my {product} is still
+          sitting in a van somewhere. Refund the fee and get my order to me. {order_ref}.
+
+  - scenario_id: DEL-DLY-EXPRESS-DELIVERED
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-03
+    primary_issue: "Express order arrived after the promised date"
+    order_profile: {name: late_express, params: {bdays_late: [1, 3], delivered: true}}
+    products: [LUM-HUB-800, LUM-SPK-500, LUM-AIR-900]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Express order arrived late"
+        body: >-
+          My express order {order_ref} was due on {date:eta} but only arrived on {date:delivered}. The {product}
+          itself is fine. Please refund the {amt:shipping_fee} express delivery charge.
+      - style: polite
+        title: "Express delivery fee"
+        body: >-
+          Hi, the {product} I ordered with express delivery reached me on {date:delivered}, a bit later than the
+          date shown at checkout ({date:eta}). Would it be possible to refund the express fee? Thank you.
+
+  - scenario_id: DEL-DLY-LONG
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-04
+    primary_issue: "Delivery more than 10 business days late - treat as lost"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [11, 16]}}
+    products: [LUM-VAC-300, LUM-AIR-900, LUM-TH-100, LUM-CAM-210, LUM-HUB-800]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: frustrated
+        title: "Over two weeks late"
+        body: >-
+          My {product} (order {order_ref}) was due on {date:eta}. That was {dur:eta} ago and it still has not come.
+          At this point I assume it is lost. Please send a replacement or tell me what is happening.
+      - style: calm
+        title: "Very delayed order {order_ref}"
+        body: >-
+          Order {order_ref} should have been delivered on {date:eta}. The tracking stopped moving a while back and
+          the courier has not been able to tell me anything. I would like a new one sent out if it cannot be found.
+      - style: angry
+        title: "Where is my order?!"
+        signals_add: [media_threat]
+        body: >-
+          Where is my order?! {order_ref} was due {dur:eta} ago. I have emailed, I have called, and nobody knows
+          anything. If a replacement is not on its way by Monday I am posting about this on social media.
+
+  - scenario_id: DEL-DLY-FORCE
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-05
+    primary_issue: "Delivery delayed by severe weather - delay credit not applicable"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [4, 8]}}
+    products: [LUM-SPK-500, LUM-TH-100, LUM-BLB-610, LUM-HUB-800]
+    requested_resolution: compensation
+    signals: [force_majeure]
+    texts:
+      - style: calm
+        title: "Delayed order and the delay credit"
+        signals_add: [compensation_request]
+        body: >-
+          I know there has been severe weather in our area this week, but my order {order_ref} was due on
+          {date:eta} and is still on the way. Will I still get the usual store credit for the delay?
+      - style: angry
+        title: "Stop blaming the floods"
+        signals_add: [compensation_request]
+        body: >-
+          Your courier keeps blaming the floods for my late {product}. Other companies manage to deliver! This is
+          pathetic. I want a store credit for the delay on {order_ref} and I want it now.
+      - style: frustrated
+        title: "Hurricane delay - what now?"
+        requested_resolution: explanation
+        body: >-
+          I understand the hurricane closed the depot, but my {product} was due on {date:eta} and I have had no
+          update since. Can you at least tell me when it will be delivered? Order {order_ref}.
+
+  - scenario_id: DEL-DLY-ADDRESS
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-05
+    primary_issue: "Delivery delayed by an address error made by the customer"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [4, 7]}}
+    products: [LUM-CAM-200, LUM-PLG-600, LUM-AIR-900]
+    requested_resolution: compensation
+    signals: [customer_address_error, compensation_request]
+    texts:
+      - style: calm
+        title: "Late order after an address typo"
+        body: >-
+          There was a typo in my address when I placed order {order_ref} - I put 14 instead of 41 - and the courier
+          has now sent it back to the depot. It was due on {date:eta}. Could it be redelivered, and is there any
+          goodwill credit for the delay?
+
+  - scenario_id: DEL-DLY-SLIGHT
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-01
+    difficulty_type: unsupported_compensation
+    primary_issue: "Delivery 1-3 business days late (no delay credit)"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [1, 3]}}
+    products: [LUM-SPK-500, LUM-BLB-610, LUM-PLG-600, LUM-CAM-200, LUM-TH-100]
+    requested_resolution: compensation
+    signals: [compensation_request]
+    texts:
+      - style: frustrated
+        title: "Late parcel - voucher please"
+        params: {demand: [15, 20]}
+        body: >-
+          My {product} was meant to arrive on {date:eta} and it is late. I stayed home for it. I expect a
+          {comp:demand} voucher for the inconvenience. Order {order_ref}.
+      - style: calm
+        title: "Delivery a day or two late"
+        body: >-
+          Order {order_ref} did not arrive on {date:eta} as expected. Could you check the status, and is there any
+          compensation for the delay?
+      - style: polite
+        title: "Slightly late order"
+        difficulty_type: simple
+        requested_resolution: explanation
+        signals_remove: [compensation_request]
+        body: >-
+          Hi, my {product} was expected on {date:eta} and hasn't shown up yet. It's not urgent, I just wanted to
+          check nothing has gone wrong. Order {order_ref}. Thanks!
+
+  # ------------------------------------------------------------------ DEL-LST
+  - scenario_id: DEL-LST-STALE
+    pool: dev
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-01
+    primary_issue: "Parcel with no tracking update for over 7 business days"
+    order_profile: {name: lost_no_updates, params: {bdays_since_update: [8, 14]}}
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-TH-100, LUM-PLG-600, LUM-BLB-610, LUM-HUB-800]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "Tracking has not moved"
+        body: >-
+          The tracking for order {order_ref} has not updated since {date:tracking}. It still says it is at the
+          regional depot. I think the parcel may be lost. Could you open an investigation with the courier?
+      - style: frustrated
+        title: "Lost package?"
+        signals_add: [replacement_request]
+        body: >-
+          My {product} left your warehouse on {date:dispatched} and there has been no tracking update since
+          {date:tracking}. I think the package is lost. I just want a replacement sent so I can stop checking
+          the tracking page every day. Order {order_ref}.
+      - style: angry
+        title: "My parcel has vanished"
+        signals_add: [refund_request]
+        requested_resolution: refund
+        body: >-
+          My parcel has vanished into thin air. The last scan was {date:tracking} and since then nothing, not a
+          single update. I paid {amt:total} for order {order_ref}. Either find it or give me my money back.
+
+  - scenario_id: DEL-LST-MARKED
+    pool: dev
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-01
+    primary_issue: "Parcel marked as delivered but not received"
+    order_profile: {name: marked_delivered, params: {days: [1, 4]}}
+    products: [LUM-CAM-210, LUM-SPK-500, LUM-LCK-700, LUM-TH-100, LUM-AIR-900]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "Marked as delivered, never received"
+        body: >-
+          The tracking for order {order_ref} says my {product} was delivered on {date:delivered}, but I never
+          received it. I was home all day, and I have checked with my neighbours and around the building. Can you
+          please investigate?
+      - style: frustrated
+        title: "Says delivered - it wasn't"
+        body: >-
+          Your courier marked my parcel as delivered on {date:delivered} and there was nothing on my porch. There is
+          no photo, no signature, nothing. Order {order_ref}. I want a proper investigation.
+      - style: polite
+        title: "Parcel not received"
+        signals_add: [replacement_request]
+        body: >-
+          Good evening, my {product} shows as delivered on {date:delivered}, though sadly it never reached me.
+          Could you look into it with the carrier? If it cannot be found, a replacement would be wonderful.
+          Order {order_ref}.
+
+  - scenario_id: DEL-LST-TRACED
+    pool: dev
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-02
+    primary_issue: "Carrier trace completed without finding the parcel"
+    order_profile: {name: trace_completed, params: {trace_bdays: [6, 9]}}
+    products: [LUM-SPK-500, LUM-TH-100, LUM-CAM-200, LUM-HUB-800, LUM-AIR-900]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "Trace finished - parcel still missing"
+        signals_add: [replacement_request]
+        body: >-
+          Your team opened a trace for my lost parcel (order {order_ref}) on {date:trace_opened}. I was told today
+          the courier could not locate it. Please reship the {product} - a replacement is fine, I still want it.
+      - style: frustrated
+        title: "Courier cannot find my order"
+        signals_add: [refund_request]
+        requested_resolution: refund
+        body: >-
+          After waiting for the trace you opened on {date:trace_opened}, the courier has confirmed they have no idea
+          where my {product} is. I have given up on it. I would like a full refund for order {order_ref}.
+      - style: angry
+        title: "Trace done, still no parcel"
+        signals_add: [refund_request, replacement_request]
+        body: >-
+          So the trace is done and my parcel is officially lost. Fantastic. {order_ref} - I want either a new one
+          sent by express or a full refund, today, not in another two weeks.
+
+  - scenario_id: DEL-LST-HIGH
+    pool: dev
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-03
+    difficulty_type: high_value
+    primary_issue: "Lost order valued at USD 500 or more"
+    order_profile: {name: high_value, params: {base: lost_no_updates, min_total: 500, bdays_since_update: [8, 12]}}
+    products: [LUM-PWR-400, LUM-VAC-300, LUM-CAM-210]
+    customer_types: [individual, vip, care_plus]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "Expensive order appears to be lost"
+        body: >-
+          My order {order_ref} worth {amt:total} has had no tracking update since {date:tracking}. It contains my
+          {product} and a few other items. I am worried it has been lost and would appreciate an urgent
+          investigation.
+      - style: frustrated
+        title: "{amt:total} order missing"
+        signals_add: [refund_request]
+        requested_resolution: refund
+        body: >-
+          I spent {amt:total} on order {order_ref} and it has disappeared. The tracking has been frozen since
+          {date:tracking}. This is a lot of money for me. I want a refund or the items delivered, one or the other.
+      - style: frustrated
+        title: "Lost {amt:total} order - consumer protection"
+        signals_add: [legal_threat, refund_request]
+        requested_resolution: refund
+        body: >-
+          Order {order_ref} worth {amt:total} has been stuck since {date:tracking}. If I do not get the goods or a
+          refund this week I will report Lumora to consumer protection.
+
+  - scenario_id: DEL-LST-BUSINESS
+    pool: dev
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-03
+    difficulty_type: high_value
+    primary_issue: "Lost bulk business order (USD 2,500+)"
+    order_profile: {name: high_value, params: {base: lost_no_updates, min_total: 2500, bulk: true, bdays_since_update: [8, 12]}}
+    products: [LUM-TH-100, LUM-LCK-700, LUM-CAM-210]
+    customer_types: [business]
+    requested_resolution: replacement
+    signals: [business_impact]
+    texts:
+      - style: calm
+        title: "Bulk order for our rental properties lost"
+        body: >-
+          We ordered {qty} units of the {product} for our rental properties under order {order_ref} ({amt:total}).
+          The shipment has not moved since {date:tracking}. Our tenants are waiting for the installations. Please
+          escalate this and advise on reshipping.
+      - style: frustrated
+        title: "Business order stuck - {order_ref}"
+        body: >-
+          Our business placed order {order_ref} for {qty} x {product}, total {amt:total}. Tracking shows no movement
+          since {date:tracking} and we have installers booked next week. This is costing our business money.
+          We need this located or reshipped immediately.
+
+  # ------------------------------------------------------------------ DEL-WRG
+  - scenario_id: DEL-WRG-SHIP
+    pool: dev
+    subcategory: DEL-WRG
+    intended_rule: RES-DEL-WRG-02
+    primary_issue: "Wrong item delivered ({product2} instead of {product})"
+    order_profile: {name: delivered_recent, params: {days: [1, 6]}}
+    products: [LUM-CAM-210, LUM-TH-100, LUM-SPK-500, LUM-HUB-800, LUM-AIR-900]
+    product2: [LUM-CAM-200, LUM-SPK-500, LUM-PLG-600, LUM-BLB-610, LUM-AIR-900]
+    requested_resolution: replacement
+    include: {photo: true}
+    texts:
+      - style: calm
+        title: "Wrong item in my parcel"
+        body: >-
+          I ordered a {product} (order {order_ref}) but the box delivered on {date:delivered} contained a
+          {product2} instead. I have attached photos of the item and the label. Please send the correct item and
+          let me know how to return this one.
+      - style: frustrated
+        title: "Not what I ordered"
+        body: >-
+          Not what I ordered. I paid for a {product} and received a {product2}. Photos attached. I need the correct
+          item, I was planning to set it up this weekend. Order {order_ref}.
+      - style: polite
+        title: "Incorrect product received"
+        signals_add: [replacement_request]
+        body: >-
+          Hello, I think there has been a mix-up in the warehouse: my order {order_ref} should be a {product}, but
+          a {product2} arrived on {date:delivered}. See the attached pictures. Could you exchange the item for the
+          one I ordered? Thank you.
+      - style: angry
+        title: "You sent me the wrong product"
+        include: {photo: false}
+        expect: {missing_information_include: [photo_evidence]}
+        body: >-
+          How hard is it to put the right thing in a box? I ordered a {product} and you sent me the wrong product,
+          a {product2}. Order {order_ref}. Send the correct item immediately and collect this one.
+
+  - scenario_id: DEL-WRG-REFUND
+    pool: dev
+    subcategory: DEL-WRG
+    intended_rule: RES-DEL-WRG-03
+    primary_issue: "Wrong item delivered - customer prefers a refund"
+    order_profile: {name: delivered_recent, params: {days: [1, 7]}}
+    products: [LUM-VAC-300, LUM-CAM-210, LUM-TH-100, LUM-LCK-700]
+    product2: [LUM-SPK-500, LUM-CAM-200, LUM-HUB-800, LUM-PLG-600]
+    requested_resolution: refund
+    include: {photo: true}
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Wrong item - refund please"
+        body: >-
+          Order {order_ref} arrived on {date:delivered} with a {product2} inside rather than the {product} I bought.
+          I have attached photos. I have since bought one locally, so I would like a refund rather than an exchange.
+      - style: frustrated
+        title: "Sent the wrong model"
+        body: >-
+          You sent me the wrong model - a {product2} instead of my {product}. Photos attached. I needed it this week
+          and no longer need it, so just refund me for order {order_ref}.
+
+  - scenario_id: DEL-WRG-NOORDER
+    pool: dev
+    subcategory: DEL-WRG
+    intended_rule: RES-DEL-WRG-01
+    difficulty_type: incomplete
+    primary_issue: "Wrong item reported without an order reference or photos"
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-HUB-800]
+    product2: [LUM-PLG-600, LUM-BLB-610]
+    requested_resolution: replacement
+    expect: {missing_information_include: [order_reference, photo_evidence]}
+    texts:
+      - style: calm
+        title: "Received a different item"
+        body: >-
+          I received a {product2} in the post but I ordered a {product}. I am not sure what my order number is.
+          How do I get the right item?
+      - style: frustrated
+        title: "Wrong thing delivered"
+        channels: [chat, social_media, phone]
+        body: >-
+          Got the wrong item delivered, a {product2} and not the {product} I paid for. Not happy. What do I do?
+
+  # ============================================================ HOLDOUT (DEL)
+  - scenario_id: H-DEL-DLY-CREDIT
+    pool: holdout
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-02
+    primary_issue: "Standard delivery more than 3 business days late"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [5, 8]}}
+    products: [LUM-AIR-900, LUM-CAM-210, LUM-VAC-300]
+    requested_resolution: explanation
+    texts:
+      - style: frustrated
+        title: "Parcel stuck at depot for days"
+        body: >-
+          Day after day the courier app shows my parcel sitting at the sorting centre. Estimated arrival was
+          {date:eta}, reference {order_ref}. I would appreciate knowing whether it is actually moving.
+      - style: calm
+        title: "Overdue delivery {order_ref}"
+        body: >-
+          Just flagging that {order_ref} ({product}) is now overdue - the confirmation showed {date:eta}. Please
+          check with the carrier. I'm home most afternoons if they need to redeliver.
+
+  - scenario_id: H-DEL-DLY-EXPRESS
+    pool: holdout
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-03
+    primary_issue: "Express delivery missed its date"
+    order_profile: {name: late_express, params: {bdays_late: [1, 2], delivered: true}}
+    products: [LUM-LCK-700, LUM-SPK-500]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Next-day option turned into three days"
+        body: >-
+          I chose the {amt:shipping_fee} express option for {order_ref} so the {product} would be here for
+          {date:eta}. It came on {date:delivered}. Could that express charge be refunded?
+
+  - scenario_id: H-DEL-DLY-LONG
+    pool: holdout
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-04
+    primary_issue: "Order more than 10 business days overdue"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [12, 15]}}
+    products: [LUM-TH-100, LUM-AIR-900]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: polite
+        title: "Delivery nearly three weeks overdue"
+        body: >-
+          Sorry to trouble you again - {order_ref} was estimated for {date:eta}, which is now {dur:eta} ago. I have
+          no idea where the {product} is. If it has gone missing, could a replacement be arranged?
+
+  - scenario_id: H-DEL-DLY-FORCE
+    pool: holdout
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-05
+    primary_issue: "Weather-related delay - no delay credit"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [4, 6]}}
+    products: [LUM-HUB-800, LUM-SPK-500]
+    requested_resolution: compensation
+    signals: [force_majeure, compensation_request]
+    texts:
+      - style: angry
+        title: "Blizzard excuse does not wash"
+        body: >-
+          A snowstorm in September?! Your carrier says the roads closed for two days and that is why {order_ref} is
+          late. I do not care. Put a store credit on my account for the delay, it is the least you owe me.
+        signals_add: []
+
+  - scenario_id: H-DEL-DLY-SLIGHT
+    pool: holdout
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-01
+    primary_issue: "Delivery 1-3 business days late - compensation requested"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [1, 2]}}
+    products: [LUM-BLB-610, LUM-PLG-600]
+    requested_resolution: compensation
+    signals: [compensation_request]
+    texts:
+      - style: frustrated
+        title: "One day late - credit expected"
+        params: {demand: [10, 15]}
+        body: >-
+          {order_ref} missed its {date:eta} delivery date. I think {comp:demand} of store credit is fair for making
+          me wait around, please add it to my account.
+
+  - scenario_id: H-DEL-LST-STALE
+    pool: holdout
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-01
+    primary_issue: "No tracking movement for over a week"
+    order_profile: {name: lost_no_updates, params: {bdays_since_update: [9, 13]}}
+    products: [LUM-CAM-200, LUM-BLB-610]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "Frozen tracking since {date:tracking}"
+        body: >-
+          Our {product} parcel ({order_ref}) has shown the same scan since {date:tracking}. Nobody at the depot can
+          tell us anything. Please start whatever process you use for missing shipments.
+      - style: angry
+        title: "Your courier lost it, admit it"
+        signals_add: [refund_request]
+        requested_resolution: refund
+        body: >-
+          Admit it, the parcel is gone. {order_ref} last scanned {date:tracking}. I want my {amt:total} refunded
+          today, I am not waiting for another pointless investigation.
+
+  - scenario_id: H-DEL-LST-TRACED
+    pool: holdout
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-02
+    primary_issue: "Trace closed without locating the parcel"
+    order_profile: {name: trace_completed, params: {trace_bdays: [6, 8]}}
+    products: [LUM-SPK-500, LUM-CAM-200]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: polite
+        title: "Outcome of the carrier trace"
+        body: >-
+          Thank you for opening the trace on {date:trace_opened}. The carrier has now closed it without finding
+          {order_ref}. Could you please ship a replacement {product} to the same address?
+
+  - scenario_id: H-DEL-LST-HIGH
+    pool: holdout
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-03
+    difficulty_type: high_value
+    primary_issue: "High-value parcel lost in transit"
+    order_profile: {name: high_value, params: {base: lost_no_updates, min_total: 500, bdays_since_update: [8, 11]}}
+    products: [LUM-PWR-400]
+    customer_types: [individual, vip]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Power station order missing"
+        body: >-
+          The {product} I ordered ({order_ref}, {amt:total}) has been stuck since {date:tracking}. That is a big
+          purchase for us and I would like either the goods or my money back without more delay.
+      - style: angry
+        title: "Missing power station - my attorney is next"
+        body: >-
+          {amt:total} of equipment has vanished with your courier since {date:tracking}. Either refund me in full or
+          my attorney will be in touch. {order_ref}.
+        signals_add: [legal_threat]
+
+  - scenario_id: H-DEL-WRG-SHIP
+    pool: holdout
+    subcategory: DEL-WRG
+    intended_rule: RES-DEL-WRG-02
+    primary_issue: "Different product delivered than ordered"
+    order_profile: {name: delivered_recent, params: {days: [1, 4]}}
+    products: [LUM-AIR-900, LUM-LCK-700]
+    product2: [LUM-VAC-300, LUM-HUB-800]
+    requested_resolution: replacement
+    include: {photo: true}
+    texts:
+      - style: calm
+        title: "Mix-up in {order_ref}"
+        body: >-
+          The courier dropped off a {product2} on {date:delivered}. The packing slip says {product}, which is what I
+          ordered. Pictures attached. Please arrange the swap.
+        signals_add: []
+
+  - scenario_id: H-DEL-WRG-REFUND
+    pool: holdout
+    subcategory: DEL-WRG
+    intended_rule: RES-DEL-WRG-03
+    primary_issue: "Wrong product delivered - refund preferred"
+    order_profile: {name: delivered_recent, params: {days: [2, 5]}}
+    products: [LUM-CAM-210]
+    product2: [LUM-CAM-200]
+    requested_resolution: refund
+    include: {photo: true}
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Indoor model sent instead of outdoor"
+        body: >-
+          I needed a weatherproof camera for the driveway and got the {product2}, which is indoor-only. Photos
+          attached. The project has moved on without it, so a refund for {order_ref} is what I want.

@@ -1,0 +1,46 @@
+# =============================================================================
+# Urgency, impact and priority rules (SRS Steps 19-21; SLA-RUL-15 s4-6).
+# Base urgency/impact come from the matched resolution rule (RES-*). The floors
+# below can only RAISE urgency/impact; nothing here reacts to sentiment,
+# emotional wording or customer type (SRS Step 19/21, SLA-RUL-15 s5.4).
+# Priority = priority_matrix[urgency][impact]  ("Change priority logic" = edit
+# the matrix; no code change).
+# =============================================================================
+urgency_levels: [Low, Medium, High, Critical]          # ascending
+impact_levels: [Low, Medium, High]                      # ascending
+priority_levels:                                        # ascending severity
+  - {code: P3, name: P3 - Low}
+  - {code: P2, name: P2 - Medium}
+  - {code: P1, name: P1 - High}
+  - {code: P0, name: P0 - Critical}
+
+priority_matrix:
+  policy_ref: "SLA-RUL-15:4"
+  Critical: {High: P0, Medium: P0, Low: P1}
+  High:     {High: P1, Medium: P2, Low: P2}
+  Medium:   {High: P2, Medium: P2, Low: P3}
+  Low:      {High: P2, Medium: P3, Low: P3}
+
+# Signal / fact driven floors (URG-*). Applied after the base rule.
+urgency_floors:
+  - {rule_id: URG-001, name: Fire, smoke or explosion, when: {signal: fire_event}, urgency: Critical, impact: High, policy_refs: ["SLA-RUL-15:5.1", "SAF-POL-10:3"]}
+  - {rule_id: URG-002, name: Overheating or battery hazard, when: {signal: overheating}, urgency: Critical, impact: High, policy_refs: ["SLA-RUL-15:5.1", "SAF-POL-10:3"]}
+  - {rule_id: URG-003, name: Electrical hazard, when: {signal: electrical_hazard}, urgency: Critical, impact: High, policy_refs: ["SLA-RUL-15:5.1", "SAF-POL-10:3"]}
+  - {rule_id: URG-004, name: Injury, when: {signal: injury}, urgency: Critical, impact: High, policy_refs: ["SLA-RUL-15:5.1"]}
+  - {rule_id: URG-005, name: Account compromise, when: {signal: security_breach}, urgency: Critical, impact: High, policy_refs: ["SLA-RUL-15:5.1", "SEC-POL-09:4.3"]}
+  - {rule_id: URG-006, name: Physical home security compromised, when: {signal: lock_security}, urgency: Critical, impact: High, policy_refs: ["SLA-RUL-15:5.1", "SEC-POL-09:5.1"]}
+  - {rule_id: URG-007, name: Privacy exposure, when: {signal: privacy_breach}, urgency: High, impact: High, policy_refs: ["SLA-RUL-15:5.2", "PRV-POL-08:7.1"]}
+  - {rule_id: URG-008, name: Legal threat, when: {signal: legal_threat}, urgency: High, impact: Medium, policy_refs: ["SLA-RUL-15:5.2", "CMP-GDL-19:3"]}
+  - {rule_id: URG-009, name: Critical impact on the home, when: {signal: critical_impact}, urgency: High, impact: High, policy_refs: ["SLA-RUL-15:5.2", "ESC-SOP-12:4.8"]}
+  - {rule_id: URG-010, name: Vulnerable person with critical impact, when: {all: [{signal: vulnerable_customer}, {signal: critical_impact}]}, urgency: Critical, impact: High, policy_refs: ["ESC-SOP-12:4.8", "CMP-GDL-19:5.2"]}
+  - {rule_id: URG-011, name: Repeat unresolved complaint, when: {fact: history.unresolved_prior_same_issue, op: gte, value: "$param:repeat_supervisor_threshold"}, urgency: High, impact: Medium, policy_refs: ["SLA-RUL-15:5.2", "ESC-SOP-12:4.5"]}
+  - {rule_id: URG-012, name: High financial impact, when: {fact: complaint.max_amount, op: gte, value: "$param:high_value_supervisor_usd"}, impact: High, policy_refs: ["SLA-RUL-15:6"]}
+  - {rule_id: URG-013, name: Severe service failure, when: {signal: severe_service_failure}, urgency: High, impact: High, policy_refs: ["SLA-RUL-15:5.2", "ESC-SOP-12:4.7"]}
+  - {rule_id: URG-014, name: Fraudulent payment, when: {signal: fraud}, urgency: High, impact: High, policy_refs: ["SLA-RUL-15:5.2", "ESC-SOP-12:4.2"]}
+  - {rule_id: URG-015, name: Staff harassment or discrimination, when: {signal: staff_harassment}, urgency: High, impact: Medium, policy_refs: ["ESC-SOP-12:4.10"]}
+
+# Explicit principles enforced by the validator (documented for evaluators).
+principles:
+  - {rule_id: URG-100, name: Sentiment neutrality, description: "Sentiment and emotion indicators never raise urgency or priority. An AI urgency above the rule urgency with no risk signal is flagged as 'urgency inflated by emotional language'.", policy_refs: ["CHP-POL-01:5.2", "SLA-RUL-15:5.4"]}
+  - {rule_id: URG-101, name: Customer-type neutrality, description: "Customer type (including VIP) never changes urgency or priority.", policy_refs: ["SLA-RUL-15:5.4"]}
+  - {rule_id: URG-102, name: Calm critical complaints, description: "Risk signals set urgency floors regardless of calm wording; an AI urgency below the floor is a critical validation failure.", policy_refs: ["CHP-POL-01:5.2", "SLA-RUL-15:5.1"]}

@@ -1,0 +1,104 @@
+{
+  "$defs": {
+    "Claim": {
+      "additionalProperties": false,
+      "properties": {
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "complaint",
+            "policy",
+            "rule",
+            "metadata",
+            "validated_decision"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Ref"
+        }
+      },
+      "required": [
+        "statement",
+        "source_type",
+        "source_ref"
+      ],
+      "title": "Claim",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Pipeline 1, stage 2 - written from the Python-validated decision only.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "complaint_id": {
+      "title": "Complaint Id",
+      "type": "string"
+    },
+    "tone": {
+      "enum": [
+        "professional",
+        "empathetic",
+        "concise",
+        "formal"
+      ],
+      "title": "Tone",
+      "type": "string"
+    },
+    "subject": {
+      "title": "Subject",
+      "type": "string"
+    },
+    "customer_response": {
+      "title": "Customer Response",
+      "type": "string"
+    },
+    "follow_up_message": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Follow Up Message"
+    },
+    "claims": {
+      "items": {
+        "$ref": "#/$defs/Claim"
+      },
+      "title": "Claims",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "complaint_id",
+    "tone",
+    "subject",
+    "customer_response",
+    "follow_up_message",
+    "claims"
+  ],
+  "title": "CustomerCommunication",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://supportnova.example/schemas/ai/customer_communication.v1.schema.json"
+}

@@ -1,0 +1,947 @@
+# =============================================================================
+# Multi-issue complaints (SRS: >= 25 ambiguous/multi-issue; challenge 12: three or more issues).
+# Primary issue precedence (RTE-RUL-14 s5, routing_rules.yaml routing_precedence):
+#   SAF > ACC-UNA > PRV > LEGAL > BIL > PRD > DEL > WAR > all others (REF, TEC, SVC, ACC-other, STF).
+# Root causes outrank the refund consequences they cause ("arrived damaged and the refund has not
+# been processed" -> primary PRD-DOA, secondary REF-DLY). Within the lowest rank the issue with the
+# greatest customer impact is primary. Each scenario records its reasoning in `rationale`.
+# =============================================================================
+scenarios:
+  - scenario_id: MI-DOA-DLY
+    pool: dev
+    subcategory: PRD-DOA
+    secondary: [{subcategory: DEL-DLY, label: "Order arrived several business days late"}]
+    intended_rule: RES-PRD-DOA-02
+    difficulty_type: multi_issue
+    rationale: "PRD outranks DEL; the damage has the greater impact."
+    primary_issue: "{product} arrived late and damaged"
+    order_profile: {name: delivered_days_ago, params: {days: [1, 4], late_bdays: [4, 6]}}
+    products: [LUM-AIR-900, LUM-VAC-300, LUM-HUB-800, LUM-CAM-210]
+    requested_resolution: replacement
+    include: {photo: true}
+    signals: [photo_evidence, replacement_request]
+    texts:
+      - style: frustrated
+        title: "Late AND damaged - order {order_ref}"
+        body: >-
+          My {product} was due on {date:eta} and only turned up on {date:delivered}, almost a week late. Then when I
+          opened it the front panel was cracked. Photos attached. I want a replacement sent quickly, since I have
+          already waited long enough.
+      - style: calm
+        title: "Delayed delivery arrived damaged"
+        body: >-
+          Order {order_ref} arrived on {date:delivered}, several days after the estimated date of {date:eta}. The
+          {product} inside has a broken hinge and a dented corner. I have attached photos. Please arrange a
+          replacement.
+
+  - scenario_id: MI-DOA-REFDLY
+    pool: dev
+    subcategory: PRD-DOA
+    secondary: [{subcategory: REF-DLY, label: "Refund for the damaged item not processed"}]
+    intended_rule: RES-PRD-DOA-02
+    difficulty_type: multi_issue
+    rationale: "Root cause (damaged on arrival) outranks the refund delay it caused (SRS example)."
+    primary_issue: "{product} arrived damaged and the refund has not been processed"
+    order_profile: {name: delivered_within_doa, params: {days: [4, 7]}}
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-TH-100, LUM-AIR-900]
+    requested_resolution: refund
+    include: {photo: true}
+    signals: [photo_evidence, refund_request]
+    texts:
+      - style: frustrated
+        title: "Damaged on arrival and refund not processed"
+        body: >-
+          My {product} arrived damaged on {date:delivered} - the screen was cracked (photos attached). I asked for a
+          refund in the app the same day and it still says "pending" with no update at all. I would like my money
+          back. Order {order_ref}.
+      - style: polite
+        title: "Refund for a damaged delivery"
+        body: >-
+          Hello, the {product} from order {order_ref} arrived with a broken casing on {date:delivered}. I have
+          attached photos and requested a refund, but my refund has not been processed yet. Could you look into
+          both please? Thank you.
+
+  - scenario_id: MI-DUP-SUP
+    pool: dev
+    subcategory: BIL-DUP
+    secondary: [{subcategory: SVC-SUP, label: "Support did not help with the duplicate charge"}]
+    intended_rule: RES-BIL-DUP-02
+    difficulty_type: multi_issue
+    rationale: "Billing outranks service quality."
+    primary_issue: "Order charged twice; support unhelpful"
+    order_profile: {name: duplicate_charge, params: {days: [5, 20], gap_days: [0, 1]}}
+    products: [LUM-TH-100, LUM-CAM-210, LUM-HUB-800]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Charged twice and your chat agent was useless"
+        body: >-
+          I was charged {amt:charge} twice for order {order_ref}. When I raised it on chat, the agent just pasted a
+          help article and closed the chat. I want the duplicate refunded and I want a proper answer this time.
+      - style: angry
+        title: "Double charge, zero help"
+        body: >-
+          You took my money twice for one {product} ({amt:charge} each time) and your support team could not care
+          less. I waited on hold for 40 minutes to be told to email you. Refund the duplicate payment now.
+
+  - scenario_id: MI-OVH-REF
+    pool: dev
+    subcategory: SAF-OVH
+    secondary: [{subcategory: REF-REQ, label: "Refund requested for the overheating unit"}]
+    intended_rule: RES-SAF-OVH-01
+    difficulty_type: multi_issue
+    rationale: "Safety always takes precedence."
+    primary_issue: "{product} overheating; refund requested"
+    order_profile: {name: delivered_days_ago, params: {days: [5, 20]}}
+    products: [LUM-PLG-600, LUM-SPK-500, LUM-AIR-900]
+    requested_resolution: refund
+    signals: [overheating, refund_request]
+    texts:
+      - style: calm
+        title: "Overheating {product:short} - I'd like a refund"
+        body: >-
+          My {product} became extremely hot within an hour of use and there was a burning smell, so I have unplugged
+          it. I do not feel comfortable using it again and would like a refund. Order {order_ref}.
+      - style: frustrated
+        title: "Hot {product:short} and a refund request"
+        body: >-
+          The {product} I bought on {date:order} is overheating - the casing is too hot to touch after a few
+          minutes. I want to return it for a full refund. This should not happen with a new product. {order_ref}.
+
+  - scenario_id: MI-UNA-INC
+    pool: dev
+    subcategory: ACC-UNA
+    secondary: [{subcategory: BIL-INC, label: "Unexpected charges on the card"}]
+    intended_rule: RES-ACC-UNA-02
+    difficulty_type: multi_issue
+    rationale: "Security (ACC-UNA) outranks billing."
+    primary_issue: "Account compromised and used for unauthorized purchases"
+    products: [SVC-APP]
+    requested_resolution: refund
+    signals: [security_breach, refund_request]
+    texts:
+      - style: calm
+        title: "Account compromised and card charged"
+        body: >-
+          Someone logged into my account yesterday and there are purchases I did not make - my card was charged
+          {amt:charged} for them. I have changed my password. Please secure the account and refund the charges.
+        params: {charged: [248, 297, 398]}
+      - style: angry
+        title: "Hacked account, charges on my card"
+        body: >-
+          My account was hacked and now my card has charges I never agreed to - orders I did not place, shipped to
+          some stranger. Lock the account and refund every cent today.
+        lexical_traps: [consent_violation]
+
+  - scenario_id: MI-BRC-APP
+    pool: dev
+    subcategory: PRV-BRC
+    secondary: [{subcategory: TEC-APP, label: "App update caused the problem"}]
+    intended_rule: RES-PRV-BRC-03
+    difficulty_type: multi_issue
+    rationale: "Privacy outranks technical issues."
+    primary_issue: "Another household's camera visible after an app update"
+    products: [LUM-CAM-200, LUM-CAM-210]
+    requested_resolution: other
+    signals: [privacy_breach]
+    texts:
+      - style: calm
+        title: "Seeing another family's camera after the update"
+        body: >-
+          Since the latest app update, my camera list includes a {product} that is not mine - I can see another
+          family's living room on the live view. I closed it straight away. Please fix this and check whether my
+          own camera is visible to others.
+      - style: frustrated
+        title: "App update shows someone else's camera"
+        body: >-
+          After the app update this morning I can view someone else's camera in my app, and my own {product} keeps
+          freezing. This is a serious privacy problem. Please sort it out today.
+
+  - scenario_id: MI-WRG-INC
+    pool: dev
+    subcategory: BIL-INC
+    secondary: [{subcategory: DEL-WRG, label: "Wrong item delivered"}]
+    intended_rule: RES-BIL-INC-02
+    difficulty_type: multi_issue
+    rationale: "Billing outranks delivery."
+    primary_issue: "Overcharged and sent the wrong item"
+    order_profile: {name: overcharged, params: {days: [6, 15], diff: [20.00, 25.00]}}
+    products: [LUM-CAM-210, LUM-TH-100, LUM-SPK-500]
+    product2: [LUM-CAM-200, LUM-PLG-600]
+    requested_resolution: refund
+    include: {photo: true}
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Overcharged and sent the wrong product"
+        body: >-
+          Two problems with order {order_ref}: I was charged {amt:charge} instead of {amt:total}, and the box
+          contained a {product2} instead of the {product} I ordered. Photos attached. Please refund the overcharge
+          and send the right item.
+      - style: calm
+        title: "Wrong item and wrong amount"
+        body: >-
+          The parcel for {order_ref} had a {product2} in it, not my {product}, and my statement shows {amt:charge}
+          although my order total was {amt:total}. See the attached photos. Please refund the overcharge and send
+          the right item.
+
+  - scenario_id: MI-CON-SUP
+    pool: dev
+    subcategory: TEC-CON
+    secondary: [{subcategory: SVC-SUP, label: "Promised callback never happened"}]
+    intended_rule: RES-TEC-CON-03
+    difficulty_type: multi_issue
+    rationale: "Both issues share the lowest rank; the connectivity fault is the root cause."
+    primary_issue: "Security camera keeps going offline; support did not call back"
+    products: [LUM-CAM-210, LUM-CAM-200, LUM-HUB-800]
+    requested_resolution: repair
+    texts:
+      - style: frustrated
+        title: "Camera offline and no callback"
+        body: >-
+          My {product} keeps going offline every night. I called support on {date:c-5} and was told an engineer
+          would call me back within a day. That never happened. I still have a device that disconnects constantly.
+      - style: calm
+        title: "Connectivity problem and missed callback"
+        body: >-
+          My {product} loses its Wi-Fi connection several times a day. Support promised a callback last week to
+          look at the logs, but nobody rang. Could someone help with the connection issue?
+        signals_add: [repeat_indicator]
+
+  - scenario_id: MI-INS-RUD
+    pool: dev
+    subcategory: SVC-INS
+    secondary: [{subcategory: STF-RUD, label: "Technician was rude"}]
+    intended_rule: RES-SVC-INS-03
+    difficulty_type: multi_issue
+    rationale: "Both lowest rank; the late installation is the core service failure."
+    primary_issue: "Installer arrived hours late and was rude"
+    order_profile: {name: install_completed, params: {days: [1, 6]}}
+    products: [SVC-INSTALL]
+    requested_resolution: explanation
+    texts:
+      - style: angry
+        title: "Late and rude installer"
+        body: >-
+          Your installer arrived 3 hours late on {date:appointment}, did not apologise, and was rude when I asked why.
+          He rushed the job and left. I expect better from a paid {product} service. Order {order_ref}.
+      - style: frustrated
+        title: "Technician late and dismissive"
+        body: >-
+          The technician was 2 hours late for my {product} appointment and then made sarcastic comments when I
+          mentioned the wait. Not the professional service I paid for. Order {order_ref}.
+
+  - scenario_id: MI-MIS-INS
+    pool: dev
+    subcategory: STF-MIS
+    secondary: [{subcategory: SVC-INS, label: "Installation left unfinished"}]
+    intended_rule: RES-STF-MIS-02
+    difficulty_type: multi_issue
+    rationale: "Both lowest rank; property damage has the greater impact."
+    primary_issue: "Technician damaged the wall and left the installation unfinished"
+    order_profile: {name: install_completed, params: {days: [1, 6]}}
+    products: [SVC-INSTALL]
+    requested_resolution: compensation
+    signals: [technician_damage_theft]
+    texts:
+      - style: frustrated
+        title: "Holes in my wall and the job not finished"
+        body: >-
+          The {product} technician left holes in my wall where he gave up on the first bracket position, and then
+          went without finishing the camera set-up. I want the wall repaired and the installation completed.
+          Order {order_ref}.
+      - style: calm
+        title: "Damage and incomplete installation"
+        body: >-
+          During the visit on {date:appointment} the installer damaged my wall while drilling and did not finish
+          connecting the doorbell camera. Could you arrange a repair of the wall and a return visit? {order_ref}.
+
+  - scenario_id: MI-DEN-MIN
+    pool: dev
+    subcategory: WAR-DEN
+    secondary: [{subcategory: STF-MIN, label: "Agent said the fault was covered"}]
+    intended_rule: RES-WAR-DEN-01
+    difficulty_type: multi_issue
+    rationale: "Warranty outranks staff issues."
+    primary_issue: "Warranty claim denied after an agent said it was covered"
+    order_profile: {name: delivered_months_ago, params: {months: [4, 9]}}
+    products: [LUM-VAC-300, LUM-CAM-210, LUM-TH-100]
+    customer_types: [individual, business, vip]
+    requested_resolution: repair
+    params: {denied: [4, 20]}
+    texts:
+      - style: frustrated
+        title: "Claim denied - your agent said it was covered"
+        body: >-
+          Your agent told me on the phone that the fault on my {product} was covered, so I sent it in. Then the claim
+          was rejected {dur:denied} ago as "not a manufacturing defect". I want the decision reviewed. {order_ref}.
+
+  - scenario_id: MI-REFDLY-SUP
+    pool: dev
+    subcategory: REF-DLY
+    secondary: [{subcategory: SVC-SUP, label: "No reply from support about the refund"}]
+    intended_rule: RES-REF-DLY-02
+    difficulty_type: multi_issue
+    rationale: "Both lowest rank; the late refund is the core issue."
+    primary_issue: "Refund late and support not responding"
+    order_profile: {name: return_received_late, params: {mode: approved, bdays: [7, 10], reason: changed_mind}}
+    products: [LUM-SPK-500, LUM-TH-100, LUM-CAM-200]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Refund late and no reply to my emails"
+        body: >-
+          My return was approved on {date:inspection_approved} but the refund of {amt:refund_amount} still has not
+          arrived. I have emailed support twice and got no reply either time. Order {order_ref}.
+      - style: angry
+        title: "Where is my refund and why is nobody answering?"
+        body: >-
+          Where is my refund?! Approved on {date:inspection_approved}, still not paid. Your support email bounces
+          between automatic replies and the chat is always "busy". Pay me what you owe. {order_ref}.
+
+  - scenario_id: MI-SUB-CON
+    pool: dev
+    subcategory: PRV-CON
+    secondary: [{subcategory: BIL-SUB, label: "Annual renewal charged"}]
+    intended_rule: RES-PRV-CON-01
+    difficulty_type: multi_issue
+    rationale: "Privacy outranks billing."
+    primary_issue: "Marketing after opt-out, plus an unwanted renewal"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [3, 10]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [consent_violation, refund_request]
+    texts:
+      - style: frustrated
+        title: "Renewed my plan and still spamming me"
+        body: >-
+          I unsubscribed from your emails and I am still getting marketing messages every day, and on top of that my
+          {product} renewed on {date:renewal} for {amt:charge}. Stop the emails and refund the renewal please.
+
+  - scenario_id: MI-OUT-SUB
+    pool: dev
+    subcategory: BIL-SUB
+    secondary: [{subcategory: SVC-OUT, label: "Cloud Vault outage after renewal"}]
+    intended_rule: RES-BIL-SUB-02
+    difficulty_type: multi_issue
+    rationale: "Billing outranks service quality."
+    primary_issue: "Annual renewal refund requested after an outage"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [4, 11]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request, severe_service_failure]
+    params: {outage: [30, 40]}
+    texts:
+      - style: angry
+        title: "Renewed, then the service went down"
+        body: >-
+          You renewed my {product} on {date:renewal} for {amt:charge} and a few days later the service was down for
+          {hours:outage}. I lost my recordings for that time. I want the renewal refunded - I am done with it.
+
+  - scenario_id: MI-LST-DUP
+    pool: dev
+    subcategory: BIL-DUP
+    secondary: [{subcategory: DEL-LST, label: "Parcel lost in transit"}]
+    intended_rule: RES-BIL-DUP-02
+    difficulty_type: multi_issue
+    rationale: "Billing outranks delivery."
+    primary_issue: "Charged twice for an order that then got lost"
+    order_profile: {name: lost_no_updates, params: {bdays_since_update: [8, 11], double_charge: true}}
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-TH-100]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Charged twice for a parcel that never came"
+        body: >-
+          I was charged twice for order {order_ref} ({amt:charge} each time) and the parcel has not moved since
+          {date:tracking}. So I have paid double for something I do not even have. Please refund the duplicate and
+          find my order.
+      - style: calm
+        title: "Duplicate payment and missing parcel"
+        body: >-
+          My statement shows two payments of {amt:charge} for order {order_ref}. The tracking has also been stuck
+          since {date:tracking}. Could you refund the duplicate and check with the courier about the parcel?
+
+  - scenario_id: MI-ELC-RUD
+    pool: dev
+    subcategory: SAF-ELC
+    secondary: [{subcategory: STF-RUD, label: "Agent dismissed the safety concern"}]
+    intended_rule: RES-SAF-ELC-01
+    difficulty_type: multi_issue
+    rationale: "Safety always takes precedence."
+    primary_issue: "Sparking {product}; agent dismissive"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 6]}}
+    products: [LUM-PLG-600, LUM-BLB-610]
+    requested_resolution: replacement
+    signals: [electrical_hazard]
+    texts:
+      - style: frustrated
+        title: "Plug sparked and your agent laughed it off"
+        body: >-
+          My {product} sparked when I plugged it in. When I called, the agent was dismissive and said it was
+          "probably static". I do not think sparks are something to laugh off. Order {order_ref}.
+      - style: calm
+        title: "Sparks from the device and a poor call"
+        body: >-
+          I saw sparks from my {product} last night and stopped using it. The agent I spoke to this morning was
+          quite rude and told me to just keep using it. I would like this taken seriously. Order {order_ref}.
+        lexical_traps: []
+
+  - scenario_id: MI-LGN-UPD
+    pool: dev
+    subcategory: ACC-LGN
+    secondary: [{subcategory: ACC-UPD, label: "Cannot update the account email"}]
+    intended_rule: RES-ACC-LGN-03
+    difficulty_type: multi_issue
+    rationale: "Both lowest rank; the login block is the main impact."
+    primary_issue: "Login blocked by an outdated email that cannot be updated"
+    products: [SVC-APP]
+    requested_resolution: other
+    texts:
+      - style: frustrated
+        title: "Old email blocks login and I can't change it"
+        body: >-
+          My account uses my old email, so password resets go nowhere. On the one device where I am still signed in,
+          the profile page will not let me change the email - it just errors. I need both fixed.
+
+  - scenario_id: MI-MIS-DLY
+    pool: dev
+    subcategory: PRD-MIS
+    secondary: [{subcategory: DEL-DLY, label: "Order delivered late"}]
+    intended_rule: RES-PRD-MIS-01
+    difficulty_type: multi_issue
+    rationale: "PRD outranks DEL."
+    primary_issue: "Order delivered late and missing a part"
+    order_profile: {name: delivered_days_ago, params: {days: [0, 3], late_bdays: [5, 7]}}
+    products: [LUM-CAM-210, LUM-LCK-700, LUM-TH-100]
+    requested_resolution: replacement
+    params:
+      part: {LUM-CAM-210: mounting bracket, LUM-LCK-700: mounting screws, LUM-TH-100: wall plate}
+    texts:
+      - style: frustrated
+        title: "A week late and missing the {param:part}"
+        body: >-
+          My {product} finally arrived on {date:delivered}, a week after the estimated date, and the {param:part}
+          was not in the box. So after all that waiting I still cannot install it. Order {order_ref}.
+      - style: calm
+        title: "Late delivery with a missing part"
+        body: >-
+          Order {order_ref} was due on {date:eta} but arrived on {date:delivered}, and the {param:part} is missing
+          from the box. Could you send the part out as soon as possible?
+
+  - scenario_id: MI-PAR-SUP
+    pool: dev
+    subcategory: REF-PAR
+    secondary: [{subcategory: SVC-SUP, label: "Support could not explain the deduction"}]
+    intended_rule: RES-REF-PAR-03
+    difficulty_type: multi_issue
+    rationale: "Both lowest rank; the deduction is the core issue."
+    primary_issue: "Restocking fee deducted; support could not explain it"
+    order_profile: {name: restocking_fee, params: {reason: changed_mind, return_day: [15, 17]}}
+    products: [LUM-SPK-500, LUM-HUB-800]
+    customer_types: [individual, business, vip]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Deduction nobody can explain"
+        body: >-
+          I was refunded {amt:refund_amount} instead of {amt:expected_refund} for my returned {product}. I asked
+          support why and was transferred three times without an answer. Please explain the deduction and refund
+          the rest. {order_ref}.
+        signals_add: [repeat_indicator]
+
+  - scenario_id: MI-CAN-CON
+    pool: dev
+    subcategory: PRV-CON
+    secondary: [{subcategory: BIL-CAN, label: "Charged after cancelling"}]
+    intended_rule: RES-PRV-CON-01
+    difficulty_type: multi_issue
+    rationale: "Privacy outranks billing."
+    primary_issue: "Marketing continues after cancellation and opt-out; charged after cancelling"
+    order_profile: {name: cancelled_then_charged, params: {plan: monthly, cancel_days: [10, 20]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [consent_violation, cancellation_mentioned, refund_request]
+    texts:
+      - style: angry
+        title: "Cancelled, opted out - still charged and spammed"
+        body: >-
+          I cancelled my {product} on {date:cancel_requested} and opted out of marketing at the same time. You still
+          charged me {amt:charge} and I am still getting marketing emails. Refund the charge and leave me alone.
+
+  # ---------------------------------------------------------------- three or more issues
+  - scenario_id: MI3-INJ-MAL-SUP
+    pool: dev
+    subcategory: SAF-INJ
+    secondary:
+      - {subcategory: PRD-MAL, label: "Vacuum malfunctioned"}
+      - {subcategory: SVC-SUP, label: "Support was unhelpful"}
+    intended_rule: RES-SAF-INJ-01
+    difficulty_type: multi_issue
+    rationale: "Safety always takes precedence."
+    primary_issue: "Malfunctioning {product} injured the customer; support unhelpful"
+    order_profile: {name: delivered_days_ago, params: {days: [10, 25]}}
+    products: [LUM-VAC-300]
+    requested_resolution: refund
+    signals: [injury, refund_request]
+    texts:
+      - style: angry
+        title: "Your vacuum cut my hand and support didn't care"
+        body: >-
+          My {product} started malfunctioning - the brush kept jamming - and when I tried to clear it the brush
+          suddenly restarted and cut my hand. When I called support they just read a script about warranty. I want
+          a full refund and someone to take the injury seriously. Order {order_ref}.
+      - style: calm
+        title: "Injury from a faulty vacuum, and no help"
+        body: >-
+          The {product} has been faulty for a week, stopping and starting on its own. Yesterday it restarted while I
+          was removing hair from the brush and I was injured - a deep cut on my finger. Support was not able to help.
+          I would like a refund. Order {order_ref}.
+
+  - scenario_id: MI3-OVH-DLY-SUP
+    pool: dev
+    subcategory: SAF-OVH
+    secondary:
+      - {subcategory: DEL-DLY, label: "Delivery arrived late"}
+      - {subcategory: SVC-SUP, label: "No response from support"}
+    intended_rule: RES-SAF-OVH-01
+    difficulty_type: multi_issue
+    rationale: "Safety always takes precedence."
+    primary_issue: "Late delivery, then the {product} overheated; support not responding"
+    order_profile: {name: delivered_days_ago, params: {days: [3, 8], late_bdays: [4, 6]}}
+    products: [LUM-AIR-900, LUM-SPK-500, LUM-HUB-800]
+    requested_resolution: refund
+    signals: [overheating, refund_request]
+    texts:
+      - style: frustrated
+        title: "Late, overheating, and no reply"
+        body: >-
+          My {product} arrived late on {date:delivered} (due {date:eta}), and within two days it started overheating
+          - the back is too hot to touch. I emailed support and heard nothing. I want a refund. Order {order_ref}.
+      - style: calm
+        title: "Several problems with order {order_ref}"
+        body: >-
+          Three things: the delivery was late (it came on {date:delivered}), the {product} now gets extremely hot
+          after a short time, and my support email has not been answered. I have unplugged it. Please advise and
+          refund me.
+
+  - scenario_id: MI3-UNA-INC-BRC
+    pool: dev
+    subcategory: ACC-UNA
+    secondary:
+      - {subcategory: BIL-INC, label: "Unexpected charges"}
+      - {subcategory: PRV-BRC, label: "Personal details exposed"}
+    intended_rule: RES-ACC-UNA-02
+    difficulty_type: multi_issue
+    rationale: "Security (ACC-UNA) outranks privacy and billing."
+    primary_issue: "Account takeover with unauthorized purchases and exposed personal data"
+    products: [SVC-APP]
+    requested_resolution: refund
+    signals: [security_breach, refund_request, privacy_breach]
+    texts:
+      - style: calm
+        title: "Account takeover, charges and exposed details"
+        body: >-
+          My account was compromised: there are orders I did not place charged to my card ({amt:charged}), my
+          delivery address was changed, and my data was exposed - the attacker posted my address in a review on
+          your site. Please lock the account, refund the charges and remove the review.
+        params: {charged: [199, 249, 338]}
+        lexical_traps: [media_threat]
+      - style: angry
+        title: "Hacked, charged and my details leaked"
+        body: >-
+          Someone hacked my account, placed orders I did not make and my information was exposed to them - my home
+          address, my phone number, everything. I want the account locked, the charges refunded and an explanation.
+
+  - scenario_id: MI3-WRG-REFDLY-SUP
+    pool: dev
+    subcategory: DEL-WRG
+    secondary:
+      - {subcategory: REF-DLY, label: "Refund for the wrong item is late"}
+      - {subcategory: SVC-SUP, label: "Support gave no update"}
+    intended_rule: RES-DEL-WRG-03
+    difficulty_type: multi_issue
+    rationale: "The wrong delivery is the root cause (DEL outranks the refund delay and support)."
+    primary_issue: "Wrong item delivered, refund late, support unhelpful"
+    order_profile: {name: return_received_late, params: {mode: received, bdays: [9, 11], reason: wrong_item}}
+    products: [LUM-CAM-210, LUM-TH-100]
+    product2: [LUM-PLG-600, LUM-BLB-610]
+    requested_resolution: refund
+    include: {photo: true}
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Wrong item, no refund, no answers"
+        body: >-
+          You sent me a {product2} instead of my {product}. I returned it (you received it on
+          {date:return_received}), my refund is still missing, and support keeps saying "someone will be in touch".
+          Photos of what I received are attached. Refund me for {order_ref}.
+
+  - scenario_id: MI3-DOA-DLY-SUP
+    pool: dev
+    subcategory: PRD-DOA
+    secondary:
+      - {subcategory: DEL-DLY, label: "Delivery arrived late"}
+      - {subcategory: SVC-SUP, label: "Support chat disconnected"}
+    intended_rule: RES-PRD-DOA-02
+    difficulty_type: multi_issue
+    rationale: "PRD outranks DEL and service quality."
+    primary_issue: "Late delivery arrived damaged; support chat unhelpful"
+    order_profile: {name: delivered_days_ago, params: {days: [1, 4], late_bdays: [4, 5]}}
+    products: [LUM-HUB-800, LUM-SPK-500, LUM-CAM-200]
+    requested_resolution: replacement
+    include: {photo: true}
+    signals: [photo_evidence, replacement_request]
+    texts:
+      - style: angry
+        title: "Late, broken, and your chat hung up on me"
+        body: >-
+          My {product} was due on {date:eta}, arrived late on {date:delivered}, and the casing was smashed. I tried
+          your live chat and it disconnected me twice. Photos attached. Send a replacement and fix your chat.
+
+  - scenario_id: MI3-INS-MIS-SUP
+    pool: dev
+    subcategory: STF-MIS
+    secondary:
+      - {subcategory: SVC-INS, label: "Installation appointments missed"}
+      - {subcategory: SVC-SUP, label: "Support did not respond"}
+    intended_rule: RES-STF-MIS-02
+    difficulty_type: multi_issue
+    rationale: "All lowest rank; property damage has the greatest impact."
+    primary_issue: "Technician damaged property after missed appointments; support silent"
+    order_profile: {name: install_completed, params: {days: [2, 7]}}
+    products: [SVC-INSTALL]
+    requested_resolution: compensation
+    signals: [technician_damage_theft]
+    texts:
+      - style: frustrated
+        title: "Missed visits, then damage, then silence"
+        body: >-
+          The first {product} appointment was missed and nobody told me. When the technician finally came on
+          {date:appointment} he scratched my floor dragging a ladder. I reported it by email and support has not
+          replied. I want the floor repaired. Order {order_ref}.
+
+  - scenario_id: MI3-APP-OUT-SUB
+    pool: dev
+    subcategory: BIL-SUB
+    secondary:
+      - {subcategory: SVC-OUT, label: "Cloud Vault outage"}
+      - {subcategory: TEC-APP, label: "App keeps crashing"}
+    intended_rule: RES-BIL-SUB-03
+    difficulty_type: multi_issue
+    rationale: "Billing outranks service and technical issues."
+    primary_issue: "Renewal refund demanded after an outage and app crashes"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [20, 40]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request, severe_service_failure]
+    texts:
+      - style: angry
+        title: "Renewal refund - your service is broken"
+        body: >-
+          My {product} renewed on {date:renewal} for {amt:charge}. Since then there has been an outage, the app
+          crashes every time I open the timeline, and I have paid for a year of this. Refund the renewal.
+
+  - scenario_id: MI3-CPL-SUP-RUD
+    pool: dev
+    subcategory: WAR-CPL
+    secondary:
+      - {subcategory: SVC-SUP, label: "Long wait for the Care+ claim"}
+      - {subcategory: STF-RUD, label: "Agent was rude"}
+    intended_rule: RES-WAR-CPL-02
+    difficulty_type: multi_issue
+    rationale: "Warranty outranks service quality and staff behaviour."
+    primary_issue: "Care+ claim delayed; support slow and rude"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 12], careplus_claims: 0}}
+    products: [LUM-SPK-500, LUM-VAC-300, LUM-CAM-210]
+    customer_types: [care_plus]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: frustrated
+        title: "Care+ claim, long waits and a rude agent"
+        body: >-
+          I have Care+ and my {product} was accidentally damaged. I waited 50 minutes on hold to start the claim, and
+          the agent was rude and impatient with me. I still do not know when my replacement is coming. Order
+          {order_ref}.
+
+  - scenario_id: MI4-CON-SUB-SUP-RUD
+    pool: dev
+    subcategory: PRV-CON
+    secondary:
+      - {subcategory: BIL-SUB, label: "Unwanted renewal charge"}
+      - {subcategory: SVC-SUP, label: "Support did not resolve it"}
+      - {subcategory: STF-RUD, label: "Agent was rude"}
+    intended_rule: RES-PRV-CON-02
+    difficulty_type: multi_issue
+    rationale: "Privacy outranks billing, service and staff issues."
+    primary_issue: "Marketing long after opt-out, unwanted renewal, poor and rude support"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [4, 12]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [consent_violation, refund_request]
+    params: {optout: [30, 45]}
+    texts:
+      - style: angry
+        title: "Four problems and nobody helps"
+        body: >-
+          I opted out of your marketing {dur:optout} ago and I am still getting promotional emails. My {product}
+          renewed on {date:renewal} for {amt:charge} without the reminder you promise. Support left me on hold for
+          an hour, and the agent I finally reached was rude. Refund the renewal and stop the emails.
+
+  - scenario_id: MI-DSR-UPD
+    pool: dev
+    subcategory: PRV-DSR
+    secondary: [{subcategory: ACC-UPD, label: "Profile details cannot be updated"}]
+    intended_rule: RES-PRV-DSR-01
+    difficulty_type: multi_issue
+    rationale: "Privacy outranks account administration."
+    primary_issue: "Data-rights request plus a broken profile page"
+    requested_resolution: other
+    include: {product: false}
+    signals: [data_rights_request]
+    texts:
+      - style: calm
+        title: "Copy of my data, and the profile page errors"
+        body: >-
+          I would like a copy of my personal data held by Lumora. Also, when I try to update my phone number in my
+          profile, the page shows an error and nothing saves. Could you help with both?
+
+  - scenario_id: MI-MIN-REF
+    pool: dev
+    subcategory: STF-MIN
+    secondary: [{subcategory: REF-REQ, label: "Refund requested after the window"}]
+    intended_rule: RES-STF-MIN-02
+    difficulty_type: multi_issue
+    rationale: "Both lowest rank; the misinformation is the root cause of the refund problem."
+    primary_issue: "Agent's incorrect commitment led to a refused refund"
+    order_profile: {name: delivered_old, params: {days: [38, 55]}}
+    products: [LUM-SPK-500, LUM-AIR-900]
+    customer_types: [individual, business, vip]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Agent told me I would have 60 days"
+        body: >-
+          When I bought the {product}, your agent told me I would have 60 days to return it. I tried to return it
+          after {age:delivered} and was refused. I want the refund your agent said I could have. Order {order_ref}.
+
+  - scenario_id: MI-LCK-CON
+    pool: dev
+    subcategory: ACC-UNA
+    secondary: [{subcategory: TEC-CON, label: "Lock keeps going offline"}]
+    intended_rule: RES-ACC-UNA-03
+    difficulty_type: multi_issue
+    rationale: "Security (smart-lock incident) outranks connectivity."
+    primary_issue: "Smart lock unlocked by itself and keeps going offline"
+    products: [LUM-LCK-700]
+    requested_resolution: other
+    signals: [lock_security]
+    texts:
+      - style: calm
+        title: "Lock offline and unlocked by itself"
+        body: >-
+          My {product} keeps going offline, and last night it unlocked by itself around midnight while it was
+          reconnecting. Nobody in the house touched it. I am using the physical key for now.
+
+  - scenario_id: MI-MAL-SUP
+    pool: dev
+    subcategory: PRD-MAL
+    secondary: [{subcategory: SVC-SUP, label: "Support transferred the call repeatedly"}]
+    intended_rule: RES-PRD-MAL-02
+    difficulty_type: multi_issue
+    rationale: "PRD outranks service quality."
+    primary_issue: "Faulty {product} and repeated transfers by support"
+    order_profile: {name: delivered_days_ago, params: {days: [8, 25]}}
+    products: [LUM-TH-100, LUM-AIR-900, LUM-SPK-500]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: frustrated
+        title: "Faulty unit and endless transfers"
+        body: >-
+          My {product} stopped working after only {age:delivered}. I called support and was transferred to three
+          different people, each asking the same questions. I just want a replacement. Order {order_ref}.
+
+  - scenario_id: MI-DOA-RUD
+    pool: dev
+    subcategory: PRD-DOA
+    secondary: [{subcategory: STF-RUD, label: "Agent was rude"}]
+    intended_rule: RES-PRD-DOA-01
+    difficulty_type: multi_issue
+    rationale: "PRD outranks staff behaviour."
+    primary_issue: "Damaged delivery and a rude agent"
+    order_profile: {name: delivered_within_doa, params: {days: [1, 4]}}
+    products: [LUM-SPK-500, LUM-AIR-900]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: angry
+        title: "Broken on arrival and a rude agent"
+        body: >-
+          My {product} came with a cracked top panel on {date:delivered}, and when I phoned, the agent was rude and
+          told me it was "probably my fault". I want a replacement and an apology. Order {order_ref}.
+
+  # ============================================================ HOLDOUT (multi-issue)
+  - scenario_id: H-MI-DOA-REFDLY
+    pool: holdout
+    subcategory: PRD-DOA
+    secondary: [{subcategory: REF-DLY, label: "Refund not processed"}]
+    intended_rule: RES-PRD-DOA-02
+    difficulty_type: multi_issue
+    rationale: "Root cause outranks the refund consequence (SRS example)."
+    primary_issue: "Product arrived damaged and refund has not been processed"
+    order_profile: {name: delivered_within_doa, params: {days: [3, 6]}}
+    products: [LUM-HUB-800, LUM-CAM-200]
+    requested_resolution: refund
+    include: {photo: true}
+    signals: [photo_evidence, refund_request]
+    texts:
+      - style: calm
+        title: "Damaged delivery - refund not processed"
+        body: >-
+          The {product} I received on {date:delivered} had a split casing straight out of the box. I have attached
+          photos. I asked for a refund at the time but it has not been processed. Could both issues be handled?
+          {order_ref}.
+
+  - scenario_id: H-MI3-ELC-DLY-SUP
+    pool: holdout
+    subcategory: SAF-ELC
+    secondary:
+      - {subcategory: DEL-DLY, label: "Order arrived late"}
+      - {subcategory: SVC-SUP, label: "Support unresponsive"}
+    intended_rule: RES-SAF-ELC-01
+    difficulty_type: multi_issue
+    rationale: "Safety always takes precedence."
+    primary_issue: "Late delivery, sparking device, unresponsive support"
+    order_profile: {name: delivered_days_ago, params: {days: [2, 6], late_bdays: [4, 6]}}
+    products: [LUM-PLG-600, LUM-BLB-610]
+    requested_resolution: replacement
+    signals: [electrical_hazard]
+    texts:
+      - style: frustrated
+        title: "Three problems with one order"
+        body: >-
+          The order came days after {date:eta}, the {product} sparked the first time I used it, and my message to
+          support a day later still has no answer. I have unplugged everything. What is Lumora going to do?
+          {order_ref}.
+
+  - scenario_id: H-MI-UNA-DUP
+    pool: holdout
+    subcategory: ACC-UNA
+    secondary: [{subcategory: BIL-DUP, label: "Duplicate charge"}]
+    intended_rule: RES-ACC-UNA-01
+    difficulty_type: multi_issue
+    rationale: "Security outranks billing."
+    primary_issue: "Account accessed without permission and a duplicate charge"
+    products: [SVC-APP]
+    requested_resolution: refund
+    signals: [security_breach, refund_request]
+    texts:
+      - style: calm
+        title: "Strange sign-in and a double payment"
+        body: >-
+          My security alerts show a suspicious sign-in on my account from an unknown device, and separately my card
+          was charged twice for last week's order. Please secure my account first, then refund the extra payment.
+
+  - scenario_id: H-MI-CAN-SUP
+    pool: holdout
+    subcategory: BIL-CAN
+    secondary: [{subcategory: SVC-SUP, label: "Support did not action the cancellation"}]
+    intended_rule: RES-BIL-CAN-02
+    difficulty_type: multi_issue
+    rationale: "Billing outranks service quality."
+    primary_issue: "Charged after a confirmed cancellation; support did not help"
+    order_profile: {name: cancelled_then_charged, params: {plan: monthly, cancel_days: [12, 20]}}
+    products: [SVC-CARE]
+    customer_types: [care_plus, individual]
+    requested_resolution: refund
+    signals: [cancellation_mentioned, refund_request]
+    texts:
+      - style: frustrated
+        title: "Charged after cancelling; chat could not help"
+        body: >-
+          My {product} was cancelled on {date:cancel_requested} (I have the email), yet {amt:charge} was taken on
+          {date:charge}. The chat agent said he could not see the cancellation and ended the chat. Refund the charge.
+
+  - scenario_id: H-MI-CLM-MIN
+    pool: holdout
+    subcategory: WAR-CLM
+    secondary: [{subcategory: STF-MIN, label: "Incorrect advice from staff"}]
+    intended_rule: RES-WAR-CLM-02
+    difficulty_type: multi_issue
+    rationale: "Warranty outranks staff issues."
+    primary_issue: "Warranty claim after staff gave wrong troubleshooting advice"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 8]}}
+    products: [LUM-HUB-800, LUM-TH-100]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Warranty claim and wrong advice"
+        body: >-
+          My {product} failed after {age:delivered}. The first agent I spoke to said the fault was caused by my router
+          and I wasted days changing settings, which made no difference. Please open a warranty claim. {order_ref}.
+
+  - scenario_id: H-MI-UNA-BRC
+    pool: holdout
+    subcategory: ACC-UNA
+    secondary: [{subcategory: PRV-BRC, label: "Camera footage viewed by an intruder"}]
+    intended_rule: RES-ACC-UNA-01
+    difficulty_type: multi_issue
+    rationale: "Security outranks privacy."
+    primary_issue: "Intruder accessed the account and viewed camera footage"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [security_breach, privacy_breach]
+    texts:
+      - style: polite
+        title: "Someone accessed my account and my cameras"
+        body: >-
+          Hello, someone accessed my account overnight - the history shows an unknown device - and the viewing log
+          suggests my footage was viewed. It seems my recordings were exposed. Could your security team help?
+
+  - scenario_id: H-MI3-LST-SUB-SUP
+    pool: holdout
+    subcategory: BIL-SUB
+    secondary:
+      - {subcategory: DEL-LST, label: "Hub order lost"}
+      - {subcategory: SVC-SUP, label: "Support gave conflicting answers"}
+    intended_rule: RES-BIL-SUB-02
+    difficulty_type: multi_issue
+    rationale: "Billing outranks delivery and service."
+    primary_issue: "Renewal refund requested; related hub order lost; support confusing"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [2, 9]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Renewal for cameras I can't use"
+        body: >-
+          My {product} renewed on {date:renewal} ({amt:charge}), but the hub I need for my cameras was lost in the
+          post and never arrived, and two agents told me two different things about it. Please refund the renewal.
+        emotions: [Frustration, Confusion]
+
+  - scenario_id: H-MI-SET-INS
+    pool: holdout
+    subcategory: SVC-INS
+    secondary: [{subcategory: TEC-SET, label: "Device setup never completed"}]
+    intended_rule: RES-SVC-INS-01
+    difficulty_type: multi_issue
+    rationale: "Both lowest rank; the installation service failure is the root cause."
+    primary_issue: "Installer did not complete device setup"
+    order_profile: {name: install_completed, params: {days: [1, 5]}}
+    products: [SVC-INSTALL]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Installer left before setup was finished"
+        body: >-
+          The {product} technician fitted the thermostat on {date:appointment} but left before completing setup in
+          the app, so the device still shows "configuration required". Could someone return to finish?
+          {order_ref}.

@@ -1,0 +1,56 @@
+# ---- Secrets & local environment -------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---- Python -------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ---- Node / frontend ----------------------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+*.local
+*.tsbuildinfo
+frontend/coverage/
+
+# ---- Local runtime data (never committed) ------------------------------------
+tools/devdb/pgdata/
+tools/devdb/*.log
+storage/
+backend/storage/
+*.sqlite3
+*.db
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---- Editors / OS -------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.sw?
+
+# ---- Third-party reference documents (not redistributed) -----------------------
+docs/*.pdf
+
+# ---- Local tool settings (absolute machine paths) --------------------------------
+.claude/

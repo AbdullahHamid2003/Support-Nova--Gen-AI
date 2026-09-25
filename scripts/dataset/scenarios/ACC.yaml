@@ -1,0 +1,399 @@
+# =============================================================================
+# Scenario bank - ACC (Account): ACC-LGN, ACC-UNA, ACC-UPD
+# Security cases are often written calmly on purpose (calm but critical -> P0).
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ ACC-LGN
+  - scenario_id: ACC-LGN-RESET
+    pool: dev
+    subcategory: ACC-LGN
+    intended_rule: RES-ACC-LGN-01
+    primary_issue: "Customer cannot sign in - password reset not working"
+    products: [SVC-APP]
+    requested_resolution: other
+    texts:
+      - style: calm
+        title: "Password reset email not arriving"
+        body: >-
+          I cannot log in to the {product}. When I request a password reset, the email never arrives - I have
+          checked my spam folder and waited over an hour. Could you help me get back into my account?
+      - style: frustrated
+        title: "Locked out of my account for two days"
+        body: >-
+          I have been locked out of my account for two days. The reset link says it has expired every single time
+          I click it, even straight away. I cannot control any of my devices from my phone. Please fix this.
+      - style: polite
+        title: "Verification code not received"
+        body: >-
+          Hello, when I try to sign in to the {product}, it asks for a verification code by text, but the text
+          never comes through. My phone number has not changed. Is there another way to verify me? Thank you.
+      - style: angry
+        title: "Can't log in AGAIN"
+        signals_add: [repeat_indicator]
+        body: >-
+          Unable to log in for the third time this month. Your login page just spins and then says "unknown error".
+          I pay good money for your products and I cannot even open the app. Useless. Fix your login system.
+
+  - scenario_id: ACC-LGN-OLDEMAIL
+    pool: dev
+    subcategory: ACC-LGN
+    intended_rule: RES-ACC-LGN-03
+    primary_issue: "Login blocked because the account uses an email the customer no longer has"
+    products: [SVC-APP]
+    requested_resolution: other
+    texts:
+      - style: calm
+        title: "Account registered to my old email"
+        body: >-
+          My Lumora account is registered to my old email address from a previous job, and I no longer have access
+          to that email. So I cannot receive the password reset. How can I prove who I am and move the account to
+          my new address?
+      - style: frustrated
+        title: "Reset goes to an email I can't access"
+        body: >-
+          Every password reset goes to my former email, which was closed when I switched providers. I am stuck
+          outside my own account. There must be a way to update it. Please help.
+      - style: polite
+        title: "Help moving my account to a new email"
+        body: >-
+          Hi, I would like to sign in again but I no longer use that email address I registered with years ago.
+          Could you help me update the email on my account so I can reset my password? Many thanks, {first_name}.
+
+  - scenario_id: ACC-LGN-COMPROMISE
+    pool: dev
+    subcategory: ACC-LGN
+    intended_rule: RES-ACC-LGN-02
+    primary_issue: "Login failure with signs that the account was compromised"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [security_breach]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Cannot log in - password changed without me"
+        body: >-
+          I cannot sign in to my account this morning. I then noticed an email from you saying my password was
+          changed at 3:14am, which I did not do. Please could you look into this? I have a camera and a smart lock
+          linked to the account.
+      - style: frustrated
+        title: "Password changed and now I'm locked out"
+        body: >-
+          Someone changed my password - I got the notification and now I cannot log in at all. I did not request
+          any change. This is really worrying because my whole home setup is on this account.
+      - style: polite
+        title: "Unexpected sign-in alert and login problem"
+        body: >-
+          Good morning, I received an alert about a suspicious login from another country on my account, and since
+          then my usual password no longer works. I would be grateful for your help securing the account.
+
+  # ------------------------------------------------------------------ ACC-UNA
+  - scenario_id: ACC-UNA-ACCESS
+    pool: dev
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-01
+    primary_issue: "Unauthorized access to the customer's Lumora account"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [security_breach]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Unknown device signed in to my account"
+        body: >-
+          I received a notification this evening that an unknown device signed in to my Lumora account. It is not
+          any of my phones or tablets. Nothing seems changed yet, but I would like you to check the account and
+          remove the device.
+      - style: polite
+        title: "Possible account compromise"
+        body: >-
+          Hello, I think my account may be compromised. The {product} shows a login from a different city at a time
+          when I was asleep, and my notification settings were switched off. Could your security team take a look?
+          Thank you.
+      - style: frustrated
+        title: "Someone has access to my account"
+        body: >-
+          Someone has access to my account. My automations were changed overnight and the thermostat schedule was
+          deleted. I did not do this and nobody else in my house uses the app. I need this locked down now.
+      - style: angry
+        title: "My account has been HACKED"
+        body: >-
+          My account has been HACKED and your system did nothing to stop it. Somebody renamed my devices and changed
+          my email notifications. This is a serious security failure on your side. I want answers today.
+      - style: calm
+        title: "Strange login from abroad"
+        body: >-
+          Just a heads-up: my account history shows a login from another country yesterday. I have not travelled.
+          I have changed my password already but would appreciate you checking whether anything else was accessed.
+
+  - scenario_id: ACC-UNA-PURCHASES
+    pool: dev
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-02
+    primary_issue: "Unauthorized purchases placed from a compromised account"
+    products: [SVC-APP]
+    requested_resolution: refund
+    signals: [security_breach, refund_request]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Orders I did not place"
+        body: >-
+          There are two orders I did not place on my account - a power station and an outdoor camera, shipped to an
+          address I do not recognise. My saved card was used. Please stop the orders and refund the payments.
+      - style: frustrated
+        title: "Account used to buy things I didn't order"
+        signals_add: [fraud, cancellation_mentioned]
+        body: >-
+          Someone logged into my account and spent {amt:purchase} on my saved card - purchases I did not make. These
+          are fraudulent orders. I want them cancelled and my money refunded, and I want to know how this happened.
+        params: {purchase: [648, 747]}
+      - style: angry
+        title: "Unauthorised purchases on my account!"
+        signals_add: [fraud, chargeback_threat]
+        body: >-
+          Unauthorised purchases on my account! Three orders I did not make, all of them fraudulent, all to some
+          random address. Refund them by tomorrow or I will contact my bank to reverse the charges. Your security is a
+          joke.
+
+  - scenario_id: ACC-UNA-LOCK
+    pool: dev
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-03
+    primary_issue: "Smart lock unlocked without the customer's action"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 8]}}
+    include: {order_reference: false}
+    products: [LUM-LCK-700]
+    requested_resolution: other
+    signals: [lock_security]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Keystone lock unlocked by itself"
+        body: >-
+          Last night at around 2am my {product} unlocked by itself. The app history shows an unlock event but
+          nobody in the house used the app or the keypad. I have locked it manually for now. Please can you check
+          what happened?
+      - style: polite
+        title: "Front door found unlocked"
+        body: >-
+          Good morning. When I came downstairs today I found the door was unlocked, and the {product} log shows it
+          unlocked remotely at 4:40am. I live alone and I am rather shaken. I would be grateful if someone could
+          look into this urgently.
+        signals_add: []
+      - style: frustrated
+        title: "Smart lock opening on its own"
+        signals_add: [repeat_indicator]
+        body: >-
+          My smart lock unlocked on its own twice this week while we were out. The first time I thought it was a
+          glitch. The second time the door was actually open when I got home. I do not feel safe. This needs
+          investigating now.
+      - style: calm
+        title: "Unexplained unlock event"
+        customer_types: [business]
+        signals_add: [business_impact]
+        body: >-
+          Our office {product} unlocked at 11pm on Saturday night when the building was empty. None of our staff
+          codes were used. We have switched to the physical key for now. Please investigate our business
+          account.
+
+  # ------------------------------------------------------------------ ACC-UPD
+  - scenario_id: ACC-UPD-DETAILS
+    pool: dev
+    subcategory: ACC-UPD
+    intended_rule: RES-ACC-UPD-01
+    primary_issue: "Customer cannot update profile details"
+    products: [SVC-APP]
+    requested_resolution: other
+    texts:
+      - style: calm
+        title: "Can't update my phone number"
+        body: >-
+          I have a new phone number but the {product} gives an error when I try to update it in my profile. The
+          old number is still showing. Could you update it for me?
+      - style: angry
+        title: "Your app won't let me change my name!"
+        difficulty_type: emotional_low_priority
+        params: {marriage: [60, 90, 120]}
+        body: >-
+          I got married {dur:marriage} ago and your ridiculous app STILL won't let me change my name. It just says
+          "something went wrong". How hard can it be?! This is the most basic feature and you cannot even do that.
+      - style: polite
+        title: "Updating my email address"
+        customer_types: [vip]
+        difficulty_type: vip_minor
+        body: >-
+          Hello, could you help me change my email on my account? The profile page will not save the new address
+          when I press update. No hurry at all. Thank you, {first_name}.
+      - style: frustrated
+        title: "Profile changes not saving"
+        body: >-
+          Every time I try to change my address in my profile it looks like it saves and then reverts back. I have
+          tried on my phone and laptop. It is irritating, please sort it.
+      - style: polite
+        title: "Quick profile question"
+        sentiment: Positive
+        body: >-
+          Thanks so much for the great service so far - I am very happy with my devices. I just cannot find where to
+          update my phone number in the profile. Could you point me to it? Much appreciated!
+
+  - scenario_id: ACC-UPD-ADDRESS
+    pool: dev
+    subcategory: ACC-UPD
+    intended_rule: RES-ACC-UPD-02
+    primary_issue: "Delivery address change requested after dispatch"
+    order_profile: {name: in_transit, params: {bdays_to_eta: [1, 3]}}
+    products: [LUM-TH-100, LUM-SPK-500, LUM-CAM-200, LUM-HUB-800, LUM-AIR-900]
+    requested_resolution: other
+    texts:
+      - style: calm
+        title: "Change delivery address on {order_ref}"
+        body: >-
+          I have just moved and need to change the delivery address on order {order_ref}. The tracking shows it was
+          dispatched on {date:dispatched}. Is it possible to redirect it to my new address?
+      - style: frustrated
+        title: "Wrong address on a shipped order"
+        body: >-
+          My account still had my old address and order {order_ref} has already shipped there. I updated the address
+          in my profile but the order did not change. Can you redirect the parcel before it arrives?
+      - style: polite
+        title: "Redirecting a parcel"
+        body: >-
+          Hi, would it be possible to redirect order {order_ref} to my work address? It is already on its way and I
+          will not be home on {date:eta}. Thanks very much.
+
+  # ============================================================ HOLDOUT (ACC)
+  - scenario_id: H-ACC-LGN-RESET
+    pool: holdout
+    subcategory: ACC-LGN
+    intended_rule: RES-ACC-LGN-01
+    primary_issue: "Customer cannot sign in"
+    products: [SVC-APP]
+    requested_resolution: other
+    texts:
+      - style: frustrated
+        title: "Sign-in loop on the app"
+        body: >-
+          The {product} keeps bouncing me back to the sign-in screen after I enter my password, then asks again.
+          Same on Wi-Fi and mobile data. I would like to get in to change my heating schedule.
+
+  - scenario_id: H-ACC-LGN-COMPROMISE
+    pool: holdout
+    subcategory: ACC-LGN
+    intended_rule: RES-ACC-LGN-02
+    primary_issue: "Sign-in failure after an unrequested password change"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [security_breach]
+    texts:
+      - style: calm
+        title: "Password no longer works"
+        body: >-
+          My password stopped working at lunchtime and I then found a message saying the email was changed on the
+          account. I have not made either change. Please help me secure it - I have cameras on this login.
+
+  - scenario_id: H-ACC-LGN-OLDEMAIL
+    pool: holdout
+    subcategory: ACC-LGN
+    intended_rule: RES-ACC-LGN-03
+    primary_issue: "Recovery email no longer accessible"
+    products: [SVC-APP]
+    requested_resolution: other
+    texts:
+      - style: polite
+        title: "Recovery emails going to a dead inbox"
+        body: >-
+          Hello, my university email was deactivated when I graduated, and that previous email is still the login
+          for my Lumora account. The password reset therefore goes nowhere. What documents do you need to verify me?
+
+  - scenario_id: H-ACC-UNA-ACCESS
+    pool: holdout
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-01
+    primary_issue: "Unauthorized access to the account"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [security_breach]
+    texts:
+      - style: calm
+        title: "New user added to my home"
+        body: >-
+          A member called "guest_77" was added to my home in the {product} yesterday. Nobody in my family added
+          them. It looks like someone accessed my account. Please remove them and check my login history.
+      - style: angry
+        title: "Stranger controlling my devices"
+        body: >-
+          My lights have been switching on and off at 3am and the app shows a device I do not own was signed in.
+          Someone logged in to my account and your so-called security did nothing. Lock it down NOW.
+
+  - scenario_id: H-ACC-UNA-PURCHASES
+    pool: holdout
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-02
+    primary_issue: "Purchases made without the customer's authorisation"
+    products: [SVC-APP]
+    requested_resolution: refund
+    signals: [security_breach, refund_request]
+    texts:
+      - style: polite
+        title: "Orders placed without my knowledge"
+        body: >-
+          Hello, I was surprised to receive dispatch emails for purchases I did not make - two smart locks to an
+          address in another state. I suspect my account was compromised. Please cancel them and refund my card.
+
+  - scenario_id: H-ACC-UNA-LOCK
+    pool: holdout
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-03
+    primary_issue: "Smart lock unlocked without the customer's action"
+    products: [LUM-LCK-700]
+    requested_resolution: other
+    signals: [lock_security]
+    texts:
+      - style: calm
+        title: "Lock opened while we were away"
+        body: >-
+          We were away for the weekend and the {product} activity log shows the lock unlocked while we were away,
+          on Sunday afternoon. No one had a code. Everything looks fine inside but we would like this investigated.
+      - style: polite
+        title: "Door lock event overnight"
+        body: >-
+          Hi, my Keystone lock unlocked at night on Tuesday - the history shows 1:12am and I was asleep. It may be
+          nothing, but I thought I should report it. Could you check the logs?
+        lexical_traps: []
+
+  - scenario_id: H-ACC-UPD-DETAILS
+    pool: holdout
+    subcategory: ACC-UPD
+    intended_rule: RES-ACC-UPD-01
+    primary_issue: "Profile details cannot be updated"
+    products: [SVC-APP]
+    requested_resolution: other
+    texts:
+      - style: angry
+        title: "Profile page broken for weeks"
+        difficulty_type: emotional_low_priority
+        body: >-
+          For weeks your profile page has thrown an error whenever I update my phone number. It is pathetic that a
+          tech company cannot manage a simple form. I am absolutely sick of it.
+      - style: polite
+        title: "Name change on account"
+        customer_types: [vip]
+        difficulty_type: vip_minor
+        body: >-
+          Hi, could you update the name on my profile? The app says my request cannot be processed. It is nothing
+          urgent. Many thanks.
+
+  - scenario_id: H-ACC-UPD-ADDRESS
+    pool: holdout
+    subcategory: ACC-UPD
+    intended_rule: RES-ACC-UPD-02
+    primary_issue: "Address change after dispatch"
+    order_profile: {name: in_transit, params: {bdays_to_eta: [1, 2]}}
+    products: [LUM-CAM-210, LUM-BLB-610]
+    requested_resolution: other
+    texts:
+      - style: calm
+        title: "Parcel heading to my previous address"
+        body: >-
+          Order {order_ref} is out for delivery to my previous address - I forgot to update my account before
+          ordering. Could the courier be asked to deliver to my new address instead?

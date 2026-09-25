@@ -1,0 +1,242 @@
+{
+  "explanation": "Each example's attempt 1 was rejected by the structured-output validator (jsonschema + Pydantic); the errors were sent back to the model as a correction and the retry was accepted. The invalid outputs were produced on purpose by the Lab fault profiles, which are recorded on every attempt (fault_injection).",
+  "examples": [
+    {
+      "kind": "invalid_json",
+      "complaint_ref": "LAB-00018",
+      "attempts": [
+        {
+          "stage": "analysis",
+          "attempt": 1,
+          "provider": "openai",
+          "model": "gpt-4.1-mini",
+          "prompt": "complaint_analysis@1.2.0",
+          "request": {
+            "stage": "analysis",
+            "schema": "complaint_analysis.v1",
+            "served_by": "gpt-4.1-mini-2025-04-14",
+            "correction": null,
+            "request_id": "req_b371c9eb940d468ab3dcb4e36a8f66f5",
+            "user_chars": 7240,
+            "stop_reason": "stop",
+            "system_chars": 24141,
+            "user_preview": "icy_conflicts>\nnone\n</policy_conflicts>\n<verified_facts>\ncomplaint_reference: LAB-00018\nsubmitted: 2026-09-24\nchannel: web_form\ncustomer_type: individual\ncustomer_reference: CUST-99001\norder_ledger: no order reference supplied.\ncomplaint_history (last 90 days, same customer):\n  LAB-00017 on 2026-09-24: unclassified - status Processing - order LMR-990117\n  LAB-00016 on 2026-09-24: PRD-MAL - status Analyzed\n  LAB-00015 on 2026-09-24: PRD-MAL - status Escalated - order LMR-991556\n  LAB-00014 on 2026-09-24: BIL-CAN - status Analyzed\n  LAB-00013 on 2026-09-24: SAF-OVH - status Escalated - order LMR-993464\n  LAB-00012 on 2026-09-24: BIL-INC - status Analyzed\n</verified_facts>\n<complaint_94c01aeb id=\"LAB-00018\">\nTitle: Bulb flickers constantly\nProduct/service (as entered): (not provided)\nOrder reference (as entered): (not provided)\nTransaction reference (as entered): (not provided)\nPrevious complaint reference (as entered): (not provided)\nRequested resolution: none\nAttachments: none\nComplaint text:\nBulb flickers constantly\nOne of my Beam smart bulbs flickers all the time even at full brightness. The others are fine.\n\n</complaint_94c01aeb>\nReturn the JSON analysis for complaint LAB-00018.\n",
+            "prompt_sha256": "428c297c112322b45fb08b033ce715f87b3009f2110fe3092537b2b7cfc4008f"
+          },
+          "parsed_ok": false,
+          "error_type": "invalid_output",
+          "error_message": "The response is not valid JSON (Expecting property name enclosed in double quotes at position 1760).",
+          "latency_ms": 16318,
+          "fault_injection": "invalid_json",
+          "response_text": "{\n  \"schema_version\": \"1.0\",\n  \"complaint_id\": \"LAB-00018\",\n  \"summary\": \"Customer reports a malfunctioning Beam smart bulb flickering constantly at full brightness.\",\n  \"key_facts\": [\n    \"Customer reports one Beam smart bulb flickers constantly even at full brightness\",\n    \"Other bulbs in the pack are functioning normally\",\n    \"No order or transaction reference provided\",\n    \"Beam smart bulbs have a 12-month standard warranty per unit\",\n    \"Previous complaints include product malfunctions and billing issues\"\n  ],\n  \"primary_issue\": {\n    \"label\": \"Product Malfunction\",\n    \"category\": \"PRD\",\n    \"subcategory\": \"PRD-MAL\",\n    \"evidence_quote\": \"Bulb flickers constantly even at full brightness\"\n  },\n  \"secondary_issues\": [],\n  \"issue_category\": \"PRD\",\n  \"subcategory\": \"PRD-MAL\",\n  \"sentiment\": \"Neutral\",\n  \"emotion_indicators\": [],\n  \"urgency\": \"Medium\",\n  \"urgency_rationale\": \"The product is impaired but there is no immediate safety risk or financial loss.\",\n  \"impact\": \"Medium\",\n  \"priority\": \"P2\",\n  \"entities\": [\n    {\n      \"type\": \"product\",\n      \"value\": \"Beam smart bulb\"\n    }\n  ],\n  \"department\": \"DEPT-TEC\",\n  \"supporting_departments\": [],\n  \"policy_references\": [\n    {\n      \"policy_id\": \"WAR-POL-07\",\n      \"section\": \"3.1\",\n      \"evidence_id\": \"E1\",\n      \"applicability\": \"Applicable\",\n      \"reason\": \"Beam smart bulbs have a 12-month warranty from delivery.\"\n    },\n    {\n      \"policy_id\": \"RTE-RUL-14\",\n      \"section\": \"3\",\n      \"evidence_id\": null,\n      \"applicability\": \"Applicable\",\n      \"reason\": \"Routing policy assigns Technical Support as primary department for PRD-MAL.\"\n    }\n  ],\n  \"policy_id\": \"WAR-POL-07\",\n  \"policy_section\": \"3.1\",\n  \"resolution_steps\": [\n    {\n      \"action_code\": \"VERIFY_IDENTITY\",\n    "
+        },
+        {
+          "stage": "analysis",
+          "attempt": 2,
+          "provider": "openai",
+          "model": "gpt-4.1-mini",
+          "prompt": "complaint_analysis@1.2.0",
+          "request": {
+            "stage": "analysis",
+            "schema": "complaint_analysis.v1",
+            "served_by": "gpt-4.1-mini-2025-04-14",
+            "correction": "Your previous response failed validation: The response is not valid JSON (Expecting property name enclosed in double quotes at position 1760).. Return only one JSON object that matches the schema exactly.",
+            "request_id": "req_bd1a5ccf807f4e0780dd25720772a771",
+            "user_chars": 7240,
+            "stop_reason": "stop",
+            "system_chars": 24141,
+            "user_preview": "icy_conflicts>\nnone\n</policy_conflicts>\n<verified_facts>\ncomplaint_reference: LAB-00018\nsubmitted: 2026-09-24\nchannel: web_form\ncustomer_type: individual\ncustomer_reference: CUST-99001\norder_ledger: no order reference supplied.\ncomplaint_history (last 90 days, same customer):\n  LAB-00017 on 2026-09-24: unclassified - status Processing - order LMR-990117\n  LAB-00016 on 2026-09-24: PRD-MAL - status Analyzed\n  LAB-00015 on 2026-09-24: PRD-MAL - status Escalated - order LMR-991556\n  LAB-00014 on 2026-09-24: BIL-CAN - status Analyzed\n  LAB-00013 on 2026-09-24: SAF-OVH - status Escalated - order LMR-993464\n  LAB-00012 on 2026-09-24: BIL-INC - status Analyzed\n</verified_facts>\n<complaint_94c01aeb id=\"LAB-00018\">\nTitle: Bulb flickers constantly\nProduct/service (as entered): (not provided)\nOrder reference (as entered): (not provided)\nTransaction reference (as entered): (not provided)\nPrevious complaint reference (as entered): (not provided)\nRequested resolution: none\nAttachments: none\nComplaint text:\nBulb flickers constantly\nOne of my Beam smart bulbs flickers all the time even at full brightness. The others are fine.\n\n</complaint_94c01aeb>\nReturn the JSON analysis for complaint LAB-00018.\n",
+            "prompt_sha256": "428c297c112322b45fb08b033ce715f87b3009f2110fe3092537b2b7cfc4008f"
+          },
+          "parsed_ok": true,
+          "error_type": null,
+          "error_message": null,
+          "latency_ms": 10322,
+          "fault_injection": "invalid_json",
+          "response_text": "{\"schema_version\":\"1.0\",\"complaint_id\":\"LAB-00018\",\"summary\":\"Customer reports a malfunctioning Beam smart bulb flickering constantly at full brightness.\",\"key_facts\":[\"Customer reports one Beam smart bulb flickers constantly at full brightness.\",\"Other bulbs in the same pack are functioning normally.\",\"No order or transaction reference was provided by the customer.\",\"Beam smart bulbs have a 12-month standard warranty from delivery.\",\"No requested resolution was specified by the customer.\"],\"primary_issue\":{\"label\":\"Product Malfunction\",\"category\":\"PRD\",\"subcategory\":\"PRD-MAL\",\"evidence_quote\":\"Bulb flickers constantly even at full brightness, indicating a malfunction.\"},\"secondary_issues\":[],\"issue_category\":\"PRD\",\"subcategory\":\"PRD-MAL\",\"sentiment\":\"Neutral\",\"emotion_indicators\":[\"Disappointment\"],\"urgency\":\"Medium\",\"urgency_rationale\":\"The product is impaired but there is no immediate safety risk or financial loss reported.\",\"impact\":\"Medium\",\"priority\":\"P2\",\"entities\":[{\"type\":\"product\",\"value\":\"Beam smart bulb\"}],\"department\":\"DEPT-TEC\",\"supporting_departments\":[],\"policy_references\":[{\"policy_id\":\"WAR-POL-07\",\"section\":\"3.1\",\"evidence_id\":\"E1\",\"applicability\":\"Applicable\",\"reason\":\"Beam smart bulbs have a 12-month warranty from delivery.\"},{\"policy_id\":\"RTE-RUL-14\",\"section\":\"3\",\"evidence_id\":null,\"applicability\":\"Applicable\",\"reason\":\"Routing table assigns Technical Support as primary department for PRD-MAL.\"}],\"policy_id\":\"WAR-POL-07\",\"policy_section\":\"3.1\",\"resolution_steps\":[{\"action_code\":\"VERIFY_IDENTITY\",\"description\":\"Verify customer identity using registered email and last four digits of payment card or order reference.\",\"policy_ref\":\"SEC-POL-09:6\"},{\"action_code\":\"VERIFY_ORDER\",\"description\":\"Request and verify order reference to confirm product warranty status.\",\"policy_ref\":\"WAR-POL-07:3.1\"},{\"action_code\":\"VERIFY_WARRANTY_STATUS\",\"description\":\"Check warranty status of the Beam smart bulb based on verified order and delivery date.\",\"policy_ref\":\"WAR-POL-07:3.1\"},{\"action_code\":\"REMOTE_TROUBLESHOOTING\",\"description\":\"Perform remote troubleshooting to confirm the bulb malfunction and attempt resolution.\",\"policy_ref\":\"TEC-GDL-20:general\"},{\"action_code\":\"SCHEDULE_TECHNICIAN_VISIT\",\"description\":\"Schedule a technician visit if remote troubleshooting does not resolve the flickering issue.\",\"policy_ref\":\"TEC-GDL-20:general\"},{\"action_code\":\"OPEN_WARRANTY_CLAIM\",\"description\":\"Open a warranty claim if the product is confirmed faulty within warranty period.\",\"policy_ref\":\"WAR-POL-07:3.1\"}],\"refund_eligibility\":{\"status\":\"requires_verification\",\"reason\":\"No order or purchase date provided to verify refund eligibility under warranty policy.\",\"policy_ref\":\"WAR-POL-07:3.1\"},\"replacement_eligibility\":{\"status\":\"requires_verification\",\"reason\":\"Replacement eligibility depends on warranty verification and prior replacements for this order.\",\"policy_ref\":\"WAR-POL-07:3.1; RPL-POL-03:3.4\"},\"compensation_eligibility\":{\"status\":\"not_applicable\",\"type\":\"none\",\"amount_usd\":null,\"reason\":\"No compensation requested or applicable for this product malfunction complaint.\",\"policy_ref\":null},\"escalation_required\":false,\"escalation_level\":\"No Escalation\",\"escalation_reason\":null,\"escalation_notes\":null,\"response_type\":\"Resolution confirmation\",\"follow_up_required\":true,\"follow_up_type\":\"Request for additional information\",\"missing_information\":[{\"field\":\"order reference\",\"reason\":\"Required to verify warranty status and process claim.\"},{\"field\":\"purchase date\",\"reason\":\"Needed to confirm warranty coverage period.\"}],\"clarification_questions\":[\"Please provide the order reference or purchase date for the Beam smart bulb.\",\"Have you attempted any troubleshooting steps such as resetting the bulb or checking the fixture?\"],\"agent_guidance\":[\"Verify customer identity before proceeding with any account or order details.\",\"Request order reference to confirm warranty eligibility.\",\"Explain the warranty coverage period for Beam smart bulbs.\",\"Advise on remote troubleshooting steps before scheduling technician visit.\",\"Inform customer about the warranty claim process and possible replacement.\"],\"claims\":[{\"statement\":\"One Beam smart bulb flickers constantly even at full brightness while others are fine.\",\"source_type\":\"complaint\",\"source_ref\":\"complaint\"},{\"statement\":\"Beam smart bulbs have a 12-month standard warranty from delivery.\",\"source_type\":\"policy\",\"source_ref\":\"E1\"},{\"statement\":\"Technical Support department handles product malfunction issues.\",\"source_type\":\"rule\",\"source_ref\":\"RTE-RUL-14\"},{\"statement\":\"Warranty claim requires verification of order and warranty status.\",\"source_type\":\"policy\",\"source_ref\":\"E1\"},{\"statement\":\"No order reference or purchase date was provided by the customer.\",\"source_type\":\"metadata\",\"source_ref\":\"verified_facts\"}],\"manipulation_detected\":false,\"manipulation_notes\":null}"
+        },
+        {
+          "stage": "communication",
+          "attempt": 1,
+          "provider": "openai",
+          "model": "gpt-4.1-mini",
+          "prompt": "customer_communication@1.0.0",
+          "request": {
+            "stage": "communication",
+            "schema": "customer_communication.v1",
+            "served_by": "gpt-4.1-mini-2025-04-14",
+            "correction": null,
+            "request_id": "req_c8beeff125f042e4a875ceb8deda6ace",
+            "user_chars": 2463,
+            "stop_reason": "stop",
+            "system_chars": 2549,
+            "user_preview": "stions>\n<follow_up>\nRequest for additional information due in 24.0 hours\n</follow_up>\n<evidence>\n<item id=\"E1\" policy_id=\"WAR-POL-07\" title=\"Warranty Policy\" version=\"2.0\" type=\"policy\" status=\"Active\" section=\"3.1\" heading=\"12-Month Products\" page=\"1\">\nThe standard warranty for the following products is 12 months from delivery: Sentinel Indoor Camera,\nSentinel Outdoor Camera, Glide Robot Vacuum, Halo Smart Speaker, Spark Smart Plug, Beam Smart\nBulb. Multi-packs are covered per unit, so each plug or bulb in a pack has its own warranty running from the\nsame delivery date. Vacuum brushes and filters are consumable parts and are excluded under section 5.\n</item>\n</evidence>\n<complaint_156122f9 id=\"LAB-00018\">\nTitle: Bulb flickers constantly\nProduct/service (as entered): (not provided)\nOrder reference (as entered): (not provided)\nTransaction reference (as entered): (not provided)\nPrevious complaint reference (as entered): (not provided)\nRequested resolution: none\nAttachments: none\nComplaint text:\nBulb flickers constantly\nOne of my Beam smart bulbs flickers all the time even at full brightness. The others are fine.\n\n</complaint_156122f9>\nWrite the response JSON for complaint LAB-00018.\n",
+            "prompt_sha256": "908eec6961cdbcbafa37423515b5f4503d83e5152be2679087640d25cd2474ff"
+          },
+          "parsed_ok": true,
+          "error_type": null,
+          "error_message": null,
+          "latency_ms": 5868,
+          "fault_injection": "invalid_json",
+          "response_text": "{\"schema_version\":\"1.0\",\"complaint_id\":\"LAB-00018\",\"tone\":\"professional\",\"subject\":\"Response to Your Beam Smart Bulb Flickering Issue\",\"customer_response\":\"Dear Lab,\\n\\nThank you for contacting us regarding your Beam smart bulb flickering constantly at full brightness (Complaint ID: LAB-00018). We understand how inconvenient this issue can be and appreciate your patience.\\n\\nOur records indicate this is a product malfunction under the Product Defect category. To proceed, we are currently verifying your order details, and our technical team will assist you with troubleshooting steps to resolve the flickering.\\n\\nTo help us expedite this process, please provide the following information:\\n- Order reference or purchase date for the Beam smart bulb\\n- Any troubleshooting steps you have already attempted, such as resetting the bulb or checking the fixture\\n- A description of when the flickering started and what you expected\\n\\nPlease note that eligibility for a refund or replacement requires verification. We will assess this after reviewing the information you provide.\\n\\nWe aim to respond within 24 hours and resolve the issue within 120 hours.\\n\\nThank you for your cooperation.\\n\\nLumora Customer Care\",\"follow_up_message\":\"Please provide the requested information within 24 hours to assist with your case.\",\"claims\":[{\"statement\":\"Customer reports a malfunctioning Beam smart bulb flickering constantly at full brightness.\",\"source_type\":\"complaint\",\"source_ref\":\"LAB-00018\"},{\"statement\":\"Eligibility for refund and replacement requires verification.\",\"source_type\":\"validated_decision\",\"source_ref\":null}]}"
+        }
+      ]
+    },
+    {
+      "kind": "connection",
+      "complaint_ref": "CMP-00589",
+      "attempts": [
+        {
+          "stage": "analysis",
+          "attempt": 1,
+          "provider": "openai",
+          "model": "gpt-4.1-mini",
+          "prompt": "complaint_analysis@1.2.0",
+          "request": {
+            "stage": "analysis",
+            "schema": "complaint_analysis.v1",
+            "served_by": "gpt-4.1-mini-2025-04-14",
+            "correction": null,
+            "request_id": "req_1e6986abfcc64261bd1882dba08b6fe8",
+            "user_chars": 6556,
+            "stop_reason": "stop",
+            "system_chars": 24141,
+            "user_preview": "s checked against the interaction record, and a quoted policy is\nchecked against the approved knowledge base. Uploaded documents are treated in the same way.\n</item>\n</evidence>\n<policy_conflicts>\nnone\n</policy_conflicts>\n<verified_facts>\ncomplaint_reference: CMP-00589\nsubmitted: 2026-09-14\nchannel: chat\ncustomer_type: individual\ncustomer_reference: CUST-10179\norder_ledger: no order reference supplied.\ncomplaint_history (last 90 days, same customer):\n  CMP-00478 on 2026-08-17: STF-MIS - status Escalated - order LMR-348691\n</verified_facts>\n<complaint_fe3b2e49 id=\"CMP-00589\">\nTitle: Robot vacuum cutting out and smelling odd\nProduct/service (as entered): Glide Robot Vacuum\nOrder reference (as entered): (not provided)\nTransaction reference (as entered): (not provided)\nPrevious complaint reference (as entered): (not provided)\nRequested resolution: repair\nAttachments: none\nComplaint text:\nRobot vacuum cutting out and smelling odd\nHi. The Glide Robot Vacuum keeps cutting out and when I pick it up there is an odd smell from underneath. Is it the motor dying or something dangerous? Either way it is not doing its job.\n\n</complaint_fe3b2e49>\nReturn the JSON analysis for complaint CMP-00589.\n",
+            "prompt_sha256": "428c297c112322b45fb08b033ce715f87b3009f2110fe3092537b2b7cfc4008f"
+          },
+          "parsed_ok": true,
+          "error_type": null,
+          "error_message": null,
+          "latency_ms": 24044,
+          "fault_injection": null,
+          "response_text": "{\n  \"schema_version\": \"1.0\",\n  \"complaint_id\": \"CMP-00589\",\n  \"summary\": \"Customer reports the Glide Robot Vacuum cutting out with an odd smell, concerned about potential danger and requests repair.\",\n  \"key_facts\": [\n    \"The Glide Robot Vacuum is cutting out during operation.\",\n    \"Customer notices an odd smell from underneath the vacuum.\",\n    \"Customer is concerned about possible motor failure or safety hazard.\",\n    \"No order or transaction reference was provided.\",\n    \"Customer requests a repair for the product.\"\n  ],\n  \"primary_issue\": {\n    \"label\": \"Product Malfunction\",\n    \"category\": \"PRD\",\n    \"subcategory\": \"PRD-MAL\",\n    \"evidence_quote\": \"Robot vacuum cutting out and smelling odd\"\n  },\n  \"secondary_issues\": [],\n  \"issue_category\": \"PRD\",\n  \"subcategory\": \"PRD-MAL\",\n  \"sentiment\": \"Neutral\",\n  \"emotion_indicators\": [\n    \"Confusion\",\n    \"Urgency\"\n  ],\n  \"urgency\": \"High\",\n  \"urgency_rationale\": \"The odd smell and cutting out indicate a potential safety risk and product failure affecting essential home service.\",\n  \"impact\": \"High\",\n  \"priority\": \"P1\",\n  \"entities\": [\n    {\n      \"type\": \"product\",\n      \"value\": \"Glide Robot Vacuum\"\n    }\n  ],\n  \"department\": \"DEPT-TEC\",\n  \"supporting_departments\": [\n    \"DEPT-SAF\"\n  ],\n  \"policy_references\": [\n    {\n      \"policy_id\": \"WAR-POL-07\",\n      \"section\": \"3.1\",\n      \"evidence_id\": \"E1\",\n      \"applicability\": \"Applicable\",\n      \"reason\": \"Warranty covers the Glide Robot Vacuum for 12 months from delivery.\"\n    },\n    {\n      \"policy_id\": \"SAF-POL-10\",\n      \"section\": \"7.2\",\n      \"evidence_id\": \"E6\",\n      \"applicability\": \"Applicable\",\n      \"reason\": \"Safety concerns such as odd smells and cutting out must never be dismissed and require logging and referral to Product Safety.\"\n    },\n    {\n      \"policy_id\": \"RPL-POL-03\",\n      \"section\": \"3.4\",\n      \"evidence_id\": \"E2\",\n      \"applicability\": \"Applicable\",\n      \"reason\": \"Replacement policy limits one no-cost replacement per order line; further failures require supervisor review.\"\n    }\n  ],\n  \"policy_id\": \"WAR-POL-07\",\n  \"policy_section\": \"3.1\",\n  \"resolution_steps\": [\n    {\n      \"action_code\": \"VERIFY_IDENTITY\",\n      \"description\": \"Verify customer identity to proceed with warranty and repair process.\",\n      \"policy_ref\": null\n    },\n    {\n      \"action_code\": \"VERIFY_ORDER\",\n      \"description\": \"Request and verify order details to confirm warranty eligibility.\",\n      \"policy_ref\": null\n    },\n    {\n      \"action_code\": \"VERIFY_WARRANTY_STATUS\",\n      \"description\": \"Check warranty status for the Glide Robot Vacuum based on delivery date.\",\n      \"policy_ref\": \"WAR-POL-07:3.1\"\n    },\n    {\n      \"action_code\": \"ADVISE_STOP_USING\",\n      \"description\": \"Advise customer to stop using the vacuum due to potential safety risk from odd smell and cutting out.\",\n      \"policy_ref\": \"SAF-POL-10:7.2\"\n    },\n    {\n      \"action_code\": \"LOG_SAFETY_INCIDENT\",\n      \"description\": \"Log the safety incident and notify Product Safety team for investigation.\",\n      \"policy_ref\": \"SAF-POL-10:7.2\"\n    },\n    {\n      \"action_code\": \"SCHEDULE_TECHNICIAN_VISIT\",\n      \"description\": \"Schedule a technician visit to inspect and repair the vacuum if under warranty.\",\n      \"policy_ref\": \"WAR-POL-07:3.1\"\n    },\n    {\n      \"action_code\": \"SCHEDULE_FOLLOW_UP\",\n      \"description\": \"Schedule follow-up to confirm repair status and customer satisfaction.\",\n      \"policy_ref\": null\n    }\n  ],\n  \"refund_eligibility\": {\n    \"status\": \"requires_verification\",\n    \"reason\": \"No order or transaction details provided to verify purchase and warranty status.\",\n    \"policy_ref\": \"WAR-POL-07:3.1\"\n  },\n  \"replacement_eligibility\": {\n    \"status\": \"requires_verification\",\n    \"reason\": \"Replacement eligibility depends on warranty status and prior replacements for this order line.\",\n    \"policy_ref\": \"RPL-POL-03:3.4\"\n  },\n  \"compensation_eligibility\": {\n    \"status\": \"not_applicable\",\n    \"type\": \"none\",\n    \"amount_usd\": null,\n    \"reason\": \"No compensation requested or indicated by policy for this issue.\",\n    \"policy_ref\": null\n  },\n  \"escalation_required\": true,\n  \"escalation_level\": \"Supervisor Review\",\n  \"escalation_reason\": \"Potential safety risk and product malfunction with unknown warranty status requiring supervisor review.\",\n  \"escalation_notes\": {\n    \"summary\": \"Customer reports a malfunctioning Glide Robot Vacuum with an odd smell, indicating a possible safety hazard. No order details provided to verify warranty or replacement eligibility. Safety policy mandates logging and referral to Product Safety. Supervisor review required due to potential safety risk and incomplete information.\",\n    \"key_facts\": [\n      \"Glide Robot Vacuum cutting out and emitting odd smell.\",\n      \"Customer concerned about safety and requests repair.\",\n      \"No order or transaction reference provided.\",\n      \"Warranty and replacement eligibility cannot be confirmed without order details.\",\n      \"Safety policy requires immediate containment and logging.\"\n    ],\n    \"reason\": \"Safety risk and incomplete verification require escalation to supervisor.\",\n    \"actions_taken\": [\n      \"Identified primary issue as product malfunction with safety concern.\",\n      \"Planned verification of identity, order, and warranty status.\",\n      \"Included safety containment steps and logging.\",\n      \"Recommended scheduling technician visit and follow-up.\"\n    ],\n    \"relevant_policy\": [\n      \"WAR-POL-07:3.1\",\n      \"SAF-POL-10:7.2\",\n      \"RPL-POL-03:3.4\"\n    ],\n    \"required_next_action\": \"Supervisor to review case and authorize further safety and warranty actions.\"\n  },\n  \"response_type\": \"Apology and Resolution Update\",\n  \"follow_up_required\": true,\n  \"follow_up_type\": \"Request for additional information\",\n  \"missing_information\": [\n    {\n      \"field\": \"order reference\",\n      \"reason\": \"Order details are needed to verify warranty and replacement eligibility.\"\n    },\n    {\n      \"field\": \"transaction reference\",\n      \"reason\": \"Transaction details are needed to confirm purchase and warranty coverage.\"\n    }\n  ],\n  \"clarification_questions\": [\n    \"Please provide your order reference or transaction details for the Glide Robot Vacuum.\",\n    \"When was the Glide Robot Vacuum delivered or purchased?\"\n  ],\n  \"agent_guidance\": [\n    \"Verify customer identity before proceeding with warranty checks.\",\n    \"Request order or transaction details to confirm warranty coverage.\",\n    \"Advise customer to stop using the vacuum due to potential safety hazard.\",\n    \"Log the safety incident and notify Product Safety team immediately.\"\n  ],\n  \"claims\": [\n    {\n      \"statement\": \"The Glide Robot Vacuum keeps cutting out and has an odd smell from underneath.\",\n      \"source_type\": \"complaint\",\n      \"source_ref\": \"complaint\"\n    },\n    {\n      \"statement\": \"The warranty for the Glide Robot Vacuum is 12 months from delivery.\",\n      \"source_type\": \"policy\",\n      \"source_ref\": \"E1\"\n    },\n    {\n      \"statement\": \"Safety concerns such as odd smells and cutting out must never be dismissed and require logging and referral to Product Safety.\",\n      \"source_type\": \"policy\",\n      \"source_ref\": \"E6\"\n    },\n    {\n      \"statement\": \"A maximum of one no-cost replacement per order line is provided; further failures require supervisor review.\",\n      \"source_type\": \"policy\",\n      \"source_ref\": \"E2\"\n    },\n    {\n      \"statement\": \"No order or transaction reference was provided in the complaint.\",\n      \"source_type\": \"metadata\",\n      \"source_ref\": null\n    }\n  ],\n  \"manipulation_detected\": false,\n  \"manipulation_notes\": null\n}"
+        },
+        {
+          "stage": "communication",
+          "attempt": 1,
+          "provider": "openai",
+          "model": "gpt-4.1-mini",
+          "prompt": "customer_communication@1.0.0",
+          "request": {
+            "stage": "communication",
+            "schema": "customer_communication.v1",
+            "correction": null,
+            "user_chars": 3597,
+            "system_chars": 2549,
+            "user_preview": " ESC-SOP-12 section 4.13.\n</item>\n<item id=\"E6\" policy_id=\"SAF-POL-10\" title=\"Product Safety Policy\" version=\"2.0\" type=\"policy\" status=\"Active\" section=\"7.2\" heading=\"Never Dismiss\" page=\"2\">\nNever dismiss or minimise a reported safety concern. Staff do not suggest that heat, smoke, sparks or a\nburning smell are normal, and do not advise the customer to keep using the product while the concern is\nbeing investigated. Every report is logged and passed to Product Safety, even when the customer says the\nproblem has stopped.\n</item>\n</evidence>\n<complaint_72cdfdba id=\"CMP-00589\">\nTitle: Robot vacuum cutting out and smelling odd\nProduct/service (as entered): Glide Robot Vacuum\nOrder reference (as entered): (not provided)\nTransaction reference (as entered): (not provided)\nPrevious complaint reference (as entered): (not provided)\nRequested resolution: repair\nAttachments: none\nComplaint text:\nRobot vacuum cutting out and smelling odd\nHi. The Glide Robot Vacuum keeps cutting out and when I pick it up there is an odd smell from underneath. Is it the motor dying or something dangerous? Either way it is not doing its job.\n\n</complaint_72cdfdba>\nWrite the response JSON for complaint CMP-00589.\n",
+            "prompt_sha256": "908eec6961cdbcbafa37423515b5f4503d83e5152be2679087640d25cd2474ff"
+          },
+          "parsed_ok": false,
+          "error_type": "connection",
+          "error_message": "Could not reach the OpenAI API: [Errno 11001] getaddrinfo failed",
+          "latency_ms": 0,
+          "fault_injection": null,
+          "response_text": null
+        },
+        {
+          "stage": "communication",
+          "attempt": 2,
+          "provider": "openai",
+          "model": "gpt-4.1-mini",
+          "prompt": "customer_communication@1.0.0",
+          "request": {
+            "stage": "communication",
+            "schema": "customer_communication.v1",
+            "served_by": "gpt-4.1-mini-2025-04-14",
+            "correction": null,
+            "request_id": "req_396cab4bb7b84a909951ed85da050f86",
+            "user_chars": 3597,
+            "stop_reason": "stop",
+            "system_chars": 2549,
+            "user_preview": " ESC-SOP-12 section 4.13.\n</item>\n<item id=\"E6\" policy_id=\"SAF-POL-10\" title=\"Product Safety Policy\" version=\"2.0\" type=\"policy\" status=\"Active\" section=\"7.2\" heading=\"Never Dismiss\" page=\"2\">\nNever dismiss or minimise a reported safety concern. Staff do not suggest that heat, smoke, sparks or a\nburning smell are normal, and do not advise the customer to keep using the product while the concern is\nbeing investigated. Every report is logged and passed to Product Safety, even when the customer says the\nproblem has stopped.\n</item>\n</evidence>\n<complaint_72cdfdba id=\"CMP-00589\">\nTitle: Robot vacuum cutting out and smelling odd\nProduct/service (as entered): Glide Robot Vacuum\nOrder reference (as entered): (not provided)\nTransaction reference (as entered): (not provided)\nPrevious complaint reference (as entered): (not provided)\nRequested resolution: repair\nAttachments: none\nComplaint text:\nRobot vacuum cutting out and smelling odd\nHi. The Glide Robot Vacuum keeps cutting out and when I pick it up there is an odd smell from underneath. Is it the motor dying or something dangerous? Either way it is not doing its job.\n\n</complaint_72cdfdba>\nWrite the response JSON for complaint CMP-00589.\n",
+            "prompt_sha256": "908eec6961cdbcbafa37423515b5f4503d83e5152be2679087640d25cd2474ff"
+          },
+          "parsed_ok": true,
+          "error_type": null,
+          "error_message": null,
+          "latency_ms": 4447,
+          "fault_injection": null,
+          "response_text": "{\"schema_version\":\"1.0\",\"complaint_id\":\"CMP-00589\",\"tone\":\"concise\",\"subject\":\"Response to your Glide Robot Vacuum issue\",\"customer_response\":\"Dear Maya, thank you for contacting us regarding your Glide Robot Vacuum (complaint CMP-00589). We understand your concern about the vacuum cutting out and the unusual smell, which indicates a product malfunction. We are currently verifying your order details and our technical team will assist you with troubleshooting. To proceed, please provide your order reference or transaction details and the purchase or delivery date of the vacuum. We will assess eligibility for repair or replacement after verification. Thank you for your cooperation. Lumora Customer Care\",\"follow_up_message\":\"Please provide your order reference or transaction details and the purchase or delivery date within 24 hours to proceed with your case.\",\"claims\":[{\"statement\":\"Customer reports the Glide Robot Vacuum cutting out with an odd smell, concerned about potential danger and requests repair.\",\"source_type\":\"complaint\",\"source_ref\":\"CMP-00589\"},{\"statement\":\"The case requires verification of order details and technical troubleshooting before assessing refund or replacement eligibility.\",\"source_type\":\"validated_decision\",\"source_ref\":null}]}"
+        }
+      ]
+    },
+    {
+      "kind": "timeout",
+      "complaint_ref": "CMP-00344",
+      "attempts": [
+        {
+          "stage": "analysis",
+          "attempt": 1,
+          "provider": "openai",
+          "model": "gpt-4.1-mini",
+          "prompt": "complaint_analysis@1.2.0",
+          "request": {
+            "stage": "analysis",
+            "schema": "complaint_analysis.v1",
+            "correction": null,
+            "user_chars": 6841,
+            "system_chars": 24141,
+            "user_preview": "957 | items: 1 x Lumora Keystone Smart Lock (USD 249.0) | total USD 249.0 | shipping: standard | ordered 2026-07-13 | estimated delivery 2026-07-17 | dispatched 2026-07-14 | delivered 2026-07-17 | status delivered | care_plus False | previous replacements 0\n  transaction TXN-11132773: charge USD 249.0 on 2026-07-13\ncomplaint_history (last 90 days, same customer):\n  CMP-00127 on 2026-06-02: PRD-DOA - status Assigned - order LMR-496044\n</verified_facts>\n<complaint_d23b6f6d id=\"CMP-00344\">\nTitle: Sent the wrong model\nProduct/service (as entered): home hub\nOrder reference (as entered): LMR-125957\nTransaction reference (as entered): (not provided)\nPrevious complaint reference (as entered): (not provided)\nRequested resolution: refund\nAttachments: lck_damage_1.jpg (image/jpeg), lck_damage_2.jpg (image/jpeg), lck_damage_3.jpg (image/jpeg)\nComplaint text:\nSent the wrong model\nTo the Lumora support team,\n\nYou sent me the wrong model - a home hub instead of my Keystone Smart Lock. Photos attached. I needed it this week and no longer need it, so just refund me for order LMR-125957.\n\nWaiting for your reply,\nLiam Whitfield\n\n</complaint_d23b6f6d>\nReturn the JSON analysis for complaint CMP-00344.\n",
+            "prompt_sha256": "428c297c112322b45fb08b033ce715f87b3009f2110fe3092537b2b7cfc4008f"
+          },
+          "parsed_ok": false,
+          "error_type": "timeout",
+          "error_message": "The GenAI provider did not respond in time.",
+          "latency_ms": 0,
+          "fault_injection": null,
+          "response_text": null
+        },
+        {
+          "stage": "analysis",
+          "attempt": 2,
+          "provider": "openai",
+          "model": "gpt-4.1-mini",
+          "prompt": "complaint_analysis@1.2.0",
+          "request": {
+            "stage": "analysis",
+            "schema": "complaint_analysis.v1",
+            "served_by": "gpt-4.1-mini-2025-04-14",
+            "correction": null,
+            "request_id": "req_2e00007be1e6471aae1dde01bbc8bca6",
+            "user_chars": 6841,
+            "stop_reason": "stop",
+            "system_chars": 24141,
+            "user_preview": "957 | items: 1 x Lumora Keystone Smart Lock (USD 249.0) | total USD 249.0 | shipping: standard | ordered 2026-07-13 | estimated delivery 2026-07-17 | dispatched 2026-07-14 | delivered 2026-07-17 | status delivered | care_plus False | previous replacements 0\n  transaction TXN-11132773: charge USD 249.0 on 2026-07-13\ncomplaint_history (last 90 days, same customer):\n  CMP-00127 on 2026-06-02: PRD-DOA - status Assigned - order LMR-496044\n</verified_facts>\n<complaint_d23b6f6d id=\"CMP-00344\">\nTitle: Sent the wrong model\nProduct/service (as entered): home hub\nOrder reference (as entered): LMR-125957\nTransaction reference (as entered): (not provided)\nPrevious complaint reference (as entered): (not provided)\nRequested resolution: refund\nAttachments: lck_damage_1.jpg (image/jpeg), lck_damage_2.jpg (image/jpeg), lck_damage_3.jpg (image/jpeg)\nComplaint text:\nSent the wrong model\nTo the Lumora support team,\n\nYou sent me the wrong model - a home hub instead of my Keystone Smart Lock. Photos attached. I needed it this week and no longer need it, so just refund me for order LMR-125957.\n\nWaiting for your reply,\nLiam Whitfield\n\n</complaint_d23b6f6d>\nReturn the JSON analysis for complaint CMP-00344.\n",
+            "prompt_sha256": "428c297c112322b45fb08b033ce715f87b3009f2110fe3092537b2b7cfc4008f"
+          },
+          "parsed_ok": true,
+          "error_type": null,
+          "error_message": null,
+          "latency_ms": 17339,
+          "fault_injection": null,
+          "response_text": "{\n  \"schema_version\": \"1.0\",\n  \"complaint_id\": \"CMP-00344\",\n  \"summary\": \"Customer received a Lumora Nexus Home Hub instead of the ordered Keystone Smart Lock and requests a refund.\",\n  \"key_facts\": [\n    \"Customer ordered a Lumora Keystone Smart Lock (order LMR-125957) delivered on 2026-07-17.\",\n    \"Customer received a different product, a home hub, instead of the Keystone Smart Lock.\",\n    \"Customer attached photos showing the wrong item received.\",\n    \"Customer requests a refund due to receiving the wrong model and no longer needing the product.\",\n    \"Order was not covered by Care+ and no previous replacements for this order.\"\n  ],\n  \"primary_issue\": {\n    \"label\": \"Wrong Item Delivered\",\n    \"category\": \"DEL\",\n    \"subcategory\": \"DEL-WRG\",\n    \"evidence_quote\": \"For a wrong item, the correct item is dispatched within 3 business days after verification, together with a prepaid return label for the wrong item. A wrong item is a different product, model, colour or quantity from the one ordered. The customer is not charged for the correct item or for returning the wrong one.\"\n  },\n  \"secondary_issues\": [],\n  \"issue_category\": \"DEL\",\n  \"subcategory\": \"DEL-WRG\",\n  \"sentiment\": \"Negative\",\n  \"emotion_indicators\": [\n    \"Frustration\",\n    \"Disappointment\"\n  ],\n  \"urgency\": \"Medium\",\n  \"urgency_rationale\": \"The issue causes product/service degradation as the customer received the wrong product and cannot use the ordered device, but there is no immediate safety or security risk.\",\n  \"impact\": \"Medium\",\n  \"priority\": \"P2\",\n  \"entities\": [\n    {\n      \"type\": \"product\",\n      \"value\": \"Lumora Keystone Smart Lock\"\n    },\n    {\n      \"type\": \"product\",\n      \"value\": \"Lumora Nexus Home Hub\"\n    },\n    {\n      \"type\": \"order_id\",\n      \"value\": \"LMR-125957\"\n    },\n    {\n      \"type\": \"person\",\n      \"value\": \"Liam Whitfield\"\n    }\n  ],\n  \"department\": \"DEPT-LOG\",\n  \"supporting_departments\": [\n    \"DEPT-RET\"\n  ],\n  \"policy_references\": [\n    {\n      \"policy_id\": \"RPL-POL-03\",\n      \"section\": \"5.1\",\n      \"evidence_id\": \"E1\",\n      \"applicability\": \"Applicable\",\n      \"reason\": \"Policy defines the procedure for handling wrong item deliveries including dispatching the correct item and providing a prepaid return label.\"\n    }\n  ],\n  \"policy_id\": \"RPL-POL-03\",\n  \"policy_section\": \"5.1\",\n  \"resolution_steps\": [\n    {\n      \"action_code\": \"VERIFY_ORDER\",\n      \"description\": \"Verify the order details to confirm the product ordered and delivered.\",\n      \"policy_ref\": \"RPL-POL-03:5.1\"\n    },\n    {\n      \"action_code\": \"REQUEST_PHOTO_EVIDENCE\",\n      \"description\": \"Request photo evidence of the wrong item received to verify the claim.\",\n      \"policy_ref\": \"RPL-POL-03:5.1\"\n    },\n    {\n      \"action_code\": \"SHIP_CORRECT_ITEM\",\n      \"description\": \"Ship the correct Keystone Smart Lock to the customer within 3 business days after verification.\",\n      \"policy_ref\": \"RPL-POL-03:5.1\"\n    },\n    {\n      \"action_code\": \"ISSUE_RETURN_LABEL\",\n      \"description\": \"Issue a prepaid return label for the customer to return the wrong item.\",\n      \"policy_ref\": \"RPL-POL-03:5.1\"\n    }\n  ],\n  \"refund_eligibility\": {\n    \"status\": \"requires_verification\",\n    \"reason\": \"Refund eligibility depends on return of the wrong item and verification of the claim; policy prefers replacement over refund.\",\n    \"policy_ref\": \"RPL-POL-03:5.1\"\n  },\n  \"replacement_eligibility\": {\n    \"status\": \"eligible\",\n    \"reason\": \"Policy mandates shipping the correct item for wrong item deliveries.\",\n    \"policy_ref\": \"RPL-POL-03:5.1\"\n  },\n  \"compensation_eligibility\": {\n    \"status\": \"not_applicable\",\n    \"type\": \"none\",\n    \"amount_usd\": null,\n    \"reason\": \"No compensation beyond replacement or refund is specified for wrong item deliveries in policy.\",\n    \"policy_ref\": null\n  },\n  \"escalation_required\": false,\n  \"escalation_level\": \"No Escalation\",\n  \"escalation_reason\": null,\n  \"escalation_notes\": null,\n  \"response_type\": \"Request for additional information\",\n  \"follow_up_required\": true,\n  \"follow_up_type\": \"Request for additional information\",\n  \"missing_information\": [\n    {\n      \"field\": \"transaction reference\",\n      \"reason\": \"Transaction reference was not provided by the customer and is needed for verification.\"\n    }\n  ],\n  \"clarification_questions\": [\n    \"Please provide the transaction reference number for order LMR-125957 to assist with verification.\"\n  ],\n  \"agent_guidance\": [\n    \"Verify the order and transaction details before proceeding with replacement or refund.\",\n    \"Confirm the wrong item received matches the photos provided.\",\n    \"Explain to the customer the standard policy is to send the correct item with a prepaid return label for the wrong item.\",\n    \"Do not promise a refund until verification is complete and policy conditions are met.\"\n  ],\n  \"claims\": [\n    {\n      \"statement\": \"Customer received a home hub instead of the ordered Keystone Smart Lock.\",\n      \"source_type\": \"complaint\",\n      \"source_ref\": \"complaint\"\n    },\n    {\n      \"statement\": \"Photos of the wrong item were attached by the customer.\",\n      \"source_type\": \"complaint\",\n      \"source_ref\": \"complaint\"\n    },\n    {\n      \"statement\": \"Order LMR-125957 was for a Lumora Keystone Smart Lock, delivered on 2026-07-17.\",\n      \"source_type\": \"metadata\",\n      \"source_ref\": \"order_ledger\"\n    },\n    {\n      \"statement\": \"Replacement and Returns Policy section 5.1 requires shipping the correct item and providing a prepaid return label for wrong items.\",\n      \"source_type\": \"policy\",\n      \"source_ref\": \"E1\"\n    }\n  ],\n  \"manipulation_detected\": false,\n  \"manipulation_notes\": null\n}"
+        },
+        {
+          "stage": "communication",
+          "attempt": 1,
+          "provider": "openai",
+          "model": "gpt-4.1-mini",
+          "prompt": "customer_communication@1.0.0",
+          "request": {
+            "stage": "communication",
+            "schema": "customer_communication.v1",
+            "served_by": "gpt-4.1-mini-2025-04-14",
+            "correction": null,
+            "request_id": "req_06bb44b3268e44bebbad086d633c2791",
+            "user_chars": 2690,
+            "stop_reason": "stop",
+            "system_chars": 2549,
+            "user_preview": "3\" title=\"Replacement and Returns Policy\" version=\"2.1\" type=\"policy\" status=\"Active\" section=\"5.1\" heading=\"Wrong Item\">\nFor a wrong item, the correct item is dispatched within 3 business days after verification, together with a prepaid return label for the wrong item. A wrong item is a different product, model, colour or quantity from the one ordered. The customer is not charged for the correct item or for returning the wrong one.\n</item>\n</evidence>\n<complaint_2350fbca id=\"CMP-00344\">\nTitle: Sent the wrong model\nProduct/service (as entered): home hub\nOrder reference (as entered): LMR-125957\nTransaction reference (as entered): (not provided)\nPrevious complaint reference (as entered): (not provided)\nRequested resolution: refund\nAttachments: lck_damage_1.jpg (image/jpeg), lck_damage_2.jpg (image/jpeg), lck_damage_3.jpg (image/jpeg)\nComplaint text:\nSent the wrong model\nTo the Lumora support team,\n\nYou sent me the wrong model - a home hub instead of my Keystone Smart Lock. Photos attached. I needed it this week and no longer need it, so just refund me for order LMR-125957.\n\nWaiting for your reply,\nLiam Whitfield\n\n</complaint_2350fbca>\nWrite the response JSON for complaint CMP-00344.\n",
+            "prompt_sha256": "908eec6961cdbcbafa37423515b5f4503d83e5152be2679087640d25cd2474ff"
+          },
+          "parsed_ok": true,
+          "error_type": null,
+          "error_message": null,
+          "latency_ms": 3712,
+          "fault_injection": null,
+          "response_text": "{\"schema_version\":\"1.0\",\"complaint_id\":\"CMP-00344\",\"tone\":\"concise\",\"subject\":\"Wrong Item Delivered - Order LMR-125957\",\"customer_response\":\"Dear Liam,\\n\\nThank you for contacting us regarding complaint CMP-00344. We understand you received a Lumora Nexus Home Hub instead of the Keystone Smart Lock you ordered, and you have requested a refund. We are currently verifying your order details. Please provide the transaction reference number for order LMR-125957 and send photos of the product and its packaging if not already sent. Once verified, we will send you a prepaid return label. Upon receipt and inspection of the returned item, your refund will be processed within 5 business days.\\n\\nThank you for your cooperation.\\n\\nLumora Customer Care\",\"follow_up_message\":\"Refund-status update due in 120 hours\",\"claims\":[{\"statement\":\"Customer received a Lumora Nexus Home Hub instead of the ordered Keystone Smart Lock and requests a refund.\",\"source_type\":\"complaint\",\"source_ref\":\"CMP-00344\"},{\"statement\":\"Customer is eligible for refund and replacement after verification and return of the wrong item.\",\"source_type\":\"validated_decision\",\"source_ref\":null}]}"
+        }
+      ]
+    }
+  ]
+}

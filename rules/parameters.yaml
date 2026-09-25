@@ -1,0 +1,92 @@
+# =============================================================================
+# Rule parameters - numeric business thresholds used by the Complaint
+# Resolution Rule Matrix. Every value is traced to the approved knowledge-base
+# section that defines it. Rules reference these as "$param:<key>".
+# Changing a value here (or via Admin > Rule Matrix > Parameters) changes the
+# deterministic Python validation behaviour immediately - no code change.
+# =============================================================================
+parameters:
+  # ---- Refunds (REF-POL-02 v2.0) --------------------------------------------
+  refund_window_days:            {value: 30,  unit: calendar_days, source: "REF-POL-02:3.1", description: Standard refund window from delivery date.}
+  care_plus_refund_window_days:  {value: 45,  unit: calendar_days, source: "REF-POL-02:3.2", description: Extended refund window for Care+ members.}
+  defect_refund_window_days:     {value: 30,  unit: calendar_days, source: "REF-POL-02:3.3", description: Defective products - refund or replacement window before the warranty process applies.}
+  return_inspection_business_days: {value: 3, unit: business_days, source: "REF-POL-02:4.2", description: Returned items inspected within this period of receipt.}
+  refund_issue_business_days:    {value: 5,   unit: business_days, source: "REF-POL-02:4.3", description: Refund issued after inspection approval.}
+  bank_posting_max_business_days: {value: 10, unit: business_days, source: "REF-POL-02:4.4", description: Maximum bank posting time for issued refunds (not controlled by Lumora).}
+  refund_delay_status_update_business_days: {value: 1, unit: business_days, source: "REF-POL-02:5.1", description: Status update deadline once a refund is late.}
+  restocking_fee_pct:            {value: 10,  unit: percent, source: "REF-POL-02:6.1", description: Restocking fee for opened non-defective items returned after day 14.}
+  restocking_fee_free_days:      {value: 14,  unit: calendar_days, source: "REF-POL-02:6.1", description: Returns within this many days incur no restocking fee.}
+  partial_refund_breakdown_business_days: {value: 3, unit: business_days, source: "REF-POL-02:6.3", description: Itemised breakdown provided after a deduction dispute.}
+
+  # ---- Replacements & returns (RPL-POL-03 v2.1) -----------------------------
+  doa_report_days:               {value: 7,   unit: calendar_days, source: "RPL-POL-03:3.1", description: Damaged-on-arrival must be reported within this many days of delivery.}
+  replacement_dispatch_business_days: {value: 3, unit: business_days, source: "RPL-POL-03:4.1", description: Replacement dispatched after verification.}
+  return_label_business_days:    {value: 1,   unit: business_days, source: "RPL-POL-03:4.2", description: Prepaid return label issued within this period.}
+  max_policy_replacements:       {value: 1,   unit: count, source: "RPL-POL-03:3.4", description: No-cost replacements per order line under the Replacement Policy.}
+  missing_parts_dispatch_business_days: {value: 5, unit: business_days, source: "RPL-POL-03:5.2", description: Missing parts dispatched at no cost.}
+  wrong_item_dispatch_business_days: {value: 3, unit: business_days, source: "RPL-POL-03:5.1", description: Correct item dispatched after a wrong-item report.}
+
+  # ---- Delivery (DEL-POL-04 v3.0) --------------------------------------------
+  delay_comp_threshold_business_days: {value: 3, unit: business_days, source: "DEL-POL-04:5.2", description: Delay beyond the estimated date that qualifies for delay credit.}
+  delay_credit_usd:              {value: 10,  unit: usd, source: "DEL-POL-04:5.2", description: Store credit for a qualifying delivery delay (once per order).}
+  lost_no_update_business_days:  {value: 7,   unit: business_days, source: "DEL-POL-04:6.1", description: No tracking update for this long -> package treated as lost.}
+  carrier_trace_business_days:   {value: 5,   unit: business_days, source: "DEL-POL-04:6.1", description: Carrier trace duration before lost-package resolution.}
+  lost_to_delay_threshold_business_days: {value: 10, unit: business_days, source: "DEL-POL-04:6.1", description: Delay after which a delayed order is handled as a lost package.}
+
+  # ---- Billing (BIL-POL-05 v2.0) --------------------------------------------
+  duplicate_reversal_business_days: {value: 2, unit: business_days, source: "BIL-POL-05:4.1", description: Duplicate-charge reversal initiated after verification.}
+  incorrect_charge_investigation_business_days: {value: 5, unit: business_days, source: "BIL-POL-05:4.2", description: Incorrect-charge investigation period.}
+  billing_dispute_window_days:   {value: 60,  unit: calendar_days, source: "BIL-POL-05:4.3", description: Billing disputes must be raised within this period of the charge.}
+  refund_trace_after_business_days: {value: 10, unit: business_days, source: "BIL-POL-05:6.1", description: Confirmed refunds not visible after this period trigger a payment trace.}
+  refund_trace_reference_business_days: {value: 3, unit: business_days, source: "BIL-POL-05:6.2", description: Payment trace reference provided within this period.}
+
+  # ---- Cancellations & subscriptions (CAN-POL-06 v1.2, SUB-POL-22 v2.0) -------
+  annual_cooling_off_days:       {value: 14,  unit: calendar_days, source: "CAN-POL-06:4.3", description: Annual plans cancelled within this period of purchase/renewal get a full refund.}
+  post_cancellation_refund_business_days: {value: 5, unit: business_days, source: "CAN-POL-06:5.1", description: Refund of charges taken after a confirmed cancellation.}
+  renewal_notice_days:           {value: 7,   unit: calendar_days, source: "SUB-POL-22:4.1", description: Renewal reminder sent before annual renewal.}
+  outage_credit_threshold_hours: {value: 24,  unit: hours, source: "SUB-POL-22:6.1", description: Cloud Vault outage length that qualifies for one month of subscription credit.}
+  install_cancellation_notice_hours: {value: 24, unit: hours, source: "CAN-POL-06:6.1", description: Free Pro Install cancellation notice period.}
+
+  # ---- Warranty (WAR-POL-07 v2.0) --------------------------------------------
+  warranty_decision_business_days: {value: 10, unit: business_days, source: "WAR-POL-07:4.2", description: Warranty claim decision period.}
+  care_plus_coverage_months:     {value: 36,  unit: months, source: "WAR-POL-07:6.1", description: Care+ coverage from delivery date.}
+  care_plus_accidental_claims_per_year: {value: 2, unit: count, source: "WAR-POL-07:6.2", description: Accidental-damage claims per 12 months under Care+.}
+  care_plus_service_fee_usd:     {value: 29,  unit: usd, source: "WAR-POL-07:6.2", description: Care+ accidental-damage service fee.}
+  warranty_appeal_window_days:   {value: 30,  unit: calendar_days, source: "WAR-POL-07:7.1", description: Warranty denial appeal window.}
+
+  # ---- Privacy & security (PRV-POL-08 v4.0, SEC-POL-09 v2.0) ---------------------
+  dsar_fulfilment_days:          {value: 30,  unit: calendar_days, source: "PRV-POL-08:4.2", description: Data access/deletion requests fulfilled within this period.}
+  marketing_optout_business_days: {value: 10, unit: business_days, source: "PRV-POL-08:5.2", description: Marketing opt-out processing period.}
+  privacy_incident_log_hours:    {value: 24,  unit: hours, source: "PRV-POL-08:7.2", description: Privacy incident logged and Privacy Officer notified within this period.}
+  compliance_assessment_hours:   {value: 72,  unit: hours, source: "PRV-POL-08:7.3", description: Compliance assessment of a privacy incident.}
+  security_response_hours:       {value: 1,   unit: hours, source: "SEC-POL-09:4.3", description: Response to suspected unauthorized access.}
+  account_recovery_business_days: {value: 2,  unit: business_days, source: "SEC-POL-09:7.2", description: Account recovery after identity verification.}
+
+  # ---- Safety (SAF-POL-10 v2.0) ----------------------------------------------
+  safety_incident_log_hours:     {value: 1,   unit: hours, source: "SAF-POL-10:4.2", description: Safety incident logged within this period.}
+  recall_response_hours:         {value: 4,   unit: hours, source: "SAF-POL-10:8.1", description: Recall-related complaints reach Product Safety within this period.}
+
+  # ---- Compensation (CPN-POL-11 v1.3) ------------------------------------------
+  agent_compensation_limit_usd:  {value: 25,  unit: usd, source: "CPN-POL-11:5.1", description: Maximum goodwill compensation an agent may approve.}
+  supervisor_compensation_limit_usd: {value: 100, unit: usd, source: "CPN-POL-11:5.2", description: Supervisor approval limit.}
+  manager_compensation_limit_usd: {value: 500, unit: usd, source: "CPN-POL-11:5.3", description: Department Manager approval limit.}
+
+  # ---- Escalation thresholds (ESC-SOP-12 v3.1) -------------------------------------
+  high_value_supervisor_usd:     {value: 500,  unit: usd, source: "ESC-SOP-12:4.6", description: Disputed/claimed amount requiring Supervisor Review.}
+  high_value_manager_usd:        {value: 1500, unit: usd, source: "ESC-SOP-12:4.6", description: Disputed/claimed amount requiring Department Manager review.}
+  business_high_value_usd:       {value: 2500, unit: usd, source: "ESC-SOP-12:4.6", description: Business-account order value requiring Department Manager review.}
+  repeat_window_days:            {value: 90,  unit: calendar_days, source: "ESC-SOP-12:4.5", description: Look-back window for repeat complaints.}
+  repeat_supervisor_threshold:   {value: 2,   unit: count, source: "ESC-SOP-12:4.5", description: Prior unresolved complaints on the same issue -> Supervisor Review.}
+  repeat_manager_threshold:      {value: 3,   unit: count, source: "ESC-SOP-12:4.5", description: Prior unresolved complaints on the same issue -> Department Manager.}
+
+  # ---- Installation & staff (INS-POL-24 v1.0, STF-POL-21 v1.0) ----------------------
+  install_revisit_business_days: {value: 5,   unit: business_days, source: "INS-POL-24:5.1", description: No-cost re-visit for workmanship issues.}
+  staff_review_business_days:    {value: 5,   unit: business_days, source: "STF-POL-21:5.1", description: Review of interaction records after a staff complaint.}
+  technician_damage_investigation_business_days: {value: 5, unit: business_days, source: "INS-POL-24:6.1", description: Investigation of technician-caused property damage.}
+
+  # ---- SLA (SLA-RUL-15 v2.0) - targets live in rules/sla_rules.yaml -------------------
+  sla_at_risk_pct:               {value: 75,  unit: percent, source: "SLA-RUL-15:7.1", description: Share of an SLA window elapsed before the complaint is flagged At Risk.}
+
+  # ---- Complaint handling (CHP-POL-01 v3.0) -----------------------------------------
+  reopen_window_days:            {value: 14,  unit: calendar_days, source: "CHP-POL-01:8.2", description: Resolved complaints may be reopened within this period.}
+  min_description_words:         {value: 8,   unit: count, source: "CHP-POL-01:4.2", description: Descriptions shorter than this are treated as missing a problem description.}

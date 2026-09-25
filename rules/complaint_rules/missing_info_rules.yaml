@@ -1,0 +1,79 @@
+# =============================================================================
+# Missing-information rules (MIS-*), SRS Steps 42-43, CHP-POL-01 s4.2/s6.3.
+# The Python pipeline determines deterministically which required information
+# is missing. `blocking: true` means the complaint cannot be safely resolved
+# without it (status -> Awaiting Customer). Safety and security complaints are
+# NEVER blocked: escalation proceeds even when information is missing.
+# `question` is the reference clarification topic; the GenAI pipeline phrases
+# the customer-facing question and Python checks that each blocking gap is
+# covered by at least one clarification question.
+# =============================================================================
+missing_info_rules:
+  - rule_id: MIS-001
+    field: order_reference
+    label: Missing order number
+    when: {all: [{fact: complaint.has_order_reference, op: eq, value: false}, {fact: complaint.has_transaction_reference, op: eq, value: false}, {any: [{category_in: [PRD, DEL, REF, WAR]}, {subcategory_in: [BIL-DUP, BIL-INC, BIL-CAN]}]}]}
+    blocking: true
+    question: Ask for the order reference (format LMR-######) of the affected order.
+    keywords: [order, reference, number, lmr]
+    policy_refs: ["CHP-POL-01:4.2", "REF-POL-02:4.1"]
+  - rule_id: MIS-002
+    field: transaction_reference
+    label: Missing transaction reference or charge date
+    when: {all: [{category_in: [BIL]}, {fact: complaint.has_transaction_reference, op: eq, value: false}, {fact: complaint.has_order_reference, op: eq, value: false}, {fact: complaint.has_date, op: eq, value: false}]}
+    blocking: true
+    question: Ask for the transaction reference (TXN-########) or the date and amount of the charge.
+    keywords: [transaction, charge, date, amount, statement]
+    policy_refs: ["BIL-POL-05:4.1", "BIL-POL-05:4.2"]
+  - rule_id: MIS-003
+    field: product
+    label: Missing product
+    when: {all: [{fact: complaint.has_product, op: eq, value: false}, {category_in: [PRD, TEC, WAR, SAF]}]}
+    blocking: false
+    question: Ask which Lumora product or model is affected.
+    keywords: [product, device, model, which]
+    policy_refs: ["CHP-POL-01:4.2"]
+  - rule_id: MIS-004
+    field: photo_evidence
+    label: Missing evidence
+    when: {all: [{subcategory_in: [PRD-DOA, DEL-WRG]}, {fact: complaint.has_photo_evidence, op: eq, value: false}]}
+    blocking: true
+    question: Ask for photos of the product and the packaging.
+    keywords: [photo, photos, picture, pictures, image, evidence]
+    policy_refs: ["RPL-POL-03:3.1"]
+  - rule_id: MIS-005
+    field: problem_description
+    label: Missing problem description
+    when: {any: [{fact: complaint.word_count, op: lt, value: "$param:min_description_words"}, {fact: classification.score, op: lt, value: 3.0}]}
+    blocking: true
+    question: Ask the customer to describe what happened, when it started and what they expected.
+    keywords: [describe, what happened, details, explain, more information]
+    policy_refs: ["CHP-POL-01:4.2", "CHP-SOP-13:5"]
+  - rule_id: MIS-006
+    field: transaction_date
+    label: Missing transaction date
+    when: {all: [{subcategory_in: [WAR-CLM, REF-REQ, PRD-MAL]}, {fact: complaint.has_order_reference, op: eq, value: false}, {fact: complaint.has_date, op: eq, value: false}]}
+    blocking: true
+    question: Ask for the purchase or delivery date (or the order reference).
+    keywords: [date, when, purchase, bought, delivered]
+    policy_refs: ["WAR-POL-07:4.1", "REF-POL-02:3.1"]
+  - rule_id: MIS-007
+    field: order_reference_unverified
+    label: Order reference could not be verified
+    when: {all: [{fact: complaint.has_order_reference, op: eq, value: true}, {fact: order.exists, op: eq, value: false}]}
+    blocking: true
+    question: Ask the customer to confirm the order reference because it could not be found.
+    keywords: [confirm, order, reference, could not find, check]
+    policy_refs: ["REF-POL-02:4.1"]
+  - rule_id: MIS-008
+    field: order_ownership
+    label: Order reference does not match the customer account
+    when: {all: [{fact: order.exists, op: eq, value: true}, {fact: order.belongs_to_customer, op: eq, value: false}]}
+    blocking: true
+    question: Ask the customer to confirm the order reference and the email address used for the order (do not disclose order details).
+    keywords: [confirm, email, order, account]
+    policy_refs: ["SEC-POL-09:6", "PRV-POL-08:8"]
+
+# Categories whose escalation/containment is never delayed by missing info.
+never_block_categories: [SAF, PRV]
+never_block_subcategories: [ACC-UNA]

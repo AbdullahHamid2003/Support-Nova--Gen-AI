@@ -1,0 +1,84 @@
+# =============================================================================
+# Mandatory escalation rules (ESC-*) - ESC-SOP-12 v3.1 section 4.
+# Evaluated by the Python Ground-Truth Pipeline on every complaint, independent
+# of the GenAI output (SRS Steps 36, 39; SRS 1.8(7) Escalation Trap).
+# When several rules fire, the highest level applies and every listed
+# department is informed (ESC-SOP-12 s7). A critical complaint therefore can
+# never remain un-escalated because the GenAI model missed it.
+# Conditions use the rule-engine DSL (see docs/rule_matrix.md).
+# =============================================================================
+levels:   # ascending severity rank (ESC-SOP-12 s3)
+  - {rank: 0, name: No Escalation, action_code: null}
+  - {rank: 1, name: Supervisor Review, action_code: ESCALATE_SUPERVISOR}
+  - {rank: 2, name: Department Manager, action_code: ESCALATE_DEPARTMENT_MANAGER}
+  - {rank: 3, name: Specialist Team, action_code: ESCALATE_SPECIALIST_TEAM}
+  - {rank: 4, name: Compliance Review, action_code: ESCALATE_COMPLIANCE}
+  - {rank: 5, name: Critical Management Escalation, action_code: ESCALATE_CRITICAL_MANAGEMENT}
+
+escalation_notes_requirements:   # ESC-SOP-12 s5
+  policy_ref: "ESC-SOP-12:5"
+  required_fields: [summary, key_facts, reason, actions_taken, relevant_policy, required_next_action]
+
+escalation_rules:
+  # ---- Safety (ESC-SOP-12 4.1, SAF-POL-10 4.4) ------------------------------
+  - {rule_id: ESC-001, name: Fire, smoke or explosion, trigger: safety, when: {signal: fire_event}, level: Critical Management Escalation, departments: [DEPT-SAF, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.1", "SAF-POL-10:4.4"], reason: "Product fire, smoke or explosion reported."}
+  - {rule_id: ESC-002, name: Overheating or battery swelling, trigger: safety, when: {signal: overheating}, level: Specialist Team, departments: [DEPT-SAF], policy_refs: ["ESC-SOP-12:4.1", "SAF-POL-10:4.4"], reason: "Overheating or battery hazard reported."}
+  - {rule_id: ESC-003, name: Sparks or electric shock, trigger: safety, when: {signal: electrical_hazard}, level: Specialist Team, departments: [DEPT-SAF], policy_refs: ["ESC-SOP-12:4.1", "SAF-POL-10:4.4"], reason: "Electrical hazard reported."}
+  - {rule_id: ESC-004, name: Injury reported, trigger: safety, when: {signal: injury}, level: Critical Management Escalation, departments: [DEPT-SAF, DEPT-MGT, DEPT-CMP], policy_refs: ["ESC-SOP-12:4.1", "SAF-POL-10:7.3"], reason: "A person was injured by a product."}
+  - {rule_id: ESC-005, name: Child involved in a safety incident, trigger: safety, when: {all: [{signal: child_involved}, {any_signal: [fire_event, overheating, electrical_hazard, injury]}]}, level: Critical Management Escalation, departments: [DEPT-SAF, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.1", "SAF-POL-10:4.4"], reason: "Safety incident involving a child."}
+  - {rule_id: ESC-006, name: Recall-related complaint, trigger: safety, when: {signal: recall_mention}, level: Specialist Team, departments: [DEPT-SAF], policy_refs: ["ESC-SOP-12:4.14", "SAF-POL-10:8.1"], reason: "Complaint references a product recall."}
+  - {rule_id: ESC-007, name: Safety subcategory without explicit hazard terms, trigger: safety, when: {subcategory_in: [SAF-OVH, SAF-ELC]}, level: Specialist Team, departments: [DEPT-SAF], policy_refs: ["ESC-SOP-12:4.1"], reason: "Complaint classified as a product safety hazard."}
+  - {rule_id: ESC-008, name: Injury subcategory, trigger: safety, when: {subcategory_in: [SAF-INJ]}, level: Critical Management Escalation, departments: [DEPT-SAF, DEPT-MGT, DEPT-CMP], policy_refs: ["ESC-SOP-12:4.1", "SAF-POL-10:4.4"], reason: "Complaint classified as an injury incident."}
+
+  # ---- Security (ESC-SOP-12 4.2, SEC-POL-09) --------------------------------
+  - {rule_id: ESC-009, name: Unauthorized account access, trigger: security, when: {any: [{signal: security_breach}, {subcategory_in: [ACC-UNA]}]}, level: Specialist Team, departments: [DEPT-SEC], policy_refs: ["ESC-SOP-12:4.2", "SEC-POL-09:4.3"], reason: "Suspected unauthorized access or account takeover."}
+  - {rule_id: ESC-010, name: Smart-lock unexplained unlock, trigger: security, when: {signal: lock_security}, level: Critical Management Escalation, departments: [DEPT-SEC, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.2", "SEC-POL-09:5.3"], reason: "Physical home security compromised (unexplained smart-lock event)."}
+  - {rule_id: ESC-011, name: Fraudulent payment, trigger: security, when: {signal: fraud}, level: Specialist Team, departments: [DEPT-SEC, DEPT-BIL], policy_refs: ["ESC-SOP-12:4.2", "BIL-POL-05:9"], reason: "Suspected fraudulent payment activity."}
+
+  # ---- Privacy (ESC-SOP-12 4.3, PRV-POL-08) ---------------------------------
+  - {rule_id: ESC-012, name: Personal data or footage exposed, trigger: privacy, when: {any: [{signal: privacy_breach}, {subcategory_in: [PRV-BRC]}]}, level: Compliance Review, departments: [DEPT-CMP], policy_refs: ["ESC-SOP-12:4.3", "PRV-POL-08:7.2"], reason: "Possible exposure of personal data or footage (privacy incident)."}
+  - {rule_id: ESC-013, name: Data shared or sold without consent, trigger: privacy, when: {all: [{signal: consent_violation}, {text_matches: '\b(sold|selling|shared|sharing|passed|gave)\b.{0,40}\b(data|information|details|email|number)\b|\bthird[- ]part(y|ies)\b|\bpartners?\b'}]}, level: Compliance Review, departments: [DEPT-CMP], policy_refs: ["ESC-SOP-12:4.3", "PRV-POL-08:5.3"], reason: "Personal data reportedly shared without consent."}
+  - {rule_id: ESC-014, name: Overdue data-rights request, trigger: privacy, when: {all: [{any: [{signal: data_rights_request}, {subcategory_in: [PRV-DSR]}]}, {fact: complaint.max_elapsed_days, op: gt, value: "$param:dsar_fulfilment_days"}]}, level: Compliance Review, departments: [DEPT-CMP], policy_refs: ["ESC-SOP-12:4.3", "PRV-POL-08:4.3"], reason: "Data-rights request overdue beyond the 30-day limit."}
+  - {rule_id: ESC-015, name: Children's data involved, trigger: privacy, when: {all: [{signal: minors_data}, {any: [{category_in: [PRV]}, {any_signal: [privacy_breach, consent_violation]}]}]}, level: Compliance Review, departments: [DEPT-CMP], policy_refs: ["ESC-SOP-12:4.3"], reason: "Privacy matter involving children's data."}
+
+  # ---- Legal (ESC-SOP-12 4.4) ---------------------------------------------
+  - {rule_id: ESC-016, name: Legal threat or regulator mention, trigger: legal, when: {signal: legal_threat}, level: Compliance Review, departments: [DEPT-CMP], policy_refs: ["ESC-SOP-12:4.4", "CMP-GDL-19:3.2"], reason: "Customer threatens legal action or refers to a regulator."}
+
+  # ---- Repeat unresolved (ESC-SOP-12 4.5) -----------------------------------
+  - {rule_id: ESC-017, name: Repeat unresolved complaint (2 prior), trigger: repeat, when: {fact: history.unresolved_prior_same_issue, op: gte, value: "$param:repeat_supervisor_threshold"}, level: Supervisor Review, departments: [$primary_department], policy_refs: ["ESC-SOP-12:4.5", "CHP-POL-01:7.2"], reason: "Repeat complaint with prior unresolved complaints on the same issue."}
+  - {rule_id: ESC-018, name: Repeat unresolved complaint (3+ prior), trigger: repeat, when: {fact: history.unresolved_prior_same_issue, op: gte, value: "$param:repeat_manager_threshold"}, level: Department Manager, departments: [$primary_department, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.5"], reason: "Three or more prior unresolved complaints on the same issue."}
+  - {rule_id: ESC-019, name: Reopened complaint, trigger: repeat, when: {fact: history.references_resolved_complaint, op: eq, value: true}, level: Supervisor Review, departments: [$primary_department], policy_refs: ["ESC-SOP-12:4.5", "CHP-POL-01:8.2"], reason: "Complaint reopens a previously resolved complaint (failed resolution)."}
+
+  # ---- High value (ESC-SOP-12 4.6) --------------------------------------------
+  - {rule_id: ESC-020, name: High-value dispute (USD 500+), trigger: high_value, when: {fact: case.claimed_amount, op: gte, value: "$param:high_value_supervisor_usd"}, level: Supervisor Review, departments: [$primary_department], policy_refs: ["ESC-SOP-12:4.6"], reason: "Disputed or claimed amount of USD 500 or more."}
+  - {rule_id: ESC-021, name: High-value dispute (USD 1,500+), trigger: high_value, when: {fact: case.claimed_amount, op: gte, value: "$param:high_value_manager_usd"}, level: Department Manager, departments: [$primary_department, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.6"], reason: "Disputed or claimed amount of USD 1,500 or more."}
+  - {rule_id: ESC-022, name: High-value business account order, trigger: high_value, when: {all: [{fact: complaint.customer_type, op: eq, value: business}, {fact: order.order_total, op: gte, value: "$param:business_high_value_usd"}]}, level: Department Manager, departments: [$primary_department, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.6"], reason: "Business-account order of USD 2,500 or more affected."}
+  - {rule_id: ESC-023, name: High-value lost order, trigger: high_value, when: {all: [{subcategory_in: [DEL-LST]}, {fact: order.order_total, op: gte, value: "$param:high_value_supervisor_usd"}]}, level: Supervisor Review, departments: [DEPT-LOG], policy_refs: ["DEL-POL-04:6.3", "ESC-SOP-12:4.6"], reason: "Lost order valued at USD 500 or more requires Supervisor Review."}
+
+  # ---- Service failure / critical impact (ESC-SOP-12 4.7, 4.8) ------------------
+  - {rule_id: ESC-024, name: Severe service failure, trigger: service_failure, when: {signal: severe_service_failure}, level: Department Manager, departments: [DEPT-TEC, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.7"], reason: "Service outage causing lost recordings or disabled home security."}
+  - {rule_id: ESC-025, name: Critical customer impact, trigger: critical_impact, when: {signal: critical_impact}, level: Specialist Team, departments: [$primary_department], policy_refs: ["ESC-SOP-12:4.8"], reason: "Critical impact on the customer's home (locked out, no heating/cooling, medical dependence)."}
+  - {rule_id: ESC-026, name: Vulnerable person with critical impact, trigger: critical_impact, when: {all: [{signal: vulnerable_customer}, {signal: critical_impact}]}, level: Critical Management Escalation, departments: [$primary_department, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.8", "CMP-GDL-19:5.2"], reason: "Critical impact affecting a vulnerable person."}
+
+  # ---- Policy exceptions & compensation (ESC-SOP-12 4.9) ------------------------------
+  - {rule_id: ESC-027, name: Policy exception requested, trigger: policy_exception, when: {signal: policy_exception_request}, level: Supervisor Review, departments: [$primary_department], policy_refs: ["ESC-SOP-12:4.9", "REF-POL-02:7.1"], reason: "Customer requests an outcome outside policy limits or windows."}
+  - {rule_id: ESC-028, name: Refund requested outside the refund window, trigger: policy_exception, when: {all: [{any: [{signal: refund_request}, {fact: complaint.requested_resolution, op: eq, value: refund}]}, {fact: eligibility.within_refund_window, op: eq, value: false}, {category_in: [REF, PRD, DEL]}]}, level: Supervisor Review, departments: [DEPT-RET], policy_refs: ["ESC-SOP-12:4.9", "REF-POL-02:7.1"], reason: "Refund requested outside the eligibility window (policy exception)."}
+  - {rule_id: ESC-029, name: Compensation above agent limit, trigger: policy_exception, when: {fact: complaint.requested_compensation_amount, op: gt, value: "$param:agent_compensation_limit_usd"}, level: Supervisor Review, departments: [$primary_department], policy_refs: ["ESC-SOP-12:4.9", "CPN-POL-11:5.1"], reason: "Requested compensation exceeds the agent approval limit."}
+  - {rule_id: ESC-030, name: Compensation above supervisor limit, trigger: policy_exception, when: {fact: complaint.requested_compensation_amount, op: gt, value: "$param:supervisor_compensation_limit_usd"}, level: Department Manager, departments: [$primary_department], policy_refs: ["ESC-SOP-12:4.9", "CPN-POL-11:5.2"], reason: "Requested compensation exceeds the supervisor approval limit."}
+  - {rule_id: ESC-031, name: Late billing dispute, trigger: policy_exception, when: {all: [{category_in: [BIL]}, {fact: eligibility.within_dispute_window, op: eq, value: false}]}, level: Supervisor Review, departments: [DEPT-BIL], policy_refs: ["BIL-POL-05:4.3"], reason: "Billing dispute raised more than 60 days after the charge."}
+
+  # ---- Staff (ESC-SOP-12 4.10) ---------------------------------------------------
+  - {rule_id: ESC-032, name: Staff harassment, discrimination or threats, trigger: staff, when: {signal: staff_harassment}, level: Compliance Review, departments: [DEPT-CMP, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.10", "STF-POL-21:6"], reason: "Serious staff misconduct reported (harassment, discrimination or threats)."}
+  - {rule_id: ESC-033, name: Technician property damage or theft, trigger: staff, when: {any: [{signal: technician_damage_theft}, {subcategory_in: [STF-MIS]}]}, level: Department Manager, departments: [DEPT-CRL, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.10", "INS-POL-24:6.2"], reason: "Property damage or theft allegation against a technician."}
+  - {rule_id: ESC-034, name: Staff commitment outside policy, trigger: staff, when: {all: [{subcategory_in: [STF-MIN]}, {text_matches: '\b(promised|assured|guaranteed|told\s+me\s+(i|we)\s+would|said\s+(i|we)\s+would)\b'}]}, level: Supervisor Review, departments: [DEPT-CRL], policy_refs: ["STF-POL-21:4.2"], reason: "Staff member made a commitment that must be checked against policy."}
+
+  # ---- Reputational / financial risk (ESC-SOP-12 4.12) -------------------------
+  - {rule_id: ESC-035, name: Public media threat, trigger: reputational, when: {signal: media_threat}, level: Supervisor Review, departments: [DEPT-CRL], policy_refs: ["ESC-SOP-12:4.12"], reason: "Customer threatens public or media exposure."}
+  - {rule_id: ESC-036, name: Chargeback threat, trigger: reputational, when: {signal: chargeback_threat}, level: Supervisor Review, departments: [DEPT-BIL], policy_refs: ["ESC-SOP-12:4.12", "BIL-POL-05:7.1"], reason: "Customer mentions a chargeback or bank dispute."}
+
+  # ---- Replacement failure / warranty appeals (ESC-SOP-12 4.13, WAR-POL-07 7.2) ----------
+  - {rule_id: ESC-037, name: Replacement also defective, trigger: replacement_failure, when: {any: [{signal: replacement_failed}, {fact: eligibility.replacement_limit_reached, op: eq, value: true}]}, level: Supervisor Review, departments: [DEPT-WAR, DEPT-RET], policy_refs: ["ESC-SOP-12:4.13", "RPL-POL-03:3.4"], reason: "The replacement product is also defective."}
+  - {rule_id: ESC-038, name: Warranty denial appeal, trigger: warranty_appeal, when: {subcategory_in: [WAR-DEN]}, level: Supervisor Review, departments: [DEPT-WAR], policy_refs: ["WAR-POL-07:7.2"], reason: "Warranty denial appeals are reviewed by a Warranty Services supervisor."}
+
+  # ---- SLA (ESC-SOP-12 4.11) - evaluated by the SLA monitor at runtime ----------------
+  - {rule_id: ESC-039, name: SLA breach on P0/P1, trigger: sla, runtime_only: true, when: {all: [{fact: sla.breached, op: eq, value: true}, {fact: case.priority, op: in, value: [P0, P1]}]}, level: Department Manager, departments: [$primary_department, DEPT-MGT], policy_refs: ["ESC-SOP-12:4.11", "SLA-RUL-15:7.2"], reason: "SLA breached on a P0/P1 complaint."}

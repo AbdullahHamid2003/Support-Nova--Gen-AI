@@ -1,0 +1,158 @@
+# =============================================================================
+# Complaint-category rules (CAT-*). Deterministic classification used by the
+# Python Ground-Truth Validation Pipeline to derive its OWN expected category /
+# subcategory, independently of the GenAI output (SRS Pipeline 2: "complaint-
+# category rules"; Steps 14, 15, 23).
+#
+# score(subcategory) = sum(weights of distinct matched terms; title matches x1.3)
+#                    + signal_boosts + product_boosts - negative terms
+# Primary issue  = highest score, except that a subcategory in a higher
+#                  routing-precedence group (RTE-RUL-14 s5) wins when its score
+#                  >= precedence_min_score (risk first, CHP-POL-01 s3.2).
+# Secondary      = other subcategories with score >= secondary_min_score and
+#                  >= secondary_ratio x primary score.
+# Ambiguous      = top-2 in different categories within ambiguity_margin.
+# New subcategories can be added here (or via Admin > Rule Matrix) without code.
+# =============================================================================
+settings:
+  title_multiplier: 1.3
+  min_score: 3.0               # below this -> "insufficient information to classify"
+  precedence_min_score: 4.0
+  secondary_min_score: 4.0
+  secondary_ratio: 0.35
+  secondary_strong_score: 5.0  # a secondary issue this strong is kept whatever the primary score
+  ambiguity_margin: 0.15       # relative gap between top-2 scores
+  max_secondary: 3
+
+category_rules:
+  - rule_id: CAT-PRD-DOA
+    subcategory: PRD-DOA
+    terms: {arrived damaged: 4, arrived broken: 4, damaged on arrival: 5, broken on arrival: 5, dead on arrival: 4, arrived cracked: 4, arrived in pieces: 4, cracked: 2.5, crushed: 2.5, dented: 2.5, shattered: 3, smashed: 2.5, box was damaged: 2.5, damaged box: 2, packaging was damaged: 2.5, damaged packaging: 2.5, when i opened the box: 1.5, out of the box: 1, unboxed: 1.5, unboxing: 1.5, in transit: 1.5, scratched: 1.5, broken screen: 2, rattling: 1, came broken: 4.5, came damaged: 4.5, came cracked: 4.5, was broken when: 4.5, damaged when it arrived: 5, damaged in delivery: 4.5, damaged during delivery: 4.5, broken in the box: 4.5, dead out of the box: 5, not working out of the box: 5, straight out of the box: 3, right out of the box: 3, on arrival: 3, never worked: 4, has never worked: 4.5, "didn't work from day one": 4.5, from day one: 3, brand new: 1.5}
+    negative: {stopped working after: 2}
+  - rule_id: CAT-PRD-MAL
+    subcategory: PRD-MAL
+    terms: {stopped working: 3.5, not working: 2, "doesn't work": 2, does not work: 2, "won't turn on": 3, will not turn on: 3, "won't power on": 3, keeps turning off: 3, turns off by itself: 3, keeps restarting: 2.5, faulty: 2.5, defective: 2.5, malfunction: 3.5, malfunctioning: 3.5, broken: 1, dead: 1.5, no power: 2, not charging: 2.5, "won't charge": 2.5, error code: 2, glitch: 1.5, not heating: 2, not cooling: 2, grinding: 2, loud noise: 2, battery drains: 2, battery dies: 2, fault: 2, "isn't working": 2, stopped suction: 3, not cleaning: 2.5, flickering: 2.5, keeps beeping: 2.5, stopped responding: 3.5, not responding: 2.5, unresponsive: 3, keypad: 1.5, "won't work": 2.5, "doesn't turn on": 3, does not turn on: 3, buzzing: 2.5, crackling: 3, distorted: 2.5, no sound: 3, sound cuts out: 3, screen went black: 3, blank screen: 2.5, keeps freezing: 3, freezes: 2, "won't hold a charge": 3.5, "doesn't hold a charge": 3.5, not reading correctly: 3.5, wrong temperature: 3.5, inaccurate: 3, leaking: 2.5, leaks: 2.5, noisy: 2, broke after: 3, failed after: 3, stopped after: 2.5, died after: 3, fell apart: 3, sensor: 1.5, motor: 1.5}
+    negative: {arrived damaged: 2, wi-fi: 1, wifi: 1}
+  - rule_id: CAT-PRD-MIS
+    subcategory: PRD-MIS
+    terms: {missing part: 4, missing parts: 4, missing piece: 4, missing: 2, not included: 3, "wasn't in the box": 4, was not in the box: 4, no charger: 3, no power adapter: 3.5, no adapter: 3, missing cable: 4, missing charging cable: 4, missing screws: 4, missing mount: 4, missing bracket: 4, missing remote: 4, box was missing: 3.5, incomplete: 2.5, accessories: 2, only three bulbs: 4, only 3 bulbs: 4, only one plug: 4, empty box: 5, box was empty: 5, nothing inside: 4.5, in the box: 2.5, came without: 4, arrived without: 4, part was missing: 4.5, parts are missing: 4.5, pieces missing: 4, "wasn't included": 4, were not included: 4, forgot to include: 4.5, not in the package: 4, missing from the box: 5, missing from the package: 5}
+    negative: {missing package: 3, missing parcel: 3, recordings are missing: 3}
+  - rule_id: CAT-BIL-DUP
+    subcategory: BIL-DUP
+    terms: {charged twice: 5, double charged: 5, double-charged: 5, duplicate charge: 5, duplicate charges: 5, duplicate payment: 5, two charges: 4, charged two times: 5, same charge twice: 4.5, billed twice: 5, second charge: 3, twice: 1.5, duplicate: 2.5, two identical charges: 5}
+  - rule_id: CAT-BIL-INC
+    subcategory: BIL-INC
+    terms: {overcharged: 4.5, wrong amount: 4, incorrect charge: 4.5, incorrect amount: 4, charged more: 4, more than the price: 4, higher than: 3, advertised price: 3.5, price difference: 3, unexpected fee: 4, hidden fee: 4, extra fee: 3.5, fee: 1.5, "discount wasn't applied": 4, discount was not applied: 4, promo code: 3, coupon: 3, invoice: 2, wrong price: 4, tax: 1.5, shipping charge: 2.5, i was charged: 2.5, was charged: 2, listed at: 3.5, the difference: 3, an extra: 2.5, extra charge: 4, charge does not match: 5, does not match the: 3, why was i charged: 4.5, my order said: 4, charged more than: 4.5}
+    negative: {restocking fee: 3}
+  - rule_id: CAT-BIL-RFM
+    subcategory: BIL-RFM
+    terms: {refund confirmation: 4, refund reference: 4, refund was issued: 4.5, refund has been issued: 4.5, refund was processed: 4, refund was sent: 4.5, said the refund was sent: 4.5, not on my statement: 4.5, not showing on my statement: 4.5, bank statement: 3.5, bank says: 3, "refund hasn't appeared": 4.5, refund has not appeared: 4.5, "hasn't shown up": 3, credit card statement: 3, card statement: 3, confirmed the refund: 4.5, refund confirmed: 4.5, had been sent: 4.5, was on its way: 4.5, on its way: 3, cannot see it in my account: 5.5, not in my account: 5, account still shows: 4.5, was issued: 3.5, refund email: 4, email saying my refund: 5, in my account yet: 4.5, reference number: 2, my bank: 2, pending on my card: 3.5, shows as pending: 3, not received the money: 4, "money hasn't arrived": 4, money has not arrived: 4, "haven't seen the money": 4, have not seen the money: 4}
+  - rule_id: CAT-BIL-SUB
+    subcategory: BIL-SUB
+    terms: {renewal: 3.5, renewed: 4, auto-renew: 4.5, auto renew: 4.5, automatically renewed: 5, auto-renewal: 4.5, subscription: 2.5, annual plan: 3, yearly plan: 3, monthly plan: 2.5, renewal charge: 4.5, renewal reminder: 3.5, no reminder: 3, charged for another year: 4.5, renewed without: 4.5}
+    product_boosts: {SVC-CLOUD: 1.5, SVC-CARE: 1.5}
+  - rule_id: CAT-BIL-CAN
+    subcategory: BIL-CAN
+    terms: {still charged: 4, still being charged: 4.5, charged after cancelling: 5, charged after i cancelled: 5, charged after canceling: 5, after i cancelled: 4.5, after i canceled: 4.5, cancelled: 2, canceled: 2, cancellation: 2.5, cancellation confirmation: 4, cancelled my subscription: 4, cancelled the subscription: 4, cancel my order: 3, cancelled my order: 3.5, cancelled the order: 3.5, order cancellation: 4, charged again: 4, charged for a cancelled: 5, charged me again: 4, confirmation email: 2}
+  - rule_id: CAT-DEL-DLY
+    subcategory: DEL-DLY
+    terms: {late: 2, delayed: 3, delay: 3, "still hasn't arrived": 4, still has not arrived: 4, not arrived: 3, "hasn't arrived": 3.5, has not arrived: 3.5, not yet arrived: 3, not been delivered: 3, not delivered: 2.5, estimated delivery: 3, expected delivery: 3, delivery date: 2.5, tracking: 1.5, "tracking hasn't updated": 3, still in transit: 3, where is my order: 3.5, waiting for my order: 3, overdue: 2.5, express shipping: 2, days late: 3, week late: 3, weeks late: 3, delivery status: 4, was due on: 4, was due: 3, has not turned up: 4.5, not turned up: 4, "hasn't turned up": 4.5, when will my order arrive: 5, expecting my: 2.5, heard nothing: 2, due on: 2.5}
+    negative: {my refund: 3, the refund: 2.5, refund of: 3, return was approved: 3, returned: 2.5}
+  - rule_id: CAT-DEL-LST
+    subcategory: DEL-LST
+    terms: {lost: 2.5, lost package: 5, lost parcel: 5, package is lost: 5, never arrived: 4, never received: 4, marked as delivered: 5, says delivered: 4.5, shows delivered: 4.5, shows as delivered: 4.5, delivered but: 4, missing package: 4.5, missing parcel: 4.5, package was stolen: 3.5, "tracking hasn't moved": 3, no tracking update: 3.5, no updates: 2.5, porch: 2, neighbour: 1.5, neighbor: 1.5, disappeared: 3.5, has disappeared: 4.5, vanished: 4, has vanished: 4.5, last scan: 4, tracking has been frozen: 4.5, frozen: 2, cannot find my order: 5, no idea where: 4, cannot find: 3, courier: 1.5, trace: 2.5, given up on it: 2.5}
+  - rule_id: CAT-DEL-WRG
+    subcategory: DEL-WRG
+    terms: {wrong item: 5, wrong product: 5, wrong model: 4.5, wrong color: 4, wrong colour: 4, wrong size: 3.5, different item: 4, different product: 4, not what i ordered: 5, instead of: 3, sent me the wrong: 5, incorrect item: 4.5, wrong quantity: 4, wrong version: 4, not the one i ordered: 5, different colour: 4, different model: 4.5, "someone else's order": 5, "another customer's order": 5, sent the wrong: 5}
+  - rule_id: CAT-REF-REQ
+    subcategory: REF-REQ
+    terms: {i want a refund: 4, want my money back: 4.5, request a refund: 4.5, requesting a refund: 4.5, would like a refund: 4.5, refund please: 3.5, return it for a refund: 4.5, return for a refund: 4.5, can i get a refund: 4, full refund: 2.5, money back: 3, refund: 2, return it: 2, changed my mind: 3.5, no longer need: 3, "don't want it": 3, not satisfied: 1.5, fee refunded: 4, not worth the money: 4, rip-off: 3, could have done it myself: 4, full refund of: 3, send it back: 2.5, return and refund: 4, get my money back: 4.5, cooling-off: 4, within 30 days: 3, 30-day: 2.5, "don't need": 2.5, not what i expected: 3, disappointed with: 2}
+    negative: {was issued: 3, had been sent: 3, on its way: 2.5, in my account: 2.5, tracking: 2, courier: 2, disappeared: 3, vanished: 3, still pending: 2.5, sent back: 2, return reached: 2.5}
+  - rule_id: CAT-REF-DLY
+    subcategory: REF-DLY
+    terms: {returned the item: 3.5, returned it: 3, sent it back: 3.5, return was received: 4.5, received my return: 4.5, received the return: 4, still no refund: 4.5, no refund yet: 4.5, waiting for my refund: 4, waiting for the refund: 4, refund is late: 4, refund delay: 4.5, refund taking too long: 4.5, "refund hasn't been processed": 4.5, refund has not been processed: 4.5, return approved: 3.5, cancellation was approved: 3, where is my refund: 5, refund still pending: 5, refund is still pending: 5, still pending: 2, sent my item back: 4, sent the item back: 4, sent back: 3, posted it back: 3.5, posted it: 2, return reached you: 4.5, reached you: 2.5, refund still has not arrived: 6, refund has not arrived: 5.5, refund is overdue: 5, refund overdue: 5, refund late: 5, return was approved: 4.5, return status: 4, returned item: 3.5, my returned: 4, refunds are issued within: 3.5, when will the refund: 4.5, refund be issued: 3.5, get the refund sorted: 3, has arrived: 1.5, arrived at your warehouse: 4.5, you received my: 3.5, you had my: 3.5, refund of: 1.5, waiting for my money: 4, still waiting for my money: 4.5, "haven't received my refund": 5, have not received my refund: 5, not received my refund: 5, no sign of my refund: 5, "refund hasn't come": 5, refund has not come through: 5, refund not received: 5, return label: 2, dropped it off: 3, dropped off: 2.5, collected my return: 4, proof of return: 3.5, return was delivered: 4.5, since you received: 3.5}
+  - rule_id: CAT-REF-PAR
+    subcategory: REF-PAR
+    terms: {partial refund: 5, only refunded: 4.5, refunded less: 4.5, restocking fee: 5, deducted: 4, deduction: 4, less than i paid: 4.5, shipping fee was deducted: 4.5, "didn't refund the shipping": 4, did not refund the shipping: 4, part of my money: 3.5, only got back: 4, only got: 3, not the full amount: 4.5, full amount: 2.5, less than: 2, "didn't refund the full": 4.5}
+  - rule_id: CAT-ACC-LGN
+    subcategory: ACC-LGN
+    terms: {"can't log in": 5, cannot log in: 5, "can't sign in": 5, cannot sign in: 5, unable to log in: 5, unable to sign in: 5, login: 3, log in: 2, sign in: 2.5, password reset: 5, reset my password: 4, reset link: 4, reset email: 3.5, locked out of my account: 4.5, account locked: 4, two-factor: 3, 2fa: 3, verification code: 3, authentication: 2.5, forgot password: 4, two-factor code: 5, code never arrives: 4.5, outside my own account: 4.5, no longer have access: 3.5, old email: 3, former email: 3.5, get in: 2, signing in: 3, logging in: 3.5, sign-in: 2.5, locked out: 3, password: 2, verification email: 3, "can't access my account": 4.5, cannot access my account: 4.5, unable to access my account: 4.5, access my account: 3}
+    negative: {someone logged: 3, hacked: 3}
+  - rule_id: CAT-ACC-UNA
+    subcategory: ACC-UNA
+    terms: {hacked: 5, unauthorized: 3, unauthorised: 3, someone logged: 4.5, someone accessed: 4.5, someone changed: 3.5, account takeover: 5, compromised: 4.5, suspicious login: 4.5, unknown device: 4, unrecognized device: 4, "orders i didn't place": 4.5, "didn't make these": 3.5, password was changed: 4, strange activity: 3.5, suspicious activity: 4, unlocked by itself: 4, unlocked on its own: 4}
+    signal_boosts: {security_breach: 4, lock_security: 4, fraud: 2}
+  - rule_id: CAT-ACC-UPD
+    subcategory: ACC-UPD
+    terms: {update my email: 4.5, change my email: 4.5, change my address: 4, update my address: 4, update my phone: 4, change my phone number: 4, update my details: 4, change my name: 3.5, profile: 2.5, account details: 3, "won't let me change": 3.5, "won't save": 3, error when updating: 4, "can't update": 4, cannot update: 4, my email address: 2.5, my phone number: 2.5, billing address: 3, delivery address: 2.5, shipping address: 2.5, account settings: 3, name on my account: 3.5, change of address: 3.5, new address: 3, save the changes: 4, "won't let me update": 4.5, keeps reverting: 4, reverts: 3}
+  - rule_id: CAT-TEC-CON
+    subcategory: TEC-CON
+    terms: {wi-fi: 3.5, wifi: 3.5, wireless: 2, connect: 2, connection: 2.5, connectivity: 4, disconnects: 4, disconnecting: 4, keeps disconnecting: 4.5, offline: 3.5, goes offline: 4.5, keeps going offline: 4.5, "won't connect": 4.5, cannot connect: 4, "can't connect": 4, pairing: 3.5, pair: 2.5, bluetooth: 3, router: 3.5, network: 2.5, lost connection: 4}
+  - rule_id: CAT-TEC-APP
+    subcategory: TEC-APP
+    terms: {app: 2.5, lumora home app: 3.5, crashes: 4, crashing: 4, keeps crashing: 4.5, firmware: 3.5, firmware update: 4.5, software: 3, software update: 4, bug: 3.5, error message: 3, notifications: 3, not loading: 3.5, "won't open": 3.5, feature: 2, automation: 3, automations: 3, dark mode: 3, app update: 4}
+    product_boosts: {SVC-APP: 2}
+    negative: {password reset: 2.5, two-factor: 2.5, sign in: 2, log in: 2, signing in: 2}
+  - rule_id: CAT-TEC-SET
+    subcategory: TEC-SET
+    terms: {set up: 3, setup: 3.5, set-up: 3.5, configure: 3, configuration: 3, instructions: 3, manual: 2.5, wiring: 3.5, c-wire: 4, compatible: 3, compatibility: 3.5, initial setup: 4.5, onboarding: 3, calibrate: 3.5, calibration: 3.5, qr code: 3, "can't finish setup": 4.5, stuck on setup: 4.5, how do i: 2}
+  - rule_id: CAT-SVC-SUP
+    subcategory: SVC-SUP
+    terms: {customer service: 3, customer support: 3, support team: 3, support agent: 2.5, on hold: 4, hold for: 3.5, waited: 2.5, wait time: 3.5, waiting time: 3, transferred: 3.5, kept transferring: 4.5, nobody helps: 3, no one helps: 3, unhelpful: 4, not helpful: 3.5, no response: 3.5, never responded: 3.5, no reply: 3.5, "didn't call back": 4, never called back: 4.5, chatbot: 3, support experience: 4, service was poor: 3, hold music: 5, nobody ever answers: 4.5, nobody answers: 4.5, no one answers: 4.5, support chat: 4, chat was disconnected: 4.5, your agent refused: 4.5, agent refused: 4, goodwill: 2.5, goodwill gesture: 3.5, poor experience: 3.5, recorded message: 3.5, start over: 2.5, nobody replied: 4, no one replied: 4, customer care: 3, customer services: 3, helpline: 3.5, call centre: 3.5, call center: 3.5, live chat: 3.5, chat agent: 3, waited on hold: 4.5, waiting on hold: 4.5, on the phone for: 3.5, hours on the phone: 4.5, never answered: 3.5, ignored my emails: 4.5, ignored my messages: 4.5, nobody got back: 4, no one got back: 4, never got back: 4, get back to me: 2.5, keep being told: 3, passed around: 4, bounced between: 4, speak to a manager: 3, useless support: 4.5, terrible service: 3.5, awful service: 3.5, poor service: 3.5, slow response: 3.5, took days to reply: 4, no callback: 4, call back: 2, support: 1}
+    negative: {rude: 2}
+  - rule_id: CAT-SVC-INS
+    subcategory: SVC-INS
+    terms: {pro install: 4.5, installation service: 4.5, installer: 3.5, technician: 2.5, installation appointment: 4.5, appointment: 2.5, installed incorrectly: 4.5, installed wrong: 4, "didn't finish": 3.5, did not finish: 3.5, left without: 3.5, incomplete installation: 4.5, arrived late: 3, no show: 4, "didn't show up": 4, poor installation: 4.5, sloppy: 3.5, mounted crooked: 4, installation: 2}
+    product_boosts: {SVC-INSTALL: 2}
+    negative: {not worth: 2.5, rip-off: 2.5, fee refunded: 3, made me uncomfortable: 4, scratched my: 3, holes in my: 3}
+  - rule_id: CAT-SVC-OUT
+    subcategory: SVC-OUT
+    terms: {outage: 5, service down: 4.5, servers down: 4, down for: 3, cloud vault: 3, cloud storage: 3, recordings: 2.5, lost recordings: 4.5, not recording: 3, service unavailable: 4.5, cannot access recordings: 4, "can't access recordings": 4, all devices: 3, whole system: 3}
+    signal_boosts: {severe_service_failure: 3}
+    product_boosts: {SVC-CLOUD: 1.5}
+  - rule_id: CAT-WAR-CLM
+    subcategory: WAR-CLM
+    terms: {warranty: 4, under warranty: 5, warranty claim: 5, warranty repair: 5, within warranty: 5, still under warranty: 5, repair: 2.5, repaired: 2, months old: 2.5, year old: 2, purchased last year: 2.5, bought it last year: 2.5}
+    negative: {warranty was denied: 3, claim was rejected: 3, care+: 2, denied: 3, rejected: 3, appeal: 3, was denied: 3}
+  - rule_id: CAT-WAR-DEN
+    subcategory: WAR-DEN
+    terms: {warranty was denied: 5, denied my warranty: 5, claim was rejected: 5, claim rejected: 4.5, claim denied: 5, rejected my claim: 5, refused my warranty: 5, not covered: 3.5, excluded: 3, exclusion: 3, appeal: 4, disagree with the decision: 4, void: 3, voided: 3.5, was denied: 4.5, was rejected: 4.5, rejected my warranty claim: 5.5, denied: 3, rejected: 3, decision be reviewed: 4.5, review the decision: 4.5, reconsider: 3.5, no real explanation: 3}
+  - rule_id: CAT-WAR-CPL
+    subcategory: WAR-CPL
+    terms: {care+: 4, care plus: 4, careplus: 4, protection plan: 4.5, accidental damage: 4.5, advance replacement: 4.5, service fee: 3, my plan: 2.5, covered by care: 4, care+ claim: 5, extended warranty: 3.5}
+    negative: {charged again: 3, still charged: 3, still being charged: 3, charged after: 3, cancelled: 2, canceled: 2, renewal: 2, renewed: 2, restocking fee: 4, deducted: 3, refunded: 2}
+    product_boosts: {SVC-CARE: 2}
+  - rule_id: CAT-PRV-BRC
+    subcategory: PRV-BRC
+    terms: {privacy: 3, data breach: 5, leaked: 3, exposed: 3, "someone else's": 4, "another customer's": 5, "another family's": 5, "other people's": 4, strangers: 3.5, stranger: 3, footage: 2.5, camera feed: 3.5, my data: 2.5, personal information: 3, personal data: 3, visible to: 3.5, shared link: 3}
+    signal_boosts: {privacy_breach: 4}
+  - rule_id: CAT-PRV-CON
+    subcategory: PRV-CON
+    terms: {marketing: 4, marketing emails: 5, promotional: 4, spam: 3.5, unsubscribed: 5, opted out: 5, opt out: 4, newsletter: 3.5, consent: 4, without my consent: 4.5, third party: 3.5, third parties: 3.5, sold my data: 5, shared my data: 4.5}
+    signal_boosts: {consent_violation: 3}
+  - rule_id: CAT-PRV-DSR
+    subcategory: PRV-DSR
+    terms: {delete my data: 5, delete my account: 3.5, erase: 3.5, deletion request: 5, data request: 4.5, copy of my data: 5, access request: 4.5, export my data: 4.5, what data: 3.5, right to be forgotten: 5, data subject: 4.5, requested deletion: 4.5, still have my data: 4}
+    signal_boosts: {data_rights_request: 4}
+  - rule_id: CAT-SAF-OVH
+    subcategory: SAF-OVH
+    terms: {overheating: 4.5, overheated: 4.5, overheats: 4.5, overheat: 4.5, too hot: 3.5, extremely hot: 3.5, burning smell: 5, smell of burning: 5, smoke: 5, smoking: 4.5, fire: 5, flames: 5, melted: 5, melting: 5, swollen: 4.5, swelling: 4.5, bulging: 4.5, scorch: 4.5, scorched: 4.5, exploded: 5, fumes: 4, hot to touch: 4}
+    signal_boosts: {overheating: 3, fire_event: 3}
+  - rule_id: CAT-SAF-ELC
+    subcategory: SAF-ELC
+    terms: {sparks: 5, sparking: 5, sparked: 5, shock: 4, electric shock: 5, electrical shock: 5, shocked: 4, electrocuted: 5, short circuit: 5, tripped the breaker: 5, breaker: 3, fuse: 3.5, exposed wires: 5, exposed wiring: 5, buzzing: 2.5, arcing: 5, outlet: 2}
+    signal_boosts: {electrical_hazard: 3}
+  - rule_id: CAT-SAF-INJ
+    subcategory: SAF-INJ
+    terms: {injured: 5, injury: 5, hurt: 3.5, burned my: 5, burnt my: 5, bleeding: 5, hospital: 4.5, emergency room: 5, doctor: 3, stitches: 5, bruise: 3.5, bruised: 3.5, blister: 4, pinched: 3.5, trapped my: 3}
+    signal_boosts: {injury: 4}
+  - rule_id: CAT-STF-RUD
+    subcategory: STF-RUD
+    terms: {rude: 5, rudely: 5, unprofessional: 4.5, disrespectful: 4.5, attitude: 3.5, condescending: 4.5, dismissive: 4.5, laughed at me: 5, yelled: 4.5, shouted: 4.5, swore: 4, sarcastic: 4, arrogant: 4, impolite: 4.5, hung up on me: 4, belittled: 4.5, patronizing: 4, patronising: 4}
+  - rule_id: CAT-STF-MIS
+    subcategory: STF-MIS
+    terms: {damaged my: 3, hole in my wall: 5, holes in my wall: 5, scratched my floor: 5, stole: 4, theft: 4.5, missing after: 3.5, inappropriate: 4, harassed: 4.5, harassment: 4.5, threatened: 4, misconduct: 5, touched: 3, drunk: 4.5, smoked in my house: 5, made me uncomfortable: 5.5, commenting on my appearance: 5.5, did not feel safe: 4.5, felt unsafe: 4.5, lived alone: 3, broke my: 3.5, left a mess: 3.5, scratched: 2, dragging: 1.5, went through my: 4, rude to my: 3, the technician: 1.5, the installer: 1.5, without permission: 3.5, took photos: 4, took pictures: 4, personal questions: 4, asked for my number: 4.5, creepy: 4, muddy: 3, tracked mud: 4, his shoes: 2.5, smoking: 3, helped himself: 4.5, went into my: 4}
+    signal_boosts: {technician_damage_theft: 8, staff_harassment: 8}
+  - rule_id: CAT-STF-MIN
+    subcategory: STF-MIN
+    terms: {told me: 3, was told: 3.5, promised: 3.5, the agent said: 4, the representative said: 4, your agent said: 4, misinformation: 5, misinformed: 5, wrong information: 5, incorrect information: 5, misleading: 4.5, lied: 4, false information: 5, different answer: 3.5, contradicted: 3.5, assured me: 3.5, said that: 2, they said: 2.5, i was advised: 3.5, advised me: 3, promised me: 3.5, guaranteed me: 3.5, the agent told: 4, support told me: 4, your staff told: 4, wrong advice: 4.5, bad advice: 4, incorrect advice: 4.5, gave me wrong: 4.5, gave me the wrong: 4.5, false promise: 4.5, misled: 4.5, turns out: 2.5, turned out: 2.5, not true: 3, "wasn't true": 3.5}

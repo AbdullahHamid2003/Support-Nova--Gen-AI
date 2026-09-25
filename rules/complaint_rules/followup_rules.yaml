@@ -1,0 +1,19 @@
+# =============================================================================
+# Follow-up rules (FUP-*), SRS Steps 40-41, CHP-SOP-13 s8.
+# The resolution rule provides the default follow-up; these global rules add or
+# override follow-ups for missing information, escalations and closure.
+# `due_hours` may be a number or "sla_first_response" (priority-based target).
+# =============================================================================
+follow_up_types:
+  - Request for additional information
+  - Resolution confirmation
+  - Refund-status update
+  - Replacement-status update
+  - Escalation acknowledgement
+  - Closure confirmation
+
+followup_rules:
+  - {rule_id: FUP-001, name: Blocking missing information, when: {fact: case.has_blocking_missing_info, op: eq, value: true}, type: Request for additional information, due_hours: 24, overrides_rule_follow_up: true, policy_refs: ["CHP-SOP-13:5", "CHP-SOP-13:8"]}
+  - {rule_id: FUP-002, name: Escalated complaint, when: {fact: case.escalation_rank, op: gte, value: 1}, type: Escalation acknowledgement, due_hours: sla_first_response, overrides_rule_follow_up: false, policy_refs: ["ESC-SOP-12:6", "CHP-SOP-13:8"]}
+  - {rule_id: FUP-003, name: Resolved complaint, when: {fact: case.status, op: eq, value: Resolved}, type: Closure confirmation, due_hours: 48, overrides_rule_follow_up: true, policy_refs: ["CHP-POL-01:8.1"]}
+  - {rule_id: FUP-004, name: Rule-defined follow-up, when: {fact: case.rule_follow_up_required, op: eq, value: true}, type: $rule, due_hours: $rule, overrides_rule_follow_up: false, policy_refs: ["CHP-SOP-13:3.8"]}

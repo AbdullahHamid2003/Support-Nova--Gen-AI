@@ -1,0 +1,512 @@
+# =============================================================================
+# Scenario bank - PRD (Product Defect): PRD-DOA, PRD-MAL, PRD-MIS
+# Field reference: docs/dataset.md ("Scenario bank"). Tokens: scripts/dataset/render.py
+# Every text must express its declared signals; the generator checks this.
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ PRD-DOA
+  - scenario_id: PRD-DOA-EVID
+    pool: dev
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-02
+    primary_issue: "{product} arrived damaged (reported within 7 days, photos supplied)"
+    order_profile: {name: delivered_within_doa, params: {days: [1, 6]}}
+    products: [LUM-CAM-210, LUM-SPK-500, LUM-AIR-900, LUM-VAC-300, LUM-HUB-800, LUM-TH-100]
+    requested_resolution: replacement
+    include: {photo: true}
+    signals: [photo_evidence, replacement_request]
+    texts:
+      - style: calm
+        title: "{product} arrived with a cracked housing"
+        body: >-
+          My {product} was delivered on {date:delivered} and when I opened the box the front housing was cracked
+          right across and one corner of the carton was crushed. It has not been switched on. I have attached photos
+          of the unit and the packaging. Could you please send a replacement? Order {order_ref}.
+      - style: frustrated
+        title: "Damaged {product:short} - order {order_ref}"
+        body: >-
+          Really disappointed. The {product} from order {order_ref} turned up on {date:delivered} with a dented side
+          panel and something loose rattling inside. I had been looking forward to setting it up all week.
+          Photos attached. I want a new one sent out, not a repair.
+      - style: angry
+        title: "Paid {amt:total} and it arrived SMASHED"
+        body: >-
+          Absolutely unacceptable. I paid {amt:total} for a {product} and it arrived smashed - the top panel is
+          shattered and the box looks like it was thrown off a truck. See attached photos. Sort out a replacement
+          straight away, I am not waiting weeks for this.
+      - style: polite
+        title: "Broken on arrival - {product}"
+        requested_resolution: refund
+        signals_add: [refund_request]
+        signals_remove: [replacement_request]
+        body: >-
+          Hello, unfortunately the {product} I ordered ({order_ref}) arrived broken on {date:delivered}: the glass
+          panel is cracked and the stand has snapped. I have attached photos of the item and the outer box. If
+          possible I would prefer my money back instead. Thank you for your help.
+        tags: [doa_refund_preference]
+
+  - scenario_id: PRD-DOA-NOPHOTO
+    pool: dev
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-01
+    primary_issue: "{product} arrived damaged - photos not yet provided"
+    order_profile: {name: delivered_within_doa, params: {days: [1, 5]}}
+    products: [LUM-CAM-200, LUM-SPK-500, LUM-AIR-900, LUM-LCK-700, LUM-BLB-610]
+    requested_resolution: replacement
+    expect: {missing_information_include: [photo_evidence]}
+    texts:
+      - style: calm
+        title: "Crack in the base of my new {product:short}"
+        body: >-
+          The {product} I received on {date:delivered} has a deep crack along the base and the outer box was
+          damaged in transit. It does still power on. Please let me know what you need from me to get this sorted.
+          Order number {order_ref}.
+      - style: frustrated
+        title: "{product} came broken"
+        channels: [chat, mobile_app, social_media]
+        body: >-
+          {product} came broken. Box was crushed and the front is cracked. Order {order_ref}. What happens now?
+          I really do not have time to chase this.
+      - style: angry
+        title: "Your courier wrecked my parcel"
+        signals_add: [replacement_request]
+        body: >-
+          Your courier clearly threw my parcel around. The {product} delivered on {date:delivered} is dented and
+          cracked and the packaging was ripped open. Ridiculous. I want a replacement shipped today and I expect
+          someone to call me.
+
+  - scenario_id: PRD-DOA-LATE
+    pool: dev
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-03
+    primary_issue: "Transit damage to {product} reported after the 7-day window"
+    order_profile: {name: delivered_days_ago, params: {days: [9, 21]}}
+    products: [LUM-CAM-210, LUM-VAC-300, LUM-AIR-900, LUM-HUB-800, LUM-TH-100]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: calm
+        title: "Late report of a damaged {product:short}"
+        include: {photo: true}
+        body: >-
+          I was travelling when my {product} was delivered on {date:delivered}, so I only unboxed it this weekend.
+          The top panel is cracked and one of the feet has snapped off. I have attached photos. What are my options
+          for a replacement?
+      - style: frustrated
+        title: "{product} split down the side"
+        body: >-
+          I opened my {product} for the first time on the weekend - it was delivered {dur:delivered} ago - and the
+          housing is split down one side. It was clearly damaged in transit, not by me. I need a replacement
+          please, order {order_ref}.
+      - style: polite
+        title: "Damaged item found after unpacking"
+        requested_resolution: refund
+        difficulty_type: unsupported_refund
+        signals_add: [refund_request]
+        signals_remove: [replacement_request]
+        include: {photo: true}
+        body: >-
+          Hello, apologies for the delay in reporting this. The {product} from order {order_ref} arrived on
+          {date:delivered} but I only unpacked it now and found the display cracked. Photos attached. Would a
+          refund still be possible?
+
+  - scenario_id: PRD-DOA-BATTERY
+    pool: dev
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-04
+    primary_issue: "PowerCell power station arrived with a damaged casing (lithium battery)"
+    order_profile: {name: delivered_within_doa, params: {days: [1, 5]}}
+    products: [LUM-PWR-400]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "PowerCell arrived with a cracked casing"
+        body: >-
+          My {product} arrived on {date:delivered} with the outer casing cracked and one corner caved in, as if the
+          box had been crushed in transit. I have not charged it or plugged anything into it. How should I send it
+          back? Order {order_ref}.
+      - style: frustrated
+        title: "Dented {product:short} - order {order_ref}"
+        include: {photo: true}
+        signals_add: [replacement_request]
+        body: >-
+          The {product} from order {order_ref} was delivered with a big dent in the side and a cracked handle. For
+          {amt:total} I expected it to at least arrive in one piece. Photos attached. I want a replacement.
+
+  # ------------------------------------------------------------------ PRD-MAL
+  - scenario_id: PRD-MAL-EARLY
+    pool: dev
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-02
+    primary_issue: "{product} stopped working within 30 days of delivery"
+    order_profile: {name: delivered_days_ago, params: {days: [9, 27]}}
+    products: [LUM-TH-100, LUM-VAC-300, LUM-SPK-500, LUM-AIR-900, LUM-HUB-800, LUM-CAM-200]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "{product} will not turn on"
+        body: >-
+          My {product} worked fine for the first week but now it will not turn on at all - no lights, no sound.
+          I have tried a different socket and held the reset button for ten seconds. It was delivered on
+          {date:delivered}, order {order_ref}. What should I do next?
+      - style: frustrated
+        title: "Brand new {product:short} keeps switching off"
+        signals_add: [replacement_request]
+        body: >-
+          The {product} I bought {dur:delivered} ago keeps turning off by itself every few minutes. It is really
+          frustrating for something this new. Order {order_ref}. I would like a replacement unit please.
+      - style: angry
+        title: "{age:delivered} old and already dead"
+        requested_resolution: refund
+        signals_add: [refund_request, replacement_request]
+        body: >-
+          {age:delivered} old and the {product} is already DEAD. Nothing happens when I press the button. I paid
+          {amt:total} for this rubbish. Replace it or refund me, I honestly do not care which, just fix it.
+
+  - scenario_id: PRD-MAL-WARRANTY
+    pool: dev
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-03
+    primary_issue: "{product} malfunction after 30 days, still within the warranty period"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 9]}}
+    products: [LUM-TH-100, LUM-AIR-900, LUM-HUB-800, LUM-LCK-700, LUM-VAC-300, LUM-SPK-500]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "{product} fault after a few months"
+        body: >-
+          My {product}, delivered on {date:delivered}, has started showing an error code on start-up and then
+          shuts itself down after a minute or two. I have restarted it and updated it through the app but the fault
+          keeps coming back. Order {order_ref}. Can you help me get it repaired?
+      - style: polite
+        title: "Help with a faulty {product:short}"
+        body: >-
+          Hello, my {product} stopped charging properly last week. It is about {age:delivered} old and has been
+          looked after carefully. I would be grateful if you could tell me how to get it looked at. My order
+          number is {order_ref}. Thank you!
+      - style: frustrated
+        title: "{product:short} making a grinding noise"
+        body: >-
+          For the last few days my {product} has been making a loud grinding noise and stops halfway through what
+          it is doing. I have only had it since {date:delivered}. This is disappointing for the price. Order
+          {order_ref} - please arrange a repair.
+
+  - scenario_id: PRD-MAL-EXPIRED
+    pool: dev
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-04
+    primary_issue: "{product} malfunction outside the warranty period"
+    order_profile: {name: delivered_months_ago, params: {months: [14, 22]}}
+    products: [LUM-CAM-200, LUM-CAM-210, LUM-VAC-300, LUM-SPK-500]
+    customer_types: [individual, business, vip]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "{product} no longer powers on"
+        body: >-
+          My {product} was delivered on {date:delivered} and has worked well until now, but it no longer powers on.
+          I have tried another cable and plug. Is there anything you can do, or is it time to buy a new one?
+          Order {order_ref}.
+        signals_add: [replacement_request]
+      - style: angry
+        title: "Pathetic quality - {product:short} died"
+        difficulty_type: emotional_low_priority
+        body: >-
+          This {product} is barely over a year old and it has DIED. Completely useless. What kind of company sells
+          something that falls apart this quickly?! I am furious. I expect you to send me a new one for free.
+          Order {order_ref}.
+        signals_add: [replacement_request]
+      - style: polite
+        title: "Faulty {product:short} - any options?"
+        requested_resolution: repair
+        body: >-
+          Good afternoon, my {product} (order {order_ref}, delivered {date:delivered}) has developed a fault where it
+          keeps restarting. I understand it may be quite old now, but I wanted to ask whether a repair is possible.
+          Many thanks.
+
+  - scenario_id: PRD-MAL-REPLFAIL
+    pool: dev
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-05
+    primary_issue: "Replacement {product} is also defective"
+    order_profile: {name: delivered_days_ago, params: {days: [20, 60], replacement_count: 1}}
+    products: [LUM-TH-100, LUM-SPK-500, LUM-VAC-300, LUM-AIR-900, LUM-HUB-800]
+    requested_resolution: refund
+    signals: [replacement_failed, refund_request]
+    lexical_traps: [replacement_request]
+    texts:
+      - style: frustrated
+        title: "Replacement {product:short} has the same fault"
+        body: >-
+          You already replaced my {product} once because it kept shutting down, and now the replacement has the same
+          fault. I have followed every troubleshooting step. Order {order_ref}. At this point I would rather have a
+          refund than a third unit.
+      - style: angry
+        title: "Second unit, same problem!!"
+        body: >-
+          Second unit, same problem!! The replacement {product} you sent stopped working after a week, exactly like
+          the first one. I am sick of this. Refund me the full {amt:total} for order {order_ref}.
+      - style: calm
+        title: "Replacement unit also faulty"
+        body: >-
+          I am writing about order {order_ref}. My original {product} was replaced after a fault, but the
+          replacement is also faulty - it freezes within an hour of being switched on and the status light flashes
+          red. I would like to discuss a refund, please.
+
+  - scenario_id: PRD-MAL-NOORDER
+    pool: dev
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-01
+    primary_issue: "{product} malfunction - purchase not yet verified"
+    products: [LUM-TH-100, LUM-SPK-500, LUM-HUB-800, LUM-AIR-900]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "{product} keeps rebooting"
+        body: >-
+          My {product} keeps rebooting every hour or so and loses its settings each time. I have already restarted
+          it and reinstalled the app. I bought it on {date:c-45} from your website. What can be done?
+      - style: frustrated
+        title: "{product:short} not working properly"
+        body: >-
+          I am fed up with my {product}. The buttons stopped responding and it just sits there with a blinking
+          light. I do not have the order email any more. Please tell me how to get this fixed.
+
+  # ------------------------------------------------------------------ PRD-MIS
+  - scenario_id: PRD-MIS-PART
+    pool: dev
+    subcategory: PRD-MIS
+    intended_rule: RES-PRD-MIS-01
+    primary_issue: "{product} delivered without the {param:part}"
+    order_profile: {name: delivered_recent, params: {days: [1, 9]}}
+    products: [LUM-TH-100, LUM-CAM-200, LUM-CAM-210, LUM-VAC-300, LUM-SPK-500, LUM-LCK-700, LUM-HUB-800, LUM-AIR-900]
+    requested_resolution: replacement
+    params:
+      part: {LUM-TH-100: wall plate, LUM-CAM-200: magnetic stand, LUM-CAM-210: mounting bracket,
+             LUM-VAC-300: charging dock, LUM-SPK-500: power adapter, LUM-LCK-700: mounting screws,
+             LUM-HUB-800: power adapter, LUM-AIR-900: HEPA filter}
+    texts:
+      - style: calm
+        title: "{param:part} missing from my {product:short} box"
+        body: >-
+          The box for my {product} (order {order_ref}) did not include the {param:part}. Everything else seems to be
+          there. Could you send one out so I can finish setting it up?
+      - style: angry
+        title: "No {param:part} in the box?!"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Are you KIDDING me? I finally get my {product} and there is no {param:part} in the box. How does a company
+          this size mess up something this basic?! Absolutely ridiculous. Send the part NOW. Order {order_ref}.
+      - style: polite
+        title: "Small item missing"
+        customer_types: [vip]
+        difficulty_type: vip_minor
+        body: >-
+          Hi, just a small thing - my new {product} arrived on {date:delivered} without the {param:part}. Could you
+          pop one in the post when you get a chance? Order {order_ref}. Thanks so much.
+      - style: frustrated
+        title: "Incomplete {product:short} delivery"
+        body: >-
+          I cannot install my {product} because the {param:part} was not in the box. I checked every compartment
+          twice. This is annoying because I took the afternoon off to do it. Order {order_ref}.
+      - style: polite
+        title: "Great product - one part missing"
+        sentiment: Positive
+        body: >-
+          Thank you for the quick delivery - I am really pleased with my new {product} and the quality is excellent.
+          One tiny thing: the {param:part} was not in the box. Could you send one when convenient? Thanks again!
+
+  - scenario_id: PRD-MIS-NOORDER
+    pool: dev
+    subcategory: PRD-MIS
+    intended_rule: RES-PRD-MIS-02
+    primary_issue: "Missing {param:part} - order reference not supplied"
+    products: [LUM-LCK-700, LUM-CAM-210, LUM-TH-100]
+    requested_resolution: replacement
+    params:
+      part: {LUM-TH-100: wall plate, LUM-CAM-210: mounting bracket, LUM-LCK-700: mounting screws}
+    texts:
+      - style: calm
+        title: "Missing {param:part}"
+        body: >-
+          My {product} arrived last week without the {param:part}, so I cannot fit it yet. Could you send the
+          missing part? I can't find my order confirmation but the account is under my name.
+      - style: frustrated
+        title: "Part missing from {product:short}"
+        channels: [chat, phone, social_media]
+        body: >-
+          Hi, the {product} I got is missing the {param:part}. Not great. Can someone just post one to me?
+
+  - scenario_id: PRD-MIS-EMPTY
+    pool: dev
+    subcategory: PRD-MIS
+    intended_rule: RES-PRD-MIS-03
+    primary_issue: "Box delivered empty - {product} missing"
+    order_profile: {name: delivered_recent, params: {days: [0, 3]}}
+    products: [LUM-CAM-210, LUM-SPK-500, LUM-TH-100, LUM-HUB-800]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "Parcel arrived but the box was empty"
+        body: >-
+          The parcel for order {order_ref} arrived on {date:delivered}, but the box was empty - just the packing
+          paper and the instruction leaflet, no {product}. The tape looked like it had been re-sealed. Please can
+          you look into this?
+      - style: angry
+        title: "EMPTY BOX delivered"
+        body: >-
+          I have just opened my delivery and there was NOTHING inside. An empty box! Where is my {product}? I paid
+          {amt:total} for order {order_ref} and got cardboard. I want answers today.
+      - style: frustrated
+        title: "Device missing from the package"
+        body: >-
+          My {product} order ({order_ref}) came today, but the device itself was missing from the package. Only
+          the cable and manual were there. I am annoyed that I now have to chase this.
+
+  # ============================================================ HOLDOUT (PRD)
+  - scenario_id: H-PRD-DOA-EVID
+    pool: holdout
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-02
+    primary_issue: "{product} damaged in transit (reported within 7 days with photos)"
+    order_profile: {name: delivered_within_doa, params: {days: [0, 4]}}
+    products: [LUM-AIR-900, LUM-SPK-500, LUM-HUB-800]
+    requested_resolution: replacement
+    include: {photo: true}
+    signals: [photo_evidence, replacement_request]
+    texts:
+      - style: polite
+        title: "Transit damage on {order_ref}"
+        body: >-
+          Good evening. Our {product} was left by the door on {date:delivered}; lifting it out I noticed the vent
+          grille had caved inwards and a hairline fracture runs down the back. I took pictures - see the attached
+          images. A like-for-like replacement would be ideal.
+
+  - scenario_id: H-PRD-DOA-LATE
+    pool: holdout
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-03
+    primary_issue: "Transit damage to {product} reported after the 7-day window"
+    order_profile: {name: delivered_days_ago, params: {days: [10, 18]}}
+    products: [LUM-CAM-200, LUM-TH-100]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: frustrated
+        title: "Found the damage only now"
+        body: >-
+          Parcel {order_ref} sat unopened in our hallway since {date:delivered} because of a family emergency.
+          Today we finally unpacked the {product} and the screen bezel is snapped in two places. I would like it
+          swapped for a working replacement.
+        signals_add: [item_unopened]
+
+  - scenario_id: H-PRD-DOA-BATTERY
+    pool: holdout
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-04
+    primary_issue: "PowerCell delivered with physical damage (lithium battery handling)"
+    order_profile: {name: delivered_within_doa, params: {days: [1, 3]}}
+    products: [LUM-PWR-400]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "Power station case punctured in delivery"
+        body: >-
+          Hi team - order {order_ref}. The courier handed over the {product} with a gash in the carton, and the
+          unit underneath has a punctured side vent and a bent carry bar. I have left it in the garage untouched.
+          Please advise on the next step.
+
+  - scenario_id: H-PRD-MAL-EARLY
+    pool: holdout
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-02
+    primary_issue: "{product} failed within 30 days of delivery"
+    order_profile: {name: delivered_days_ago, params: {days: [10, 25]}}
+    products: [LUM-AIR-900, LUM-VAC-300, LUM-HUB-800]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: polite
+        title: "Unit failed within the first month"
+        body: >-
+          Dear support, the {product} we received on {date:delivered} now shows a solid amber light and ignores
+          every button press. We followed the quick-start card exactly. Could you exchange it for a working unit?
+          Reference {order_ref}.
+        signals_add: []
+      - style: angry
+        title: "Garbage product, {age:delivered} in"
+        body: >-
+          {age:delivered} in and the {product} is a brick. It hums for a second and then dies. Unbelievable. Swap
+          it for one that actually works - order {order_ref}.
+
+  - scenario_id: H-PRD-MAL-EXPIRED
+    pool: holdout
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-04
+    primary_issue: "{product} fault outside the warranty period"
+    order_profile: {name: delivered_months_ago, params: {months: [15, 20]}}
+    products: [LUM-SPK-500, LUM-CAM-210]
+    customer_types: [individual, vip]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Old unit acting up"
+        body: >-
+          Our {product} from {date:delivered} has started cutting out mid-use and the status ring flickers. I accept
+          it is not new, but I would like to know whether Lumora offers any repair route for it. Order {order_ref}.
+
+  - scenario_id: H-PRD-MAL-REPLFAIL
+    pool: holdout
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-05
+    primary_issue: "Replacement {product} also defective"
+    order_profile: {name: delivered_days_ago, params: {days: [25, 50], replacement_count: 1}}
+    products: [LUM-VAC-300, LUM-AIR-900]
+    requested_resolution: refund
+    signals: [replacement_failed, refund_request]
+    lexical_traps: [replacement_request]
+    texts:
+      - style: frustrated
+        title: "Exchanged unit has failed too"
+        body: >-
+          This is about {order_ref}. The {product} you exchanged last month because the motor cut out - well, the
+          new one also cuts out, same symptoms, same error. I have lost confidence in this model and want my money
+          back.
+
+  - scenario_id: H-PRD-MIS-PART
+    pool: holdout
+    subcategory: PRD-MIS
+    intended_rule: RES-PRD-MIS-01
+    primary_issue: "{product} delivered without the {param:part}"
+    order_profile: {name: delivered_recent, params: {days: [1, 6]}}
+    products: [LUM-LCK-700, LUM-CAM-210, LUM-VAC-300]
+    requested_resolution: replacement
+    params:
+      part: {LUM-LCK-700: strike plate, LUM-CAM-210: weatherproof cable cover, LUM-VAC-300: side brush}
+    texts:
+      - style: calm
+        title: "Accessory absent from {order_ref}"
+        body: >-
+          Unpacking our {product} this morning we found the {param:part} listed on the contents sheet simply is not
+          there. The rest of the kit is fine. Could the part be dispatched separately?
+      - style: angry
+        title: "Who packed this?!"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Honestly, who packs these boxes?! The {param:part} for my {product} is not in there. I am so angry I could
+          scream - I have a whole Saturday wasted. Get the part to me. {order_ref}.
+
+  - scenario_id: H-PRD-MIS-EMPTY
+    pool: holdout
+    subcategory: PRD-MIS
+    intended_rule: RES-PRD-MIS-03
+    primary_issue: "Carton delivered with nothing inside"
+    order_profile: {name: delivered_recent, params: {days: [0, 2]}}
+    products: [LUM-SPK-500, LUM-HUB-800]
+    requested_resolution: replacement
+    texts:
+      - style: calm
+        title: "Nothing inside the delivered carton"
+        body: >-
+          A carton arrived on {date:delivered} for {order_ref}, correctly labelled, but nothing was inside apart from
+          two air cushions. The {product} I ordered is nowhere to be seen. Please investigate with the carrier.

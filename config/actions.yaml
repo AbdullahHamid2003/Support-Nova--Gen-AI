@@ -1,0 +1,188 @@
+# =============================================================================
+# Resolution action catalog (SRS Steps 27-28). The GenAI pipeline must express
+# each resolution step with an action_code from this catalog; the Python
+# validation pipeline checks required / recommended / prohibited codes from the
+# Rule Matrix. Prohibited actions also carry text patterns so that they are
+# detected in free text (resolution descriptions, customer responses).
+# =============================================================================
+actions:
+  # ---- Verification ----------------------------------------------------------
+  - {code: VERIFY_IDENTITY, name: Verify customer identity, group: verification, description: Verify identity using the registered email and last four card digits or an order reference.}
+  - {code: VERIFY_ACCOUNT, name: Verify account, group: verification, description: Confirm the account and its recent activity.}
+  - {code: VERIFY_ORDER, name: Verify order, group: verification, description: Confirm the order reference, items, dates and amounts in the order ledger.}
+  - {code: CHECK_TRANSACTION, name: Check transaction, group: verification, description: Check the transaction records for the disputed charge.}
+  - {code: VERIFY_SHIPMENT_STATUS, name: Verify shipment status, group: verification, description: Check tracking and carrier status for the shipment.}
+  - {code: VERIFY_WARRANTY_STATUS, name: Verify warranty status, group: verification, description: Confirm warranty coverage period and exclusions.}
+  - {code: VERIFY_CAREPLUS_COVERAGE, name: Verify Care+ coverage, group: verification, description: Confirm the customer's Care+ plan and remaining claims.}
+  - {code: VERIFY_CANCELLATION_RECORD, name: Verify cancellation record, group: verification, description: Confirm when the cancellation was requested and confirmed.}
+  - {code: REVIEW_INTERACTION_RECORDS, name: Review interaction records, group: verification, description: Review call, chat or visit records for the staff interaction.}
+  - {code: REVIEW_ACCOUNT_ACTIVITY, name: Review account activity, group: verification, description: Review logins, device changes and orders for the last 30 days.}
+  - {code: CHECK_REFUND_STATUS, name: Check refund status, group: verification, description: Check whether the refund was approved, issued and its reference.}
+  - {code: CHECK_SERVICE_STATUS, name: Check service status, group: verification, description: Check the status history of the affected Lumora service.}
+  - {code: LINK_PREVIOUS_COMPLAINT, name: Link previous complaint, group: verification, description: Link the complaint to the earlier related complaint.}
+
+  # ---- Information requests --------------------------------------------------
+  - {code: REQUEST_ORDER_REFERENCE, name: Request order reference, group: information, description: Ask the customer for the order reference.}
+  - {code: REQUEST_PHOTO_EVIDENCE, name: Request photo evidence, group: information, description: Ask for photos of the product and packaging.}
+  - {code: REQUEST_ADDITIONAL_INFO, name: Request additional information, group: information, description: Ask focused clarification questions.}
+
+  # ---- Logistics & returns --------------------------------------------------
+  - {code: CONTACT_CARRIER, name: Contact carrier, group: logistics, description: Contact the carrier for a status update or revised estimate.}
+  - {code: INITIATE_CARRIER_TRACE, name: Initiate carrier trace, group: logistics, description: Open a carrier trace (up to 5 business days).}
+  - {code: RESHIP_ORDER, name: Reship order, group: logistics, description: Reship the order at no cost.}
+  - {code: SHIP_REPLACEMENT, name: Ship replacement, group: logistics, description: Dispatch a replacement product.}
+  - {code: SHIP_ADVANCE_REPLACEMENT, name: Ship advance replacement, group: logistics, description: Dispatch a replacement before the original is returned (Care+).}
+  - {code: SHIP_CORRECT_ITEM, name: Ship correct item, group: logistics, description: Dispatch the item that was ordered.}
+  - {code: SHIP_MISSING_PART, name: Ship missing part, group: logistics, description: Dispatch the missing part at no cost.}
+  - {code: ISSUE_RETURN_LABEL, name: Issue prepaid return label, group: logistics, description: Send a prepaid return label.}
+  - {code: INSPECT_RETURNED_ITEM, name: Inspect returned item, group: logistics, description: Inspect the returned item within 3 business days of receipt.}
+
+  # ---- Billing & refunds -----------------------------------------------------
+  - {code: PROCESS_REFUND, name: Process refund after verification, group: billing, description: Issue a refund to the original payment method once eligibility is verified.}
+  - {code: REVERSE_DUPLICATE_CHARGE, name: Reverse duplicate charge, group: billing, description: Reverse a verified duplicate charge.}
+  - {code: CORRECT_BILLING_ERROR, name: Correct billing error, group: billing, description: Refund the verified overcharge or correct the invoice.}
+  - {code: OPEN_PAYMENT_TRACE, name: Open payment trace, group: billing, description: Open a payment trace with the processor and provide the trace reference.}
+  - {code: REFUND_POST_CANCELLATION_CHARGE, name: Refund post-cancellation charge, group: billing, description: Refund a charge taken after a confirmed cancellation.}
+  - {code: CANCEL_SUBSCRIPTION, name: Cancel subscription, group: billing, description: Cancel the subscription / switch off auto-renew.}
+  - {code: CANCEL_ORDER, name: Cancel order, group: billing, description: Cancel an order that has not been dispatched.}
+  - {code: PROVIDE_FEE_BREAKDOWN, name: Provide itemised fee breakdown, group: billing, description: Send an itemised breakdown of refund deductions.}
+  - {code: REVERSE_UNAUTHORIZED_PURCHASES, name: Reverse unauthorized purchases, group: billing, description: Reverse purchases confirmed as unauthorized after investigation.}
+
+  # ---- Compensation (CPN-POL-11) ----------------------------------------------
+  - {code: OFFER_STORE_CREDIT, name: Offer store credit (policy entitlement or within approval limit), group: compensation, description: Offer store credit only where a policy entitlement exists or within the approver's limit.}
+  - {code: REFUND_SHIPPING_FEE, name: Refund shipping fee, group: compensation, description: Refund the shipping fee where policy allows (late express order, Lumora error).}
+  - {code: OFFER_SUBSCRIPTION_CREDIT, name: Offer one month subscription credit, group: compensation, description: One month of subscription credit for a qualifying outage.}
+
+  # ---- Technical --------------------------------------------------------------
+  - {code: REMOTE_TROUBLESHOOTING, name: Remote troubleshooting, group: technical, description: Walk through the troubleshooting steps in TEC-GDL-20.}
+  - {code: FIRMWARE_UPDATE_GUIDANCE, name: Firmware / app update guidance, group: technical, description: Guide the customer through firmware or app updates or a rollback.}
+  - {code: SCHEDULE_TECHNICIAN_VISIT, name: Schedule technician visit, group: technical, description: Offer a technician visit when remote troubleshooting fails.}
+  - {code: SCHEDULE_INSTALL_REVISIT, name: Schedule installation re-visit, group: technical, description: Book a no-cost installation re-visit within 5 business days.}
+  - {code: GUIDE_PASSWORD_RESET, name: Guide password reset, group: technical, description: Guide the customer through password reset and recovery.}
+  - {code: UPDATE_ACCOUNT_DETAILS, name: Update account details, group: technical, description: Update account profile details after verification.}
+
+  # ---- Warranty ---------------------------------------------------------------
+  - {code: OPEN_WARRANTY_CLAIM, name: Open warranty claim, group: warranty, description: Open a warranty claim with Warranty Services.}
+  - {code: REVIEW_WARRANTY_APPEAL, name: Review warranty appeal, group: warranty, description: Route the appeal to a Warranty Services supervisor.}
+
+  # ---- Security ---------------------------------------------------------------
+  - {code: LOCK_ACCOUNT, name: Lock account, group: security, description: Lock the account after identity verification.}
+  - {code: REVOKE_SESSIONS, name: Revoke active sessions, group: security, description: Sign out all sessions and devices.}
+  - {code: FORCE_PASSWORD_RESET, name: Force password reset, group: security, description: Require a new password.}
+  - {code: ADVISE_PHYSICAL_KEY, name: Advise physical key and disable remote access, group: security, description: For smart-lock incidents, advise use of the physical key and disable remote access.}
+
+  # ---- Privacy ----------------------------------------------------------------
+  - {code: LOG_PRIVACY_INCIDENT, name: Log privacy incident, group: privacy, description: Log the incident and notify the Privacy Officer within 24 hours.}
+  - {code: CONTAIN_DATA_EXPOSURE, name: Contain data exposure, group: privacy, description: Revoke links and sessions, disable affected features, preserve logs.}
+  - {code: PROCESS_DATA_REQUEST, name: Process data-rights request, group: privacy, description: Fulfil access/export/deletion within 30 days after identity verification.}
+  - {code: UPDATE_CONSENT_PREFERENCES, name: Update consent preferences, group: privacy, description: Apply the opt-out / consent change.}
+
+  # ---- Safety -----------------------------------------------------------------
+  - {code: ADVISE_STOP_USING, name: Advise customer to stop using the product, group: safety, description: Advise stopping use and disconnecting power only if safe.}
+  - {code: LOG_SAFETY_INCIDENT, name: Log safety incident, group: safety, description: Log the safety incident within 1 hour.}
+  - {code: NOTIFY_PRODUCT_SAFETY, name: Notify Product Safety team, group: safety, description: Notify the Product Safety team.}
+  - {code: ARRANGE_SPECIALIST_COLLECTION, name: Arrange specialist collection, group: safety, description: Arrange specialist collection of a hazardous product.}
+
+  # ---- Staff & service ----------------------------------------------------------
+  - {code: NOTIFY_STAFF_MANAGER, name: Notify staff manager, group: service, description: Inform the staff member's manager of the complaint.}
+  - {code: CORRECT_MISINFORMATION, name: Correct misinformation, group: service, description: Give the customer the correct policy information.}
+  - {code: INVESTIGATE_PROPERTY_DAMAGE, name: Investigate property damage, group: service, description: Investigate damage caused by a technician within 5 business days.}
+
+  # ---- Escalation & follow-up ---------------------------------------------------
+  - {code: ESCALATE_SUPERVISOR, name: Escalate to supervisor, group: escalation, description: Supervisor Review.}
+  - {code: ESCALATE_DEPARTMENT_MANAGER, name: Escalate to department manager, group: escalation, description: Department Manager review.}
+  - {code: ESCALATE_SPECIALIST_TEAM, name: Escalate to specialist team, group: escalation, description: Product Safety or Account Security specialist team.}
+  - {code: ESCALATE_COMPLIANCE, name: Escalate to compliance review, group: escalation, description: Compliance Review.}
+  - {code: ESCALATE_CRITICAL_MANAGEMENT, name: Critical management escalation, group: escalation, description: Critical Management Escalation.}
+  - {code: SCHEDULE_FOLLOW_UP, name: Schedule follow-up, group: follow_up, description: Record a follow-up communication and due time.}
+
+# Prohibited actions (SRS Step 28, 34). "patterns" are case-insensitive regular
+# expressions applied to resolution-step text and customer-facing text.
+prohibited_actions:
+  - code: PROMISE_REFUND_BEFORE_VERIFICATION
+    name: Promising a refund before verification
+    severity: critical
+    policy_refs: ["REF-POL-02:4.1", "CHP-POL-01:6.1"]
+    patterns:
+      - '\b(we|i)\s*(will|''ll|have|are going to)\s*(definitely\s+|immediately\s+|now\s+)?(issue|process|send|give|approve|refund)\w*\s+(you\s+)?(a\s+|the\s+|your\s+)?(full\s+)?refund'
+      - '\byou\s+will\s+(definitely\s+)?(get|receive)\s+(a\s+|your\s+)?(full\s+)?refund'
+      - '\brefund\s+(has\s+been|is)\s+(approved|guaranteed)'
+  - code: GUARANTEE_COMPENSATION
+    name: Guaranteeing compensation
+    severity: critical
+    policy_refs: ["CPN-POL-11:3.2", "CPN-POL-11:8"]
+    patterns:
+      - '\bguarantee[ds]?\b.{0,40}\b(compensation|credit|refund|voucher|payment)'
+      - '\b(we|i)\s*(will|''ll)\s+(definitely\s+)?compensate\s+you'
+      - '\byou\s+(will|are going to)\s+(definitely\s+)?(receive|get)\s+(a\s+)?(\$|usd\s*)?\d+.{0,20}(compensation|credit|voucher)'
+  - code: CASH_COMPENSATION
+    name: Offering cash compensation
+    severity: critical
+    policy_refs: ["CPN-POL-11:5.4", "CPN-POL-11:8"]
+    patterns:
+      - '\bcash\s+(compensation|payment|settlement)'
+      - '\bpay\s+you\s+(\$|usd\s*)\d+'
+  - code: GRANT_POLICY_EXCEPTION
+    name: Granting or promising a policy exception without approval
+    severity: critical
+    policy_refs: ["REF-POL-02:7.2", "CHP-POL-01:6.1"]
+    patterns:
+      - '\b(make|making|made|grant|granting)\s+(a|an)?\s*(one[- ]time\s+)?exception'
+      - '\bas\s+a\s+(one[- ]time\s+)?(exception|courtesy exception)'
+      - '\beven\s+though\s+(it\s+is|it''s|you\s+are)\s+(outside|past|beyond)'
+  - code: ADMIT_LIABILITY
+    name: Admitting liability
+    severity: major
+    policy_refs: ["SAF-POL-10:7.1", "CMP-GDL-19:3.1"]
+    patterns:
+      - '\b(we|lumora)\s+(are|is)\s+(fully\s+|entirely\s+)?(responsible|liable|at\s+fault)\b'
+      - '\b(this|it)\s+(is|was)\s+(entirely\s+)?our\s+fault'
+      - '\baccept\s+(full\s+)?(liability|responsibility)'
+  - code: REQUEST_SENSITIVE_CREDENTIALS
+    name: Requesting passwords, full card numbers, CVV or one-time codes
+    severity: critical
+    policy_refs: ["SEC-POL-09:6", "BIL-POL-05:8"]
+    patterns:
+      - '\b(send|provide|share|tell|give|confirm|reply\s+with)\s+(us\s+|me\s+)?(your\s+)?(current\s+)?(password|full\s+card\s+number|card\s+number|cvv|cvc|security\s+code|one[- ]time\s+(code|password)|otp|pin)\b'
+  - code: SHIP_DAMAGED_BATTERY_BY_MAIL
+    name: Instructing postal return of a damaged lithium battery
+    severity: critical
+    policy_refs: ["SAF-POL-10:5.2", "RPL-POL-03:6.1"]
+    patterns:
+      - '\b(post|mail|ship|courier|send)\s+(it|the\s+(device|unit|battery|power\s+station|product))\s+back\b'
+      - '\buse\s+the\s+(standard\s+)?(prepaid\s+)?return\s+label\b.{0,60}\b(battery|power\s*cell|power\s+station|overheat|swollen)'
+  - code: UNSUPPORTED_DELIVERY_DEADLINE
+    name: Promising a delivery date not confirmed by the carrier
+    severity: major
+    policy_refs: ["DEL-POL-04:5.1"]
+    patterns:
+      - '\b(will|shall)\s+(definitely\s+|certainly\s+)?(arrive|be\s+delivered|reach\s+you)\s+(by|on|tomorrow|today|within)\b'
+      - '\bguarantee[ds]?\b.{0,30}\bdeliver'
+  - code: DISMISS_SAFETY_CONCERN
+    name: Dismissing or minimising a safety concern
+    severity: critical
+    policy_refs: ["SAF-POL-10:7.2"]
+    patterns:
+      - '\b(nothing|no\s+need)\s+to\s+worry\b'
+      - '\b(it\s+is|it''s)\s+(completely\s+|perfectly\s+)?(normal|safe)\s+(for|to|that)\b.{0,40}\b(hot|heat|smoke|spark|smell)'
+      - '\bcontinue\s+(using|to\s+use)\s+(it|the\s+(device|product|unit))'
+  - code: DISCLOSE_OTHER_CUSTOMER_DATA
+    name: Disclosing another customer's personal data
+    severity: critical
+    policy_refs: ["PRV-POL-08:8"]
+    patterns:
+      - '\bthe\s+other\s+customer''?s?\s+(name|email|address|phone)\s+is\b'
+  - code: PROMISE_REGULATORY_OUTCOME
+    name: Promising a regulatory or legal outcome
+    severity: major
+    policy_refs: ["PRV-POL-08:8", "CMP-GDL-19:3.4"]
+    patterns:
+      - '\b(no|won''t\s+be\s+any)\s+(legal|regulatory)\s+(action|consequences)\b'
+      - '\bsettle(ment)?\s+(offer|amount)\b'
+  - code: CLOSE_WITHOUT_RESOLUTION
+    name: Closing a complaint without a resolution path
+    severity: major
+    policy_refs: ["CHP-POL-01:8.1"]
+    patterns:
+      - '\b(there\s+is\s+)?nothing\s+(more\s+)?(we|i)\s+can\s+do\b'
+      - '\bthis\s+(case|complaint|ticket)\s+is\s+(now\s+)?closed\b'

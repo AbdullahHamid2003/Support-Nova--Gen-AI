@@ -1,0 +1,423 @@
+# =============================================================================
+# Scenario bank - SVC (Service Quality): SVC-SUP, SVC-INS, SVC-OUT
+# SVC-SUP-01 texts avoid repeat language ("second time", "several times" ...) and
+# compensation words; SVC-OUT short outages avoid the severe-failure lexicon
+# ("outage", "service is down", "lost my recordings") because no severe failure occurred.
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ SVC-SUP
+  - scenario_id: SVC-SUP-BASIC
+    pool: dev
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-01
+    primary_issue: "Poor support experience (long wait, unhelpful contact)"
+    requested_resolution: explanation
+    include: {product: false}
+    texts:
+      - style: calm
+        title: "Long wait on the support line"
+        body: >-
+          I called support on {date:c-2} about a question on my thermostat schedule and waited on hold for 55
+          minutes before the call dropped. I just wanted to let you know the wait times are very long.
+      - style: angry
+        title: "Worst customer service EVER"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Worst customer service EVER. I was transferred between four people on the phone and not one of them could
+          answer a simple question about my account. Absolutely pathetic. Train your staff properly!
+      - style: frustrated
+        title: "Chatbot goes round in circles"
+        body: >-
+          Your chatbot just goes round in circles. Every answer links me to the same help article and there is no
+          way to reach a human. I gave up after half an hour. Not a good experience at all.
+      - style: polite
+        title: "Feedback about my support call"
+        customer_types: [vip]
+        difficulty_type: vip_minor
+        body: >-
+          Hello, just some feedback: the support agent I spoke to on {date:c-1} was friendly but did not seem to
+          know the products, so I did not get an answer about my camera settings. Perhaps extra training would
+          help. Thank you.
+      - style: angry
+        title: "Hold music for an HOUR"
+        difficulty_type: emotional_low_priority
+        body: >-
+          An HOUR of hold music. An hour! And then a recorded message telling me to use the website. I am livid.
+          What is the point of having a phone number if nobody ever answers it?!
+
+  - scenario_id: SVC-SUP-REPEAT
+    pool: dev
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-02
+    primary_issue: "Support failed to resolve earlier contacts"
+    requested_resolution: explanation
+    include: {product: false}
+    signals: [repeat_indicator]
+    texts:
+      - style: frustrated
+        title: "Third time contacting you"
+        body: >-
+          This is the third time I have contacted support about my hub pairing problem. Each agent promises a
+          callback and nobody got back to me. I would like one person to own this and actually follow it through.
+      - style: angry
+        title: "Still not resolved after weeks"
+        body: >-
+          Still not resolved. I have already contacted you by chat, email and phone and every time I have to
+          explain everything from the beginning. Your support team clearly does not keep notes. Disgraceful.
+      - style: calm
+        title: "Previous ticket closed without an answer"
+        body: >-
+          My previous ticket about the app notifications was closed without an answer. I have raised it several
+          times now. Could someone please review the history and give me a proper response?
+
+  - scenario_id: SVC-SUP-COMP
+    pool: dev
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-03
+    difficulty_type: unsupported_compensation
+    primary_issue: "Compensation requested for poor support"
+    requested_resolution: compensation
+    include: {product: false}
+    signals: [compensation_request]
+    texts:
+      - style: frustrated
+        title: "I want compensation for my wasted time"
+        params: {demand: [60, 80, 100]}
+        body: >-
+          I spent most of my Saturday on hold or being transferred. I want {comp:demand} compensation for the time
+          your support team wasted. I think that is fair given how long it took.
+      - style: angry
+        title: "Pay me for my time"
+        params: {demand: [150, 200]}
+        body: >-
+          Two hours of my life wasted on your support line. I expect {comp:demand} in compensation, and do not try
+          to fob me off with a tiny voucher. Your service is a disgrace.
+      - style: calm
+        title: "Goodwill gesture for a poor experience"
+        difficulty_type: simple
+        body: >-
+          My support chat last week was disconnected three times and I had to start over each time. I am not asking
+          for much, but a small goodwill gesture would show that you take feedback seriously.
+        signals_add: [repeat_indicator]
+
+  # ------------------------------------------------------------------ SVC-INS
+  - scenario_id: SVC-INS-WORK
+    pool: dev
+    subcategory: SVC-INS
+    intended_rule: RES-SVC-INS-01
+    primary_issue: "Pro Install workmanship issue"
+    order_profile: {name: install_completed, params: {days: [2, 12]}}
+    products: [SVC-INSTALL]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Camera mounted crooked"
+        body: >-
+          The {product} technician came on {date:appointment} to fit our outdoor camera. It has been mounted crooked
+          and points mostly at the sky, and the cable was left hanging loose. Could someone come back and redo it?
+          Order {order_ref}.
+      - style: frustrated
+        title: "Installer left without testing"
+        body: >-
+          The installer left without testing anything. The thermostat he fitted on {date:appointment} does not turn
+          the heating on and he had already gone when we noticed. We paid for {product} to avoid exactly this.
+      - style: angry
+        title: "Sloppy installation"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Sloppy, sloppy work. Your {product} guy fitted the doorbell camera an inch off level and left sticky tape
+          marks everywhere. For {amt:total} I expected a professional job. I am appalled.
+      - style: polite
+        title: "Installation not quite finished"
+        body: >-
+          Hi, thank you for sending the installer on {date:appointment}. Unfortunately the smart lock was not fully
+          set up - the auto-lock feature was never configured and the app does not show the lock. Could a
+          technician return to finish the job? Order {order_ref}.
+      - style: polite
+        title: "Lovely installer, one loose end"
+        sentiment: Positive
+        body: >-
+          The {product} technician on {date:appointment} was friendly and helpful and the work is excellent - thank
+          you! The only loose end is that the hub was not added to the app before he left. Could someone help me
+          finish that remotely? Order {order_ref}.
+
+  - scenario_id: SVC-INS-NOSHOW
+    pool: dev
+    subcategory: SVC-INS
+    intended_rule: RES-SVC-INS-03
+    primary_issue: "Technician late or did not show up"
+    order_profile: {name: install_missed, params: {days: [1, 5]}}
+    products: [SVC-INSTALL]
+    requested_resolution: other
+    texts:
+      - style: frustrated
+        title: "Installer didn't show up"
+        body: >-
+          My {product} appointment was booked for {date:appointment} between 8am and 12pm. The technician didn't
+          show up and nobody called. I had booked a day off work for this. When can it be rebooked?
+      - style: angry
+        title: "No-show technician"
+        signals_add: [compensation_request]
+        requested_resolution: compensation
+        body: >-
+          A complete no-show. I waited in all day on {date:appointment} for your technician and got nothing - no
+          call, no text. I want compensation for the lost day's pay and a new appointment this week.
+      - style: calm
+        title: "Technician arrived very late"
+        body: >-
+          The {product} technician arrived 4 hours late on {date:appointment}, so there was not enough time to
+          finish the installation and he had to leave. Could we arrange a new visit? Order {order_ref}.
+
+  - scenario_id: SVC-INS-REVISIT
+    pool: dev
+    subcategory: SVC-INS
+    intended_rule: RES-SVC-INS-02
+    primary_issue: "Re-visit failed to fix the installation"
+    order_profile: {name: install_completed, params: {days: [8, 20]}}
+    products: [SVC-INSTALL]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Second visit still didn't fix it"
+        body: >-
+          The original {product} left my thermostat wired wrong, and the second visit still didn't fix it - the
+          heating comes on at random times. I would like a refund of the installation fee. Order {order_ref}.
+      - style: calm
+        title: "Re-visit did not solve the problem"
+        body: >-
+          After the first installation the lock kept jamming. A technician came for a re-visit on {date:c-4} but
+          the problem is still there. At this point I would like the {amt:total} installation fee refunded.
+          Order {order_ref}.
+
+  # ------------------------------------------------------------------ SVC-OUT
+  - scenario_id: SVC-OUT-LONG
+    pool: dev
+    subcategory: SVC-OUT
+    intended_rule: RES-SVC-OUT-02
+    primary_issue: "Cloud Vault outage longer than 24 hours"
+    products: [SVC-CLOUD]
+    requested_resolution: compensation
+    signals: [severe_service_failure]
+    params: {outage: [30, 36, 48, 52]}
+    texts:
+      - style: frustrated
+        title: "{product} down for {hours:outage}"
+        body: >-
+          {product} was down for {hours:outage} this week. None of my cameras uploaded anything during that time
+          and I lost my recordings for two days. What are you doing to make up for this?
+      - style: angry
+        title: "Paying for a service that doesn't work"
+        signals_add: [compensation_request]
+        body: >-
+          Your {product} service was down for {hours:outage}! I pay every month for cloud storage and my recordings
+          are gone for that whole period. I expect a free month at the very least. Unacceptable.
+      - style: calm
+        title: "Extended {product} outage"
+        body: >-
+          There was a {product} outage lasting about {hours:outage} from Friday evening. My camera clips from that
+          period are missing entirely. Could you confirm what happened and whether any credit applies?
+      - style: polite
+        title: "Recordings unavailable for two days"
+        body: >-
+          Hello, I wanted to report that the {product} service was down for roughly {hours:outage} over the
+          weekend, and my recordings are missing for that time. I would appreciate an explanation. Thank you.
+
+  - scenario_id: SVC-OUT-SHORT
+    pool: dev
+    subcategory: SVC-OUT
+    intended_rule: RES-SVC-OUT-03
+    difficulty_type: unsupported_compensation
+    primary_issue: "Short Cloud Vault disruption (under 24 hours)"
+    products: [SVC-CLOUD]
+    requested_resolution: compensation
+    signals: [compensation_request]
+    params: {outage: [3, 5, 6, 8, 12]}
+    texts:
+      - style: frustrated
+        title: "{product} unavailable this morning"
+        body: >-
+          {product} would not load any clips for about {hours:outage} this morning. I pay for this so I expect it to
+          work. I would like a free month for the trouble.
+      - style: angry
+        title: "Cloud storage failed for hours"
+        params: {demand: [20, 30, 50]}
+        body: >-
+          For {hours:outage} I could not view a single clip from my cameras on {product}. I want {comp:demand} in
+          credit to my account for this rubbish. You clearly cannot run a simple storage service.
+      - style: calm
+        title: "Short disruption - any credit?"
+        body: >-
+          Yesterday the {product} app could not reach the server for around {hours:outage}, then everything came
+          back. Is there any compensation for service interruptions like this?
+
+  - scenario_id: SVC-OUT-UNKNOWN
+    pool: dev
+    subcategory: SVC-OUT
+    intended_rule: RES-SVC-OUT-01
+    primary_issue: "Service outage reported without a duration"
+    products: [SVC-CLOUD, SVC-APP]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "{product} not loading today"
+        body: >-
+          Is there a problem with {product} today? Nothing loads for me and my partner has the same issue on her
+          phone. Could you let me know if you are aware of it?
+      - style: frustrated
+        title: "Whole system is down"
+        signals_add: [severe_service_failure]
+        body: >-
+          Our whole system is down. None of the devices respond in {product} and the cameras show no live view. We
+          rely on this for home security. Please tell me what is going on and when it will be fixed.
+      - style: polite
+        title: "Is the service working?"
+        body: >-
+          Hi, I have not been able to open my clips in {product} since this afternoon. Is there any maintenance
+          going on? Thanks for letting me know.
+
+  # ============================================================ HOLDOUT (SVC)
+  - scenario_id: H-SVC-SUP-BASIC
+    pool: holdout
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-01
+    primary_issue: "Poor support experience"
+    requested_resolution: explanation
+    include: {product: false}
+    texts:
+      - style: angry
+        title: "Your support is a black hole"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Your support is a black hole. I sent an email on {date:c-6} and received an automatic reply and then
+          silence. I am appalled at how little you care about customers.
+      - style: calm
+        title: "Support email left unanswered"
+        body: >-
+          I emailed your support address on {date:c-5} with a question about my camera's night mode and have not had
+          any reply yet. Just flagging it in case it went astray.
+
+  - scenario_id: H-SVC-SUP-REPEAT
+    pool: holdout
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-02
+    primary_issue: "Earlier support contacts not resolved"
+    requested_resolution: explanation
+    include: {product: false}
+    signals: [repeat_indicator]
+    texts:
+      - style: frustrated
+        title: "Promised callback never happened"
+        body: >-
+          For the fourth time: I was promised a callback about my purifier's app pairing and nobody got back to me.
+          Can someone senior please look at my case history?
+
+  - scenario_id: H-SVC-SUP-COMP
+    pool: holdout
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-03
+    difficulty_type: unsupported_compensation
+    primary_issue: "Compensation demanded for poor support"
+    requested_resolution: compensation
+    include: {product: false}
+    signals: [compensation_request]
+    texts:
+      - style: angry
+        title: "Compensate me for this farce"
+        params: {demand: [120, 250]}
+        body: >-
+          Your agents kept me on the line for ninety minutes and fixed nothing. I want {comp:demand} for this farce,
+          paid as a credit to my account. Anything less is an insult.
+
+  - scenario_id: H-SVC-INS-WORK
+    pool: holdout
+    subcategory: SVC-INS
+    intended_rule: RES-SVC-INS-01
+    primary_issue: "Installation workmanship problem"
+    order_profile: {name: install_completed, params: {days: [3, 9]}}
+    products: [SVC-INSTALL]
+    requested_resolution: repair
+    texts:
+      - style: polite
+        title: "Hub installed in a poor spot"
+        body: >-
+          Hello, the {product} visit on {date:appointment} went smoothly, but the hub was placed behind the TV where
+          the signal to the upstairs sensors is weak, and the cabling was not tidied. Could the technician revisit
+          and reposition it?
+
+  - scenario_id: H-SVC-INS-NOSHOW
+    pool: holdout
+    subcategory: SVC-INS
+    intended_rule: RES-SVC-INS-03
+    primary_issue: "Installer missed the appointment"
+    order_profile: {name: install_missed, params: {days: [1, 3]}}
+    products: [SVC-INSTALL]
+    requested_resolution: other
+    texts:
+      - style: calm
+        title: "Missed my installation appointment"
+        body: >-
+          Your installer missed my appointment on {date:appointment}; I was home the whole window. Please rebook the
+          {product} visit and let me know the new time. Order {order_ref}.
+
+  - scenario_id: H-SVC-INS-REVISIT
+    pool: holdout
+    subcategory: SVC-INS
+    intended_rule: RES-SVC-INS-02
+    primary_issue: "Installation still faulty after a re-visit"
+    order_profile: {name: install_completed, params: {days: [10, 18]}}
+    products: [SVC-INSTALL]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Another visit, same fault"
+        body: >-
+          The technician came for another visit on {date:c-3} and the doorbell camera still loses power every
+          night. Two appointments and it is no better. I would like the installation charge refunded.
+
+  - scenario_id: H-SVC-OUT-LONG
+    pool: holdout
+    subcategory: SVC-OUT
+    intended_rule: RES-SVC-OUT-02
+    primary_issue: "Cloud Vault unavailable for more than 24 hours"
+    products: [SVC-CLOUD]
+    requested_resolution: compensation
+    signals: [severe_service_failure]
+    params: {outage: [28, 40]}
+    texts:
+      - style: calm
+        title: "Two days without cloud recording"
+        body: >-
+          From Tuesday night our cameras could not upload to {product} for {hours:outage}. The outage means we have
+          no footage for that period. Please confirm what happened and how this will be credited.
+
+  - scenario_id: H-SVC-OUT-SHORT
+    pool: holdout
+    subcategory: SVC-OUT
+    intended_rule: RES-SVC-OUT-03
+    primary_issue: "Brief Cloud Vault disruption"
+    products: [SVC-CLOUD]
+    requested_resolution: compensation
+    signals: [compensation_request]
+    params: {outage: [2, 4, 7]}
+    texts:
+      - style: frustrated
+        title: "Clips unavailable for a few hours"
+        body: >-
+          The {product} timeline was empty for {hours:outage} this afternoon before it came back. I would like a
+          goodwill credit because I pay for a service that is supposed to be reliable.
+
+  - scenario_id: H-SVC-OUT-UNKNOWN
+    pool: holdout
+    subcategory: SVC-OUT
+    intended_rule: RES-SVC-OUT-01
+    primary_issue: "Service problem reported without a duration"
+    products: [SVC-APP]
+    requested_resolution: explanation
+    texts:
+      - style: polite
+        title: "Are your servers having trouble?"
+        body: >-
+          Good evening, none of my devices respond through the {product} right now, although they work with the
+          physical buttons. Is something wrong on your side?

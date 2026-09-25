@@ -1,0 +1,628 @@
+# =============================================================================
+# Contradictory / difficult policy cases (SRS 1.8(10) Contradictory Policy Challenge).
+# The customer cites an outdated, superseded, draft or conflicting document, an agent's
+# out-of-policy promise, or asks for an exception. Expected outcomes always follow the
+# ACTIVE policy via the rule matrix (CHP-POL-01 s10: policy > SOP > FAQ; newest effective
+# version wins; Superseded/Previous/Draft never primary). Knowledge-base conflicts used:
+#   REF-POL-02 v1.0 (Superseded): 60-day refund window, agents approve refunds to 90 days
+#   FAQ-BIL-17 v1.0 (Previous):   "return any item within 60 days", "duplicates reversed immediately"
+#   FAQ-GEN-16 v5.0 (Active FAQ): "refunds issued within 3 business days" (conflicts with REF-POL-02 4.3)
+#   RET-SOP-23 v1.4 (Superseded): agents may issue a USD 50 goodwill credit; batteries by prepaid label
+#   DEL-POL-04 v2.0 (Previous):   USD 15 delay credit after 5 business days; lost after 10 business days
+#   ESC-SOP-12 v3.2 (Draft):      Supervisor Review after 1 prior unresolved complaint
+# =============================================================================
+scenarios:
+  - scenario_id: CP-REF-60DAY
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-03
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:REF-POL-02 v1.0"]
+    primary_issue: "Refund requested citing the superseded 60-day refund window"
+    order_profile: {name: delivered_old, params: {days: [36, 55]}}
+    products: [LUM-SPK-500, LUM-TH-100, LUM-AIR-900, LUM-CAM-210]
+    customer_types: [individual, business, vip]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: calm
+        title: "Return within the 60-day window"
+        body: >-
+          According to your policy I have 60 days to return a product for a refund. My {product} was delivered on
+          {date:delivered}, so I am well within that. Please send a return label for order {order_ref}.
+      - style: frustrated
+        title: "Your refund policy says 60 days"
+        body: >-
+          Your policy says 60 days for refunds - I have read it. Now your app tells me my {product} is not
+          eligible after {age:delivered}. Which is it? I want my refund under the 60-day rule. {order_ref}.
+      - style: angry
+        title: "Honour your own 60-day policy"
+        body: >-
+          I have a copy of REF-POL-02 in front of me and section 3.1 says 60 calendar days. You are refusing my
+          refund at {age:delivered}. That is a breach of your own rules. Refund order {order_ref} now.
+
+  - scenario_id: CP-REF-FAQ60
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-03
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:FAQ-BIL-17 v1.0"]
+    primary_issue: "Refund requested citing the previous billing FAQ (60 days)"
+    order_profile: {name: delivered_old, params: {days: [40, 58]}}
+    products: [LUM-VAC-300, LUM-HUB-800]
+    customer_types: [individual, vip]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: polite
+        title: "Billing FAQ says 60 days for returns"
+        body: >-
+          Hello, the Billing and Refunds FAQ (FAQ-BIL-17) I saved says "you can return any item within 60 days for a
+          full refund", so according to your policy I am still in time. My {product} arrived on {date:delivered}.
+          Could I return it on that basis? Order {order_ref}. Thank you.
+
+  - scenario_id: CP-REF-CAREPLUS-EXCEPTION
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-02
+    difficulty_type: contradictory_policy
+    tags: [exception_request, "difficult:customer_misunderstands_window"]
+    primary_issue: "Care+ member asks for an exception although still within the 45-day window"
+    order_profile: {name: delivered_days_ago, params: {days: [33, 43]}}
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-AIR-900]
+    customer_types: [care_plus]
+    requested_resolution: refund
+    signals: [refund_request, policy_exception_request]
+    texts:
+      - style: polite
+        title: "Asking for an exception to the return window"
+        body: >-
+          Hello, I know the return window is 30 days and I am past it - my {product} came on {date:delivered}.
+          Could you make an exception just this once and accept a refund? I have been a Care+ member for years.
+          Order {order_ref}.
+
+  - scenario_id: CP-REFDLY-FAQ3-OK
+    pool: dev
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-03
+    difficulty_type: contradictory_policy
+    tags: ["conflicting_faq:FAQ-GEN-16 v5.0 2.2"]
+    primary_issue: "Customer cites the FAQ '3 business days' - refund still within the policy timeline"
+    order_profile: {name: return_received_recent, params: {bdays: [4, 6], reason: changed_mind}}
+    products: [LUM-SPK-500, LUM-TH-100, LUM-BLB-610]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: frustrated
+        title: "FAQ says refunds in 3 business days"
+        body: >-
+          Your FAQ says refunds are issued within 3 business days of receiving the return. You received my {product}
+          on {date:return_received}, so according to your policy my refund is late. The money is still missing.
+          {order_ref}.
+      - style: calm
+        title: "Refund timing question"
+        body: >-
+          According to your policy FAQ (FAQ-GEN-16), refunds are issued within 3 business days of receiving the
+          return. My return reached you on {date:return_received}. Has the refund been processed? Order {order_ref}.
+      - style: angry
+        title: "Your own FAQ - 3 days!"
+        body: >-
+          Three business days, your policy says. THREE. You got my {product} back on {date:return_received}. Stop
+          ignoring your own promises and refund me. {order_ref}.
+
+  - scenario_id: CP-REFDLY-FAQ3-LATE
+    pool: dev
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-02
+    difficulty_type: contradictory_policy
+    tags: ["conflicting_faq:FAQ-GEN-16 v5.0 2.2"]
+    primary_issue: "Refund late under policy; customer cites the conflicting FAQ timeline"
+    order_profile: {name: return_received_late, params: {mode: received, bdays: [10, 12], reason: not_needed}}
+    products: [LUM-CAM-210, LUM-AIR-900]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: frustrated
+        title: "Well past your 3-day refund promise"
+        body: >-
+          According to your policy FAQ, refunds are issued within 3 business days of receiving a return. You had my
+          {product} from {date:return_received} and it has been {dur:return_received} since then. Where is my refund?
+          {order_ref}.
+
+  - scenario_id: CP-DEL-15CREDIT
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-02
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:DEL-POL-04 v2.0"]
+    primary_issue: "Customer claims the previous USD 15 delay credit (active policy: USD 10)"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [6, 9]}}
+    products: [LUM-TH-100, LUM-SPK-500, LUM-AIR-900]
+    requested_resolution: compensation
+    signals: [compensation_request, embedded_policy_claim]
+    texts:
+      - style: calm
+        title: "Delay credit under your delivery policy"
+        body: >-
+          My order {order_ref} is well over 5 business days late (it was due {date:eta}). According to your policy,
+          delays over 5 business days get a {comp:15} store credit. Please apply it to my account.
+      - style: frustrated
+        title: "I'm entitled to the {comp:15} delay credit"
+        body: >-
+          I'm entitled to a {comp:15} store credit - your delivery policy DEL-POL-04 says so for any delay over five
+          business days. My {product} was due on {date:eta} and is still not here. {order_ref}.
+
+  - scenario_id: CP-DEL-ANYCREDIT
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-01
+    difficulty_type: contradictory_policy
+    tags: ["misread_policy:DEL-POL-04 v3.0 5.2"]
+    primary_issue: "Credit demanded for a 1-3 business day delay (below the policy threshold)"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [1, 3]}}
+    products: [LUM-BLB-610, LUM-PLG-600, LUM-SPK-500]
+    requested_resolution: compensation
+    signals: [compensation_request, embedded_policy_claim]
+    texts:
+      - style: frustrated
+        title: "Late order - where is my credit?"
+        body: >-
+          Your policy says late deliveries get a store credit. My order {order_ref} missed its {date:eta} date, so I
+          expect the credit to be applied today.
+
+  - scenario_id: CP-SUP-50CREDIT
+    pool: dev
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-03
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:RET-SOP-23 v1.4"]
+    primary_issue: "Customer demands the legacy USD 50 agent goodwill credit"
+    requested_resolution: compensation
+    include: {product: false}
+    signals: [compensation_request, embedded_policy_claim]
+    texts:
+      - style: calm
+        title: "Goodwill credit for a poor experience"
+        body: >-
+          After two hours on the phone, I was told your returns SOP lets agents issue a {comp:50} goodwill credit on
+          their own. According to your policy, that credit should be applied to my account. Could you confirm?
+      - style: angry
+        title: "Give me the {comp:50} credit your SOP allows"
+        body: >-
+          RET-SOP-23 section 3 says agents can give a {comp:50} goodwill credit without any approval. Your agent
+          refused. I want the {comp:50} credit applied today. Stop hiding behind "policy".
+
+  - scenario_id: CP-DUP-IMMEDIATE
+    pool: dev
+    subcategory: BIL-DUP
+    intended_rule: RES-BIL-DUP-02
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:FAQ-BIL-17 v1.0"]
+    primary_issue: "Customer expects immediate reversal of a duplicate charge (previous FAQ)"
+    order_profile: {name: duplicate_charge, params: {days: [3, 8], gap_days: [0, 1]}}
+    products: [LUM-HUB-800, LUM-TH-100]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: frustrated
+        title: "Duplicate charge should be reversed immediately"
+        body: >-
+          According to your policy FAQ, duplicate charges are reversed immediately. I was charged {amt:charge} twice
+          for order {order_ref} and I am still waiting for the duplicate to be refunded. Why?
+
+  - scenario_id: CP-MIN-REFUND-PROMISE
+    pool: dev
+    subcategory: STF-MIN
+    intended_rule: RES-STF-MIN-02
+    difficulty_type: contradictory_policy
+    tags: [out_of_policy_promise]
+    primary_issue: "Agent promised a refund outside the refund window"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Refund promised by your agent"
+        body: >-
+          Your agent promised me a full refund for my speaker even though it is two months old and outside the
+          return window. Now the returns team says no. I would like the promise honoured.
+        signals_add: [policy_exception_request]
+      - style: frustrated
+        title: "Promised a refund, now refused"
+        body: >-
+          On {date:c-9} a chat agent assured me I would be refunded for my old vacuum, "as a one-off". Now I am told
+          that is not possible. Please look at the chat transcript and keep your word.
+
+  - scenario_id: CP-MIN-CREDIT-PROMISE
+    pool: dev
+    subcategory: STF-MIN
+    intended_rule: RES-STF-MIN-02
+    difficulty_type: contradictory_policy
+    tags: [out_of_policy_promise]
+    primary_issue: "Agent promised a USD 100 credit (above the agent limit)"
+    requested_resolution: compensation
+    include: {product: false}
+    signals: [compensation_request]
+    texts:
+      - style: frustrated
+        title: "Where is the {comp:100} credit I was promised?"
+        body: >-
+          The agent I spoke to promised me a {comp:100} credit to my account for all the trouble with my delivery.
+          It never appeared. I want what I was promised.
+
+  - scenario_id: CP-DOA-30DAY
+    pool: dev
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-03
+    difficulty_type: contradictory_policy
+    tags: ["invented_policy:30-day DOA window"]
+    primary_issue: "Late damage report citing a non-existent 30-day damage window"
+    order_profile: {name: delivered_days_ago, params: {days: [10, 20]}}
+    products: [LUM-CAM-210, LUM-AIR-900, LUM-HUB-800]
+    requested_resolution: replacement
+    include: {photo: true}
+    signals: [replacement_request, embedded_policy_claim, photo_evidence]
+    texts:
+      - style: calm
+        title: "Damage report within 30 days"
+        body: >-
+          My {product} was delivered on {date:delivered} with a cracked side. According to your policy I have 30
+          days to report damage, so I am within time. Photos attached. Please send a replacement. {order_ref}.
+
+  - scenario_id: CP-DEN-60APPEAL
+    pool: dev
+    subcategory: WAR-DEN
+    intended_rule: RES-WAR-DEN-02
+    difficulty_type: contradictory_policy
+    tags: ["invented_policy:60-day appeal window"]
+    primary_issue: "Late warranty appeal citing an old 60-day appeal period"
+    order_profile: {name: delivered_months_ago, params: {months: [6, 10]}}
+    products: [LUM-CAM-200, LUM-SPK-500]
+    customer_types: [individual, vip]
+    requested_resolution: repair
+    signals: [embedded_policy_claim]
+    params: {denied: [40, 50]}
+    texts:
+      - style: calm
+        title: "Appeal within 60 days"
+        body: >-
+          My warranty claim for the {product} was denied {dur:denied} ago. Your policy says customers have 60 days to
+          appeal, so I would like to appeal now. Order {order_ref}.
+
+  - scenario_id: CP-SAF-BATTERY-LABEL
+    pool: dev
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-03
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:RET-SOP-23 v1.4"]
+    primary_issue: "Customer wants to post a swollen battery back with a prepaid label (legacy SOP)"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 12]}}
+    products: [LUM-PWR-400]
+    requested_resolution: replacement
+    signals: [overheating, embedded_policy_claim, replacement_request]
+    texts:
+      - style: calm
+        title: "Returning a swollen PowerCell by post"
+        body: >-
+          My {product} is swollen on one side. Your returns SOP (RET-SOP-23) says damaged batteries can go back with
+          the standard prepaid label, so please email me a label and I will post it for a replacement. {order_ref}.
+      - style: polite
+        title: "Prepaid label for my battery return"
+        body: >-
+          Hello, the battery in my {product} has started bulging. According to your policy I can send it back with
+          a prepaid return label. Could you send one so I can arrange a replacement? Order {order_ref}.
+
+  - scenario_id: CP-SUB-30DAY
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-03
+    difficulty_type: contradictory_policy
+    tags: ["invented_policy:30-day renewal refund"]
+    primary_issue: "Renewal refund demanded citing a non-existent 30-day renewal refund period"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [18, 28]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: frustrated
+        title: "30 days to cancel a renewal"
+        body: >-
+          Your policy says annual plans can be refunded within 30 days of renewal. My {product} renewed on
+          {date:renewal}, which is well within 30 days. I want the {amt:charge} refunded.
+
+  - scenario_id: CP-SUB-7DAY
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-02
+    difficulty_type: contradictory_policy
+    tags: [exception_request, "difficult:customer_misunderstands_window"]
+    primary_issue: "Customer thinks the cooling-off period is 7 days - actually 14 days"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [8, 12]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request, policy_exception_request, cancellation_mentioned]
+    texts:
+      - style: polite
+        title: "Late cancellation of a renewal"
+        body: >-
+          Hello, I believe I missed the 7-day window to cancel my {product} renewal from {date:renewal}. Could you
+          make an exception and refund it anyway? I genuinely forgot. Thank you.
+
+  - scenario_id: CP-PAR-NOFEE-OLD
+    pool: dev
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-03
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:REF-POL-02 v1.0"]
+    primary_issue: "Customer disputes a correctly applied restocking fee citing the old refund policy"
+    order_profile: {name: restocking_fee, params: {reason: changed_mind, return_day: [15, 18]}}
+    products: [LUM-SPK-500, LUM-CAM-210]
+    customer_types: [individual, business, vip]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: frustrated
+        title: "Restocking fee not in your policy"
+        body: >-
+          Your refund policy says nothing about restocking fees - I checked version 1.0 of REF-POL-02. Yet you kept
+          {amt:restocking_fee} from my refund for the {product}. Refund the full amount. {order_ref}.
+
+  - scenario_id: CP-PAR-CAREPLUS-CORRECT
+    pool: dev
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-02
+    difficulty_type: contradictory_policy
+    tags: ["correct_citation:REF-POL-02 v2.0 6.1"]
+    primary_issue: "Care+ member correctly cites the active restocking-fee exemption"
+    order_profile: {name: restocking_fee, params: {reason: not_needed, return_day: [15, 20]}}
+    products: [LUM-VAC-300, LUM-AIR-900]
+    customer_types: [care_plus]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: calm
+        title: "Restocking fee charged to a Care+ member"
+        body: >-
+          REF-POL-02 section 6.1 says no restocking fee applies to Care+ members. I am a member, yet
+          {amt:restocking_fee} was deducted from my refund for the {product}. Please refund it. Order {order_ref}.
+
+  - scenario_id: CP-CPL-UNLIMITED
+    pool: dev
+    subcategory: WAR-CPL
+    intended_rule: RES-WAR-CPL-04
+    difficulty_type: contradictory_policy
+    tags: ["invented_policy:unlimited Care+ claims"]
+    primary_issue: "Customer claims Care+ covers unlimited accidental-damage claims"
+    order_profile: {name: careplus_claims, params: {n: 2, months: [4, 12]}}
+    products: [LUM-SPK-500, LUM-CAM-200]
+    customer_types: [care_plus]
+    requested_resolution: replacement
+    signals: [replacement_request, embedded_policy_claim]
+    texts:
+      - style: frustrated
+        title: "Care+ covers unlimited claims"
+        body: >-
+          The Care+ brochure I was given says accidental damage is covered with unlimited claims. You now say I have
+          used my claims for this year. I'm entitled to a replacement for my {product}. {order_ref}.
+
+  - scenario_id: CP-SUB-PARTIAL
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-04
+    difficulty_type: contradictory_policy
+    tags: ["invented_policy:partial-month refunds"]
+    primary_issue: "Customer claims partial-month refunds are guaranteed"
+    order_profile: {name: monthly_subscription, params: {months: [3, 10], last_charge_days: [2, 10]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: calm
+        title: "Refund for unused days"
+        body: >-
+          Your terms say you refund unused days when a monthly plan is cancelled. I cancelled my {product} a few days
+          after the {amt:charge} charge on {date:renewal}. Please refund the unused part of the month.
+        signals_add: [cancellation_mentioned]
+
+  - scenario_id: CP-LST-10DAYS
+    pool: dev
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-01
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:DEL-POL-04 v2.0"]
+    primary_issue: "Agent applied the old 10-business-day lost-parcel rule (active: 7)"
+    order_profile: {name: lost_no_updates, params: {bdays_since_update: [8, 9]}}
+    products: [LUM-SPK-500, LUM-CAM-200]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: frustrated
+        title: "Told to wait 10 business days"
+        body: >-
+          My parcel {order_ref} has had no tracking update since {date:tracking}. Your agent said I must wait 10
+          business days before it counts as lost, but your website says 7. Which is right? I want a replacement sent.
+
+  - scenario_id: CP-REF-90LOYAL
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-03
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:REF-POL-02 v1.0", exception_request]
+    primary_issue: "Loyal customer cites the old 90-day agent exception"
+    order_profile: {name: delivered_old, params: {days: [50, 80]}}
+    products: [LUM-TH-100, LUM-VAC-300]
+    customer_types: [vip, individual]
+    requested_resolution: refund
+    signals: [refund_request, policy_exception_request, embedded_policy_claim]
+    texts:
+      - style: polite
+        title: "Loyal customer refund request"
+        body: >-
+          Hello, I have been a Lumora customer for five years. Your refund policy used to let agents approve refunds up
+          to 90 days for loyal customers, so I hoped you would make an exception for my {product}, delivered on
+          {date:delivered}. According to your policy this should be possible. Order {order_ref}.
+
+  - scenario_id: CP-DSR-72H
+    pool: dev
+    subcategory: PRV-DSR
+    intended_rule: RES-PRV-DSR-01
+    difficulty_type: contradictory_policy
+    tags: ["invented_policy:72-hour deletion"]
+    primary_issue: "Customer insists deletion must happen within 72 hours (policy: 30 days)"
+    requested_resolution: other
+    include: {product: false}
+    signals: [data_rights_request, embedded_policy_claim]
+    params: {requested: [4, 6]}
+    texts:
+      - style: frustrated
+        title: "Deletion overdue after 72 hours"
+        body: >-
+          I asked you to delete my data {dur:requested} ago. You are required to do it within 72 hours. Why is my
+          account still there?
+
+  # ============================================================ HOLDOUT (contradictory)
+  - scenario_id: H-CP-REF-60DAY
+    pool: holdout
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-03
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:REF-POL-02 v1.0"]
+    primary_issue: "Refund requested under the superseded 60-day window"
+    order_profile: {name: delivered_old, params: {days: [38, 52]}}
+    products: [LUM-AIR-900, LUM-CAM-200]
+    customer_types: [individual, vip]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: polite
+        title: "Sixty-day return question"
+        body: >-
+          Good morning. My printed Lumora refund policy (the one from my original purchase) promises 60 calendar days
+          for returns. It has been {dur:delivered} since delivery of my {product}. Could you process my refund under
+          that promise? {order_ref}.
+        signals_add: []
+        signals_remove: [embedded_policy_claim]
+
+  - scenario_id: H-CP-REFDLY-FAQ3
+    pool: holdout
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-03
+    difficulty_type: contradictory_policy
+    tags: ["conflicting_faq:FAQ-GEN-16 v5.0 2.2"]
+    primary_issue: "Customer relies on the FAQ refund timing that conflicts with policy"
+    order_profile: {name: return_received_recent, params: {bdays: [4, 5], reason: not_needed}}
+    products: [LUM-HUB-800]
+    requested_resolution: refund
+    signals: [refund_request, embedded_policy_claim]
+    texts:
+      - style: calm
+        title: "Help page says three working days"
+        body: >-
+          According to your policy help page (FAQ-GEN-16, answer 2.2), refunds go out within 3 business days of a
+          return arriving. My parcel arrived with you on {date:return_received}. Could you confirm when the refund
+          will be sent?
+
+  - scenario_id: H-CP-DEL-15CREDIT
+    pool: holdout
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-02
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:DEL-POL-04 v2.0"]
+    primary_issue: "Customer claims the old USD 15 delay credit"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [6, 8]}}
+    products: [LUM-VAC-300]
+    requested_resolution: compensation
+    signals: [compensation_request, embedded_policy_claim]
+    texts:
+      - style: frustrated
+        title: "Fifteen dollar delay credit"
+        body: >-
+          Your delivery policy, section 5.2 says a {comp:15} store credit applies after five business days of
+          delay. {order_ref} was due {date:eta}. Please credit my account.
+
+  - scenario_id: H-CP-SUP-50CREDIT
+    pool: holdout
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-03
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:RET-SOP-23 v1.4"]
+    primary_issue: "Legacy USD 50 goodwill credit demanded"
+    requested_resolution: compensation
+    include: {product: false}
+    signals: [compensation_request]
+    texts:
+      - style: angry
+        title: "Where is my goodwill credit?"
+        body: >-
+          A friend who used to work in your returns team says agents can hand out {comp:50} goodwill credits without
+          approval. After the runaround I got, I want that credit today.
+
+  - scenario_id: H-CP-SAF-BATTERY-LABEL
+    pool: holdout
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-03
+    difficulty_type: contradictory_policy
+    tags: ["outdated_policy:RET-SOP-23 v1.4"]
+    primary_issue: "Customer plans to mail a swelling battery back (legacy SOP)"
+    order_profile: {name: delivered_months_ago, params: {months: [4, 10]}}
+    products: [LUM-PWR-400]
+    requested_resolution: replacement
+    signals: [overheating, replacement_request]
+    texts:
+      - style: calm
+        title: "Mailing back a bulging battery"
+        body: >-
+          The side of my {product} is bulging slightly. An older returns guide I found says batteries can be sent
+          back with the normal prepaid label. I am happy to box it up and post it today for a replacement.
+
+  - scenario_id: H-CP-PAR-CAREPLUS
+    pool: holdout
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-02
+    difficulty_type: contradictory_policy
+    tags: ["correct_citation:REF-POL-02 v2.0 6.1"]
+    primary_issue: "Care+ member cites the restocking-fee exemption"
+    order_profile: {name: restocking_fee, params: {reason: changed_mind, return_day: [15, 18]}}
+    products: [LUM-SPK-500]
+    customer_types: [care_plus]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: polite
+        title: "Restocking fee exemption for members"
+        body: >-
+          Hi, as far as I understand, Care+ members are exempt from restocking fees, yet {amt:restocking_fee} was
+          held back from my refund for {order_ref}. Could this be corrected?
+
+chains:
+  - scenario_id: CP-CHAIN-DRAFT-ESC
+    pool: dev
+    subcategory: DEL-LST
+    difficulty_type: simple
+    primary_issue: "Lost parcel; customer cites the draft escalation procedure v3.2"
+    order_profile: {name: lost_no_updates, params: {bdays_since_update: [8, 9]}}
+    products: [LUM-HUB-800, LUM-SPK-500]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    steps:
+      - link: original
+        style: calm
+        seed_status: In Progress
+        intended_rule: RES-DEL-LST-01
+        title: "Parcel {order_ref} appears lost"
+        body: >-
+          The tracking for order {order_ref} has not changed since {date:tracking}. I think the {product} is lost.
+          Could you investigate and send a replacement if it cannot be found?
+      - link: repeat
+        gap_days: 6
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-DEL-LST-01
+        difficulty_type: contradictory_policy
+        tags: ["draft_policy:ESC-SOP-12 v3.2"]
+        signals_add: [embedded_policy_claim]
+        title: "Escalate my lost parcel - ESC-SOP-12"
+        body: >-
+          This is a follow-up to {prev_ref}, still unresolved. Your escalation procedure ESC-SOP-12 version 3.2 says a
+          complaint must go to a supervisor after one unresolved complaint. Please escalate my lost parcel and send
+          the replacement.

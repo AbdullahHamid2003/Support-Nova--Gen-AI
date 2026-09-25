@@ -1,0 +1,505 @@
+[
+  {
+    "type": "Complaint classification validation",
+    "code": "CLS-001",
+    "name": "Category matches the Python rule classification",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00005",
+    "message": "GenAI category REF differs from the rule classification SVC (matched: installation, appointment, pro install, installer, product:SVC-INSTALL).",
+    "expected": "SVC",
+    "actual": "REF",
+    "rule_refs": [
+      "CAT-SVC-INS"
+    ],
+    "policy_refs": []
+  },
+  {
+    "type": "Complaint classification validation",
+    "code": "CLS-002",
+    "name": "Subcategory matches the Python rule classification",
+    "severity": "minor",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00005",
+    "message": "Subcategory REF-REQ differs from SVC-INS.",
+    "expected": "SVC-INS",
+    "actual": "REF-REQ",
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Routing validation",
+    "code": "RTE-001",
+    "name": "Primary department matches the routing rules",
+    "severity": "critical",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00005",
+    "message": "GenAI routed to DEPT-RET; the routing rules require DEPT-CRL for SVC-INS.",
+    "expected": "DEPT-CRL",
+    "actual": "DEPT-RET",
+    "rule_refs": [
+      "RTE-022"
+    ],
+    "policy_refs": [
+      "RTE-RUL-14:3"
+    ]
+  },
+  {
+    "type": "Routing validation",
+    "code": "RTE-002",
+    "name": "Required supporting departments included",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00005",
+    "message": "Supporting departments required: DEPT-TEC; missing: DEPT-TEC.",
+    "expected": [
+      "DEPT-TEC"
+    ],
+    "actual": [],
+    "rule_refs": [],
+    "policy_refs": [
+      "RTE-RUL-14:4"
+    ]
+  },
+  {
+    "type": "Priority validation",
+    "code": "PRI-001",
+    "name": "Urgency meets the rule-matrix level",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00005",
+    "message": "Urgency under-estimated: GenAI Low, rules require Medium (RES-SVC-INS-01). Calm wording does not reduce risk.",
+    "expected": "Medium",
+    "actual": "Low",
+    "rule_refs": [
+      "RES-SVC-INS-01"
+    ],
+    "policy_refs": []
+  },
+  {
+    "type": "Priority validation",
+    "code": "PRI-002",
+    "name": "Priority matches the priority matrix",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "LAB-00015",
+    "message": "Priority P3; the priority matrix gives P1 (urgency High x impact High).",
+    "expected": "P1",
+    "actual": "P3",
+    "rule_refs": [],
+    "policy_refs": [
+      "SLA-RUL-15:4"
+    ]
+  },
+  {
+    "type": "Priority validation",
+    "code": "PRI-003",
+    "name": "Urgency not inflated by emotional language",
+    "severity": "minor",
+    "status": "pass",
+    "complaint_ref": "R2-EVL-00006",
+    "message": "Urgency is not driven by sentiment.",
+    "expected": null,
+    "actual": null,
+    "rule_refs": [
+      "URG-100"
+    ],
+    "policy_refs": []
+  },
+  {
+    "type": "Escalation validation",
+    "code": "ESC-001",
+    "name": "Mandatory escalation enforced",
+    "severity": "critical",
+    "status": "fail",
+    "complaint_ref": "CMP-00619",
+    "message": "Mandatory escalation missed: Department Manager required by ESC-029 (Requested compensation exceeds the agent approval limit.); ESC-030 (Requested compensation exceeds the supervisor approval limit.). Python enforces it.",
+    "expected": "Department Manager",
+    "actual": "No Escalation",
+    "rule_refs": [
+      "ESC-029",
+      "ESC-030"
+    ],
+    "policy_refs": [
+      "ESC-SOP-12:4.9",
+      "CPN-POL-11:5.1",
+      "ESC-SOP-12:4.9",
+      "CPN-POL-11:5.2"
+    ]
+  },
+  {
+    "type": "Escalation validation",
+    "code": "ESC-002",
+    "name": "Escalation level meets the rule level",
+    "severity": "critical",
+    "status": "fail",
+    "complaint_ref": "CMP-00618",
+    "message": "Escalation level Specialist Team; rules require Critical Management Escalation.",
+    "expected": "Critical Management Escalation",
+    "actual": "Specialist Team",
+    "rule_refs": [
+      "ESC-002",
+      "ESC-005",
+      "ESC-007"
+    ],
+    "policy_refs": []
+  },
+  {
+    "type": "Escalation validation",
+    "code": "ESC-004",
+    "name": "Escalation notes contain all required elements",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "CMP-00396",
+    "message": "Escalation notes missing: summary, key_facts, reason, actions_taken, relevant_policy, required_next_action",
+    "expected": null,
+    "actual": null,
+    "rule_refs": [],
+    "policy_refs": [
+      "ESC-SOP-12:5"
+    ]
+  },
+  {
+    "type": "Policy validation",
+    "code": "POL-001",
+    "name": "At least one policy reference cited",
+    "severity": "major",
+    "status": "pass",
+    "complaint_ref": "R2-EVL-00006",
+    "message": "3 policy section(s) cited.",
+    "expected": null,
+    "actual": [
+      "BIL-POL-05:4.2",
+      "BIL-POL-05:4.3",
+      "ESC-SOP-12:4.6"
+    ],
+    "rule_refs": [],
+    "policy_refs": [
+      "CHP-POL-01:6.2"
+    ]
+  },
+  {
+    "type": "Policy validation",
+    "code": "POL-002",
+    "name": "Cited policies are Active (no outdated policy as primary basis)",
+    "severity": "critical",
+    "status": "fail",
+    "complaint_ref": "LAB-00010",
+    "message": "Outdated/superseded policy used as a basis: RET-SOP-23:3 (CHP-POL-01 s10.4).",
+    "expected": null,
+    "actual": [
+      "RET-SOP-23:3"
+    ],
+    "rule_refs": [],
+    "policy_refs": [
+      "CHP-POL-01:10.4"
+    ]
+  },
+  {
+    "type": "Policy validation",
+    "code": "POL-003",
+    "name": "Cited policies are supported by retrieved evidence",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R1-EVL-00054",
+    "message": "Cited but not in retrieved evidence: INS-POL-24:5.1, 5.2, REF-POL-02:3.4",
+    "expected": [
+      "INS-POL-24:5.2",
+      "ESC-SOP-12:4.10",
+      "INS-POL-24:3.1",
+      "INS-POL-24:5.1",
+      "WAR-POL-07:3",
+      "INS-POL-24:2",
+      "TEC-GDL-20:7",
+      "WAR-POL-07:3.2",
+      "CAN-POL-06:6",
+      "CAN-POL-06:6.1"
+    ],
+    "actual": [
+      "INS-POL-24:5.1, 5.2",
+      "REF-POL-02:3.4"
+    ],
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Policy validation",
+    "code": "POL-006",
+    "name": "Policy precedence respected in conflicts",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R1-EVL-00016",
+    "message": "Relied on a lower-precedence conflicting source: FAQ-GEN-16:2.2",
+    "expected": null,
+    "actual": null,
+    "rule_refs": [],
+    "policy_refs": [
+      "CHP-POL-01:10.2"
+    ]
+  },
+  {
+    "type": "Resolution validation",
+    "code": "RES-001",
+    "name": "Required actions present",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00005",
+    "message": "Missing required actions: SCHEDULE_INSTALL_REVISIT",
+    "expected": [
+      "REVIEW_INTERACTION_RECORDS",
+      "SCHEDULE_INSTALL_REVISIT"
+    ],
+    "actual": [
+      "PROCESS_REFUND",
+      "REVIEW_INTERACTION_RECORDS",
+      "VERIFY_ORDER"
+    ],
+    "rule_refs": [
+      "RES-SVC-INS-01"
+    ],
+    "policy_refs": []
+  },
+  {
+    "type": "Resolution validation",
+    "code": "RES-002",
+    "name": "No prohibited actions",
+    "severity": "critical",
+    "status": "fail",
+    "complaint_ref": "LAB-00017",
+    "message": "Prohibited actions proposed: OFFER_STORE_CREDIT",
+    "expected": {
+      "prohibited": [
+        "UNSUPPORTED_DELIVERY_DEADLINE",
+        "GUARANTEE_COMPENSATION",
+        "OFFER_STORE_CREDIT"
+      ]
+    },
+    "actual": [
+      "OFFER_STORE_CREDIT"
+    ],
+    "rule_refs": [
+      "RES-DEL-DLY-01"
+    ],
+    "policy_refs": []
+  },
+  {
+    "type": "Resolution validation",
+    "code": "RES-004",
+    "name": "No contradictory actions",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00005",
+    "message": "Contradictory instructions: PROCESS_REFUND with refund not eligible",
+    "expected": null,
+    "actual": null,
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Source traceability",
+    "code": "HAL-001",
+    "name": "Claims traceable to complaint",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00002",
+    "message": "Claims without support: \"No Care+ coverage was purchased for this product.\" (compared with verified system facts); \"Warranty excludes physical or liquid damage and normal wear; remedies include re\" (source 'E1,E4' is not retrieved evidence or an existing policy)",
+    "expected": null,
+    "actual": [
+      {
+        "note": "compared with verified system facts",
+        "statement": "The Lumora Halo Smart Speaker was delivered on 2025-04-08 and is out of the 12-month warranty period as of complaint date 2026-09-01.",
+        "supported": true,
+        "source_ref": null,
+        "source_type": "metadata",
+        "support_score": 0.69
+      },
+      {
+        "note": "compared with the complaint text",
+        "statement": "Customer reports the speaker cuts out mid-use and the status ring flickers.",
+        "supported": true,
+        "source_ref": "R2-EVL-00002",
+        "source_type": "complaint",
+        "support_score": 0.86
+      },
+      {
+        "note": "compared with verified system facts",
+        "statement": "No Care+ coverage was purchased for this product.",
+        "supported": false,
+        "source_ref": null,
+        "source_type": "metadata",
+        "support_score": 0.25
+      },
+      {
+        "note": "source 'E1,E4' is not retrieved evidence or an existing policy",
+        "statement": "Warranty excludes physical or liquid damage and normal wear; remedies include repair, replacement, or refund.",
+        "supported": false,
+        "source_ref": "E1,E4",
+        "source_type": "policy",
+        "support_score": 0.0
+      }
+    ],
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Source traceability",
+    "code": "HAL-004",
+    "name": "Policy references in text are valid",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "LAB-00008",
+    "message": "Text references non-existent policies: REF-POL-77",
+    "expected": null,
+    "actual": null,
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Source traceability",
+    "code": "SCH-004",
+    "name": "Policy IDs and sections exist in the knowledge base",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "LAB-00012",
+    "message": "Cited sections do not exist: BIL-POL-05:General",
+    "expected": null,
+    "actual": [
+      "BIL-POL-05:General"
+    ],
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Unsupported promise detection",
+    "code": "RSP-002",
+    "name": "No unsupported promises",
+    "severity": "critical",
+    "status": "fail",
+    "complaint_ref": "LAB-00007",
+    "message": "Unsupported promises: Guaranteeing compensation (validated compensation eligibility: 'not_applicable'). \"We guarantee you will receive USD 200 compensation for the trouble.\"",
+    "expected": null,
+    "actual": [
+      {
+        "code": "GUARANTEE_COMPENSATION",
+        "text": "We guarantee you will receive USD 200 compensation for the trouble.",
+        "message": "Guaranteeing compensation (validated compensation eligibility: 'not_applicable').",
+        "severity": "critical",
+        "policy_refs": [
+          "CPN-POL-11:3.2",
+          "CPN-POL-11:8"
+        ]
+      }
+    ],
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Unsupported promise detection",
+    "code": "RSP-003",
+    "name": "Timelines supported by policy or SLA",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00003",
+    "message": "Unsupported timelines: \"We aim to confirm resolution within 72 hours.\"",
+    "expected": null,
+    "actual": [
+      {
+        "text": "within 72 hours",
+        "unit": "hour",
+        "value": 72.0,
+        "business": false,
+        "supported_by": null
+      }
+    ],
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Unsupported promise detection",
+    "code": "RSP-004",
+    "name": "Amounts traceable to case facts or entitlements",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "LAB-00016",
+    "message": "Amounts/references not traceable to the case: LMR-999999",
+    "expected": null,
+    "actual": {
+      "ids": [
+        "LMR-999999"
+      ],
+      "amounts": []
+    },
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Contradiction detection",
+    "code": "RES-004",
+    "name": "No contradictory actions",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R2-EVL-00005",
+    "message": "Contradictory instructions: PROCESS_REFUND with refund not eligible",
+    "expected": null,
+    "actual": null,
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Contradiction detection",
+    "code": "POL-006",
+    "name": "Policy precedence respected in conflicts",
+    "severity": "major",
+    "status": "fail",
+    "complaint_ref": "R1-EVL-00016",
+    "message": "Relied on a lower-precedence conflicting source: FAQ-GEN-16:2.2",
+    "expected": null,
+    "actual": null,
+    "rule_refs": [],
+    "policy_refs": [
+      "CHP-POL-01:10.2"
+    ]
+  },
+  {
+    "type": "Schema validation",
+    "code": "SCH-001",
+    "name": "GenAI output matches the JSON schema",
+    "severity": "critical",
+    "status": "pass",
+    "complaint_ref": "R2-EVL-00006",
+    "message": "GenAI output matches the complaint_analysis.v1 JSON schema (required fields, types, enums).",
+    "expected": null,
+    "actual": null,
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Schema validation",
+    "code": "SCH-002",
+    "name": "Category and subcategory exist in the taxonomy",
+    "severity": "critical",
+    "status": "pass",
+    "complaint_ref": "R2-EVL-00006",
+    "message": "Category and subcategory codes exist in the taxonomy.",
+    "expected": null,
+    "actual": {
+      "category": "BIL",
+      "subcategory": "BIL-INC"
+    },
+    "rule_refs": [],
+    "policy_refs": []
+  },
+  {
+    "type": "Schema validation",
+    "code": "SCH-003",
+    "name": "Department IDs are valid",
+    "severity": "critical",
+    "status": "pass",
+    "complaint_ref": "R2-EVL-00006",
+    "message": "Department IDs are valid.",
+    "expected": null,
+    "actual": null,
+    "rule_refs": [],
+    "policy_refs": []
+  }
+]

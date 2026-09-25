@@ -1,0 +1,10 @@
+{
+  "name": "supportnova-devdb",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local user-space PostgreSQL for SupportNova development (no system service install).",
+  "type": "module",
+  "dependencies": {
+    "@embedded-postgres/windows-x64": "17.10.0-beta.17"
+  }
+}

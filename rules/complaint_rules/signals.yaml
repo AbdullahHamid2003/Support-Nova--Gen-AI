@@ -1,0 +1,164 @@
+# =============================================================================
+# Deterministic complaint signals (Python Ground-Truth Pipeline inputs).
+# Each signal is detected in the normalized complaint text (title, description,
+# supporting information) with word-boundary phrase matching ("terms") and
+# case-insensitive regular expressions ("patterns"). A term preceded within
+# `negation_window` tokens by a negation cue is ignored.
+# Signals feed urgency floors, escalation rules, routing additions, eligibility
+# and missing-information rules. They are NEVER used by the GenAI provider.
+# Adding a new term/signal here requires no code change.
+# =============================================================================
+negation_cues: ["no", not, never, without, "didn't", didnt, "isn't", isnt, "wasn't", wasnt, "hasn't", hasnt, "doesn't", doesnt, "haven't", havent, nothing, none]
+negation_window: 3
+
+signals:
+  # ---------------- Safety ---------------------------------------------------
+  fire_event:
+    name: Fire, smoke or explosion
+    terms: [fire, flames, caught fire, on fire, burst into flames, smoke, smoking, smoked, smouldering, smoldering, exploded, explosion, blew up]
+    patterns: ['\bsmoke\s+(came|coming|poured|pouring)\b', '\bstarted\s+(to\s+)?smok']
+  overheating:
+    name: Overheating / battery hazard
+    terms: [overheat, overheats, overheated, overheating, too hot to touch, extremely hot, burning hot, scalding, swollen, swelling, bulging, bulged, melted, melting, scorch, scorched, scorch marks, burning smell, smell of burning, burnt smell, burned smell, plastic smell, acrid, fumes, battery leak, leaking battery, hissing]
+    patterns: ['\b(got|gets|getting|became|becomes|is|was)\s+(really\s+|very\s+|dangerously\s+)?hot\b.{0,40}\b(charg|battery|plug|unit|device|power)']
+  electrical_hazard:
+    name: Electrical hazard
+    terms: [sparks, sparking, sparked, spark came, electric shock, electrical shock, shocked me, got a shock, got shocked, electrocuted, short circuit, short-circuit, tripped the breaker, tripped my breaker, blew a fuse, exposed wires, exposed wiring, live wire, arcing]
+  injury:
+    name: Physical injury
+    terms: [injured, injury, injuries, burned my, burnt my, burn on my, burns on, blister, blisters, bleeding, stitches, hospital, emergency room, urgent care, medical attention, first aid, got hurt, hurt my, hurt his, hurt her, cut my, cut his, cut her, bruised, concussion]
+  child_involved:
+    name: Child involved
+    terms: [my child, my son, my daughter, my kid, my kids, my baby, our baby, toddler, infant, newborn, my children, the children]
+    patterns: ['\b([1-9]|1[0-2])[- ]year[- ]old\b', '\bchild''?s\s+(room|bedroom)\b']
+  recall_mention:
+    name: Recall mentioned
+    terms: [recall, recalled, recall notice, safety notice, safety recall]
+
+  # ---------------- Security -------------------------------------------------
+  security_breach:
+    name: Unauthorized access / account compromise
+    terms: [hacked, hacker, hackers, unauthorized access, unauthorised access, account takeover, taken over, compromised, suspicious login, suspicious sign-in, unknown device, unrecognized device, unrecognised device, i did not log in, someone logged in, someone logged into, someone accessed, someone else accessed, someone has access, someone changed my password, password was changed, email was changed]
+    patterns: ['\b(orders?|purchases?)\s+(that\s+)?i\s+(did\s+not|didn''t|never)\s+(place|make|order)', '\b(2fa|two[- ]factor|verification)\s+codes?\s+i\s+(did\s+not|didn''t|never)\s+request', '\blog(in|ged\s+in)\s+from\s+(another|a\s+different|an\s+unknown)\s+(country|city|location)']
+  lock_security:
+    name: Smart-lock / physical home security compromised
+    terms: [unlocked by itself, unlocked on its own, opened by itself, lock opened itself, unlocked without, door was unlocked, front door unlocked, found the door unlocked, lock unlocked at night, unlocked remotely]
+    patterns: ['\b(keystone|smart\s+lock|lock)\b.{0,50}\bunlock(ed|s|ing)\b.{0,40}\b(itself|own|without|nobody|no\s+one|night|while\s+(i|we)\s+(was|were)\s+(away|asleep|out))']
+  fraud:
+    name: Fraud / stolen payment
+    terms: [fraud, fraudulent, stolen card, card was stolen, identity theft, charges i didn't make, charges i did not make, unauthorized charge, unauthorised charge, unauthorized charges, unauthorised charges]
+
+  # ---------------- Privacy --------------------------------------------------
+  privacy_breach:
+    name: Personal data or footage exposed
+    terms: [data breach, data leak, data leaked, information leaked, footage leaked, leak of my data, my data was exposed, my information was exposed, other people's footage, someone else's footage, someone else's camera, another customer's, another family's, other customers' data, stranger's house, strangers can see, stranger could see, publicly accessible, public link, personal data of another]
+    patterns: ['\b(see|saw|seeing|view|viewed|access|accessed)\s+(someone\s+else''s|another\s+(person|customer|family|user)''?s?|other\s+(people''s|customers''|users''))\b', '\bmy\s+(data|information|details|footage|recordings?|videos?)\s+(was|were|has\s+been|have\s+been|is|are)\s+(leaked|exposed|shared|published|sold|visible|public)']
+  consent_violation:
+    name: Consent / marketing violation
+    terms: [unsubscribed, opted out, opt-out, without my consent, without consent, sold my data, selling my data, shared my data, shared my information, did not agree to, never agreed to, never consented]
+    patterns: ['\bstill\s+(getting|receiving|get|receive)\s+(marketing|promotional|promo|spam|sales)?\s*(emails?|texts?|messages?|calls?)']
+  data_rights_request:
+    name: Data-rights request
+    terms: [delete my data, delete all my data, erase my data, delete my personal data, right to be forgotten, copy of my data, copy of my personal data, access my data, data access request, export my data, data subject request, subject access request, what data you hold, delete my account and data, delete my recordings]
+  minors_data:
+    name: Children's data involved
+    patterns: ['\b(child|children|kid|kids|son|daughter|baby|toddler)(''s)?\s+(room|bedroom|nursery|data|footage|recordings?|videos?)\b']
+
+  # ---------------- Legal / reputational / financial -------------------------
+  legal_threat:
+    name: Legal threat or regulator mention
+    terms: [lawyer, lawyers, attorney, solicitor, legal action, take legal, taking legal, sue, suing, sued, lawsuit, law suit, court, small claims, litigation, class action, legal proceedings, legal team, regulator, regulators, consumer protection, trading standards, ombudsman, data protection authority, report you to the authorities, file a complaint with the authority]
+  media_threat:
+    name: Public / media threat
+    terms: [go viral, going viral, journalist, reporter, the press, local news, public review, one-star review, 1-star review, 1 star review, warn everyone, tell everyone]
+    patterns: ['\b(post|posting|share|sharing|put|putting|write|writing|expose|exposing)\b.{0,40}\b(twitter|tiktok|instagram|facebook|youtube|reddit|social\s+media|online|the\s+internet)\b']
+  chargeback_threat:
+    name: Chargeback threat
+    terms: [chargeback, charge back, charge-back, bank dispute, card dispute, dispute it with my bank, dispute the charge with my bank, dispute this with my bank, reverse the charge through my bank, contact my bank to reverse, report this to my bank]
+
+  # ---------------- Staff ----------------------------------------------------
+  staff_harassment:
+    name: Harassment / discrimination / threats by staff
+    terms: [harassed, harassment, harassing, discriminated, discrimination, discriminatory, racist, sexist, homophobic, slur, threatened me, threatening me, intimidated, intimidating, inappropriate comments, made me uncomfortable, touched me, assaulted, verbally abusive, abusive]
+  technician_damage_theft:
+    name: Property damage or theft by technician
+    terms: [damaged my wall, damaged my floor, damaged my door, damaged my furniture, hole in my wall, holes in my wall, scratched my floor, missing after the visit, went missing after the technician, missing after the technician]
+    patterns: ['\b(technician|installer|engineer)\b.{0,60}\b(broke|damaged|cracked|scratched|smashed|stole|took)\b']
+
+  # ---------------- Customer impact ------------------------------------------
+  vulnerable_customer:
+    name: Vulnerable person affected
+    terms: [elderly, disabled, disability, wheelchair, medical condition, on oxygen, oxygen machine, dialysis, chemotherapy, pregnant, dementia, heart condition, asthma, respiratory condition, visually impaired, hearing impaired, newborn, infant, frail, my carer]
+    patterns: ['\b(8\d|9\d)[- ]year[- ]old\b', '\bmy\s+(\d{2}[- ]year[- ]old\s+)?(grand)?(mother|father|mum|mom|dad|parent|grandmother|grandfather)\b.{0,40}\b(lives|alone|elderly|frail|ill|sick|unwell)']
+  critical_impact:
+    name: Critical impact on the home
+    terms: [locked out of my home, locked out of my house, locked out of the house, locked out of my flat, locked out of my apartment, "can't get into my house", cannot get into my house, "can't enter my home", cannot enter my home, no heat, no heating, without heating, without heat, freezing cold, below freezing, house is freezing, medical equipment, medical device, home is unprotected, security system is down]
+    patterns: ['\bno\s+(cooling|air\s+conditioning|ac|a/c)\b.{0,50}\b(heatwave|heat\s+wave|extreme\s+heat)\b',
+               '\blocked\s+(out|outside)\s+(of\s+)?(my|our|the)\s+(own\s+)?(home|house|flat|apartment|front\s+door)\b',
+               '\b(can''t|cannot|can\s+not|unable\s+to)\s+(get\s+(in|into|inside)|enter|open)\s+(my|our|the)\s+(own\s+)?(home|house|flat|apartment|front\s+door)\b']
+  severe_service_failure:
+    name: Severe service failure
+    terms: [outage, service is down, service was down, cloud vault is down, cloud vault was down, lost all my recordings, lost my recordings, recordings are gone, recordings were deleted, recordings are missing, all my devices are offline, all devices offline, whole system is down]
+    patterns: ['\b(hub|nexus)\b.{0,40}\b(down|offline|dead)\b.{0,40}\b(all|every|entire|whole)\b']
+  business_impact:
+    name: Business impact
+    terms: [my business, our business, our office, our store, our shop, my shop, lost sales, rental property, my tenants, our tenants, our guests, my customers, our customers]
+
+  # ---------------- Repeat / history -----------------------------------------
+  repeat_indicator:
+    name: Repeat complaint language
+    terms: [second time, third time, fourth time, fifth time, 2nd time, 3rd time, 4th time, twice before, three times, multiple times, several times, many times, still not resolved, still unresolved, still not fixed, still not sorted, already complained, already contacted, already reported, already raised, previous complaint, previous ticket, previous case, last complaint, keeps happening, happened again, same problem again, same issue again, no one has got back, nobody got back, reopen, re-open]
+    patterns: ['\b(ticket|case|complaint)\s*(number|no\.?|ref(erence)?|#)\s*[:#]?\s*[A-Z]{2,4}-?\d+', '\bCMP-\d{5,}\b']
+  replacement_failed:
+    name: Replacement also failed
+    terms: [replacement is also, replacement was also, replacement also, the new one also, the new one has the same, second unit, second one also, replacement is broken, replacement is faulty, replacement is defective, replacement stopped working, replacement died, replacement has the same]
+
+  # ---------------- Requests / claims -----------------------------------------
+  refund_request:
+    name: Refund requested
+    terms: [refund, refunded, money back, full refund, reimburse, reimbursement, give me my money]
+  replacement_request:
+    name: Replacement requested
+    terms: [replacement, replace it, replace the, new one, swap it, exchange it, exchange the]
+  compensation_request:
+    name: Compensation requested
+    terms: [compensation, compensate, compensated, goodwill, voucher, gift card, store credit, free month, free months, free subscription, money for my trouble, money for the inconvenience, pay me for, reimburse me for my time, credit to my account]
+    patterns: ['(\$|usd\s*)\d+[\d,]*(\.\d\d)?\s+(in\s+)?(compensation|credit|voucher)']
+  policy_exception_request:
+    name: Policy exception requested
+    terms: [make an exception, one-time exception, exception for me, bend the rules, special case, just this once, outside the return window, outside the refund window, outside the warranty, past the return window, past the refund window, after the return window, beyond the warranty]
+    patterns: ['\beven\s+though\s+(it''s|it\s+is|i''m|i\s+am|its)\s+(past|outside|over|beyond|after|expired)', '\b(past|after|beyond|outside)\s+the\s+\d+[- ]day']
+  embedded_policy_claim:
+    name: Customer cites policy or entitlement
+    terms: [your policy says, your policy states, your policy guarantees, according to your policy, according to the policy, your terms say, i am entitled, "i'm entitled", you are obligated, you are required to]
+    patterns: ['\b[A-Z]{3}-(POL|SOP|RUL|GDL|FAQ|TPL)-\d{2}\b', '\b(FAQ|TPL|GDL|SOP|POL|RUL)-[A-Z]{3}-\d{2}\b', '\bsection\s+\d+(\.\d+)?\s+(says|states|guarantees|allows)']
+  cancellation_mentioned:
+    name: Cancellation mentioned
+    terms: [cancelled, canceled, cancellation, cancel my, cancelled my, canceled my, turned off auto-renew, switched off auto-renew]
+
+  # ---------------- Eligibility modifiers --------------------------------------
+  customer_address_error:
+    name: Customer-caused address error
+    terms: [i entered the wrong address, i gave the wrong address, wrong address i entered, my mistake with the address, typo in my address, typo in the address, i put the wrong address]
+  force_majeure:
+    name: Severe weather / force majeure
+    terms: [snowstorm, blizzard, hurricane, flooding, floods, severe weather, storm closed, roads closed]
+  misuse_damage:
+    name: Customer-caused damage
+    terms: [i dropped it, dropped it, it fell off, fell off the, fell from, water damage, spilled water, spilled coffee, spilled a drink, got wet, left it in the rain, my dog chewed, my cat knocked, i opened it up, tried to repair it myself, repaired it myself]
+  photo_evidence:
+    name: Photo evidence provided
+    terms: [attached photos, attached pictures, photos attached, pictures attached, see attached, see the attached, attached images, i have photos, i took photos, i took pictures, photo attached, picture attached]
+  item_unopened:
+    name: Item unopened
+    terms: [unopened, still sealed, never opened, in the original packaging, not opened]
+
+# Deterministic lexicon sentiment (Python side of the sentiment comparison).
+# Negativity score = sum(negative) - sum(positive) + boosts for "!" runs and
+# ALL-CAPS words. Thresholds map the score to the four SRS sentiment values.
+sentiment:
+  positive: {thank: 1, thanks: 1, appreciate: 1.5, great: 1, excellent: 1.5, love: 1.5, happy: 1, pleased: 1, helpful: 1, quickly: 0.5, resolved: 0.5, satisfied: 1}
+  negative: {unhappy: 1, disappointed: 1.5, disappointing: 1.5, frustrated: 1.5, frustrating: 1.5, annoyed: 1, annoying: 1, upset: 1.5, angry: 2, furious: 3, livid: 3, outraged: 3, disgusted: 3, appalled: 3, "fed up": 2, "sick of": 2, worst: 2.5, terrible: 2, horrible: 2, awful: 2, ridiculous: 2, unacceptable: 2.5, pathetic: 2.5, useless: 2, incompetent: 2.5, joke: 1.5, "never again": 2.5, disgrace: 3, shocking: 2, scam: 2.5, poor: 1, bad: 1, "not happy": 1.5, worried: 1, concerned: 0.5, problem: 0.3, issue: 0.3}
+  exclamation_boost: 0.5        # per "!" beyond the first, max 3 counted
+  caps_word_boost: 0.6          # per ALL-CAPS word of 4+ letters, max 5 counted
+  thresholds: {strongly_negative: 5.0, negative: 1.2, positive: -1.0}   # >=5 Strongly Negative; >=1.2 Negative; <=-1 Positive; else Neutral

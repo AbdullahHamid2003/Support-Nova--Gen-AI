@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lumora.example/schemas/dataset/complaint_record.schema.json",
+  "title": "SupportNova complaint dataset record",
+  "description": "One complaint of the SupportNova dev (CMP-) or holdout (EVL-) dataset for the fictional Lumora Home Technologies. 'declared' holds the scenario facts; 'expected' is the policy-correct outcome produced by applying the Rule Matrix to those declared facts (supportnova.rule_engine.reference.label_declared). Codes (categories, departments, actions, rule IDs, SKUs) are additionally checked against the YAML configuration by scripts/validate_dataset.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "complaint_id", "title", "description", "customer_ref", "customer_name", "customer_type", "product_service",
+    "product_sku", "order_reference", "transaction_reference", "channel", "complaint_date",
+    "previous_complaint_reference", "preferred_contact_method", "requested_resolution", "supporting_information",
+    "attachments", "requested_tone", "seed_status", "declared", "expected", "difficulty_type", "tags",
+    "scenario_id", "split"
+  ],
+  "properties": {
+    "complaint_id": {"type": "string", "pattern": "^(CMP|EVL)-[0-9]{5}$"},
+    "title": {"type": "string", "minLength": 1},
+    "description": {"type": "string", "minLength": 1},
+    "customer_ref": {"type": "string", "pattern": "^CUST-[0-9]{5}$"},
+    "customer_name": {"type": "string", "minLength": 1},
+    "customer_type": {"$ref": "#/$defs/customer_type"},
+    "product_service": {"type": "string", "description": "Product or service as the customer wrote it; empty when not stated."},
+    "product_sku": {"type": ["string", "null"], "pattern": "^(LUM|SVC)-[A-Z0-9-]+$", "description": "Ground-truth SKU identifiable from the complaint (mention or referenced order); null when not identifiable."},
+    "order_reference": {"type": ["string", "null"], "description": "Order reference as supplied (normally LMR-######; deliberately invalid or malformed values are tagged)."},
+    "transaction_reference": {"type": ["string", "null"], "pattern": "^TXN-[0-9]{8}$"},
+    "channel": {"$ref": "#/$defs/channel"},
+    "complaint_date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+    "previous_complaint_reference": {"type": ["string", "null"], "pattern": "^(CMP|EVL)-[0-9]{5}$"},
+    "preferred_contact_method": {"enum": ["email", "phone", "sms", "chat"]},
+    "requested_resolution": {"$ref": "#/$defs/requested_resolution"},
+    "supporting_information": {"type": "string"},
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["file_name", "content_type"],
+        "properties": {"file_name": {"type": "string", "minLength": 1}, "content_type": {"type": "string", "minLength": 3}}
+      }
+    },
+    "requested_tone": {"enum": ["professional", "empathetic", "concise", "formal"]},
+    "seed_status": {"enum": ["New", "In Progress", "Escalated", "Awaiting Customer", "Resolved", "Closed"]},
+    "declared": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signals", "complaint_facts", "history"],
+      "properties": {
+        "signals": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z_]+$"}},
+        "complaint_facts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "has_order_reference", "has_transaction_reference", "has_product", "product_sku", "has_photo_evidence",
+            "has_date", "word_count", "max_amount", "requested_compensation_amount", "max_elapsed_days", "outage_hours",
+            "requested_resolution", "channel"
+          ],
+          "properties": {
+            "has_order_reference": {"type": "boolean"},
+            "has_transaction_reference": {"type": "boolean"},
+            "has_product": {"type": "boolean"},
+            "product_sku": {"type": ["string", "null"], "pattern": "^(LUM|SVC)-[A-Z0-9-]+$"},
+            "has_photo_evidence": {"type": "boolean"},
+            "has_date": {"type": "boolean"},
+            "word_count": {"type": "integer", "minimum": 0},
+            "max_amount": {"type": ["number", "null"], "minimum": 0},
+            "requested_compensation_amount": {"type": ["number", "null"], "minimum": 0},
+            "max_elapsed_days": {"type": ["integer", "null"], "minimum": 0},
+            "outage_hours": {"type": ["number", "null"], "minimum": 0},
+            "requested_resolution": {"$ref": "#/$defs/requested_resolution"},
+            "channel": {"$ref": "#/$defs/channel"}
+          }
+        },
+        "history": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["prior_same_issue_count", "unresolved_prior_same_issue", "references_resolved_complaint"],
+          "properties": {
+            "prior_same_issue_count": {"type": "integer", "minimum": 0},
+            "unresolved_prior_same_issue": {"type": "integer", "minimum": 0},
+            "references_resolved_complaint": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_issue", "secondary_issues", "category", "subcategory", "sentiment", "emotion_indicators", "urgency",
+        "impact", "priority", "entities", "department", "supporting_departments", "policy_references",
+        "resolution_rule", "required_actions", "refund_eligibility", "replacement_eligibility",
+        "compensation_eligibility", "compensation_amount_usd", "escalation_required", "escalation_level",
+        "escalation_rules", "follow_up_required", "follow_up_type", "missing_information",
+        "blocking_missing_information", "is_duplicate_of", "is_near_duplicate_of", "is_repeat_of",
+        "prompt_injection", "manual_review_expected"
+      ],
+      "properties": {
+        "primary_issue": {"type": "string", "minLength": 1},
+        "secondary_issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "category", "subcategory"],
+            "properties": {
+              "label": {"type": "string", "minLength": 1},
+              "category": {"$ref": "#/$defs/category"},
+              "subcategory": {"$ref": "#/$defs/subcategory"}
+            }
+          }
+        },
+        "category": {"$ref": "#/$defs/category"},
+        "subcategory": {"$ref": "#/$defs/subcategory"},
+        "sentiment": {"enum": ["Positive", "Neutral", "Negative", "Strongly Negative"]},
+        "emotion_indicators": {
+          "type": "array", "uniqueItems": true,
+          "items": {"enum": ["Frustration", "Anger", "Disappointment", "Confusion", "Urgency"]}
+        },
+        "urgency": {"enum": ["Low", "Medium", "High", "Critical"]},
+        "impact": {"enum": ["Low", "Medium", "High"]},
+        "priority": {"enum": ["P0", "P1", "P2", "P3"]},
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "value"],
+            "properties": {
+              "type": {"enum": ["order_id", "transaction_id", "product", "service", "date", "amount", "location", "complaint_reference"]},
+              "value": {"type": "string", "minLength": 1, "description": "Exactly as written in the complaint text."}
+            }
+          }
+        },
+        "department": {"$ref": "#/$defs/department"},
+        "supporting_departments": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/department"}},
+        "policy_references": {
+          "type": "array", "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Z]{3}-[A-Z]{3}-[0-9]{2}:[0-9]+(\\.[0-9]+)*$"}
+        },
+        "resolution_rule": {"type": "string", "pattern": "^RES-[A-Z]{3}-[A-Z]{3}-[0-9]{2}$"},
+        "required_actions": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {"type": "string", "pattern": "^[A-Z_]+$"},
+              {
+                "type": "object", "additionalProperties": false, "required": ["any_of"],
+                "properties": {"any_of": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[A-Z_]+$"}}}
+              }
+            ]
+          }
+        },
+        "refund_eligibility": {"$ref": "#/$defs/eligibility"},
+        "replacement_eligibility": {"$ref": "#/$defs/eligibility"},
+        "compensation_eligibility": {"$ref": "#/$defs/eligibility"},
+        "compensation_amount_usd": {"type": ["number", "null"], "minimum": 0},
+        "escalation_required": {"type": "boolean"},
+        "escalation_level": {
+          "enum": ["No Escalation", "Supervisor Review", "Department Manager", "Specialist Team", "Compliance Review",
+                   "Critical Management Escalation"]
+        },
+        "escalation_rules": {"type": "array", "items": {"type": "string", "pattern": "^(ESC-[0-9]{3}|RES-[A-Z]{3}-[A-Z]{3}-[0-9]{2})$"}},
+        "follow_up_required": {"type": "boolean"},
+        "follow_up_type": {"type": ["string", "null"]},
+        "missing_information": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z_]+$"}},
+        "blocking_missing_information": {"type": "boolean"},
+        "is_duplicate_of": {"type": ["string", "null"], "pattern": "^(CMP|EVL)-[0-9]{5}$"},
+        "is_near_duplicate_of": {"type": ["string", "null"], "pattern": "^(CMP|EVL)-[0-9]{5}$"},
+        "is_repeat_of": {"type": ["string", "null"], "pattern": "^(CMP|EVL)-[0-9]{5}$"},
+        "prompt_injection": {"type": "boolean"},
+        "manual_review_expected": {"type": "boolean"}
+      }
+    },
+    "difficulty_type": {
+      "enum": ["simple", "multi_issue", "ambiguous", "contradictory_policy", "prompt_injection", "incomplete", "repeat",
+               "near_duplicate", "exact_duplicate", "emotional_low_priority", "calm_critical", "policy_exception",
+               "unsupported_refund", "unsupported_compensation", "high_value", "vip_minor", "sensitive"]
+    },
+    "tags": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "scenario_id": {"type": "string", "pattern": "^[A-Z0-9][A-Z0-9-]+$"},
+    "split": {"enum": ["dev", "holdout"]}
+  },
+  "$defs": {
+    "customer_type": {"enum": ["individual", "care_plus", "business", "vip"]},
+    "channel": {"enum": ["web_form", "email", "chat", "phone", "mobile_app", "social_media", "uploaded"]},
+    "requested_resolution": {"enum": ["refund", "replacement", "repair", "compensation", "explanation", "cancellation", "other", "none"]},
+    "category": {"type": "string", "pattern": "^[A-Z]{3}$"},
+    "subcategory": {"type": "string", "pattern": "^[A-Z]{3}-[A-Z]{3}$"},
+    "department": {"type": "string", "pattern": "^DEPT-[A-Z]{3}$"},
+    "eligibility": {"enum": ["eligible", "not_eligible", "requires_verification", "not_applicable"]}
+  }
+}

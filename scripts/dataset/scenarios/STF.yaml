@@ -1,0 +1,386 @@
+# =============================================================================
+# Scenario bank - STF (Staff Behavior): STF-RUD, STF-MIS, STF-MIN
+# RES-STF-MIN-02 / ESC-034 match "promised / assured / guaranteed / told me I would";
+# RES-STF-MIN-03 applies when an amount is written; STF-MIN-01 texts avoid both.
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ STF-RUD
+  - scenario_id: STF-RUD-BASIC
+    pool: dev
+    subcategory: STF-RUD
+    intended_rule: RES-STF-RUD-01
+    primary_issue: "Rude or unprofessional support agent"
+    requested_resolution: explanation
+    include: {product: false}
+    texts:
+      - style: calm
+        title: "Agent was dismissive"
+        body: >-
+          I spoke to one of your agents on {date:c-2} about my thermostat schedule. He was dismissive, talked over
+          me and ended the chat before I had finished explaining. I would like this feedback passed on.
+      - style: angry
+        title: "Your agent laughed at me"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Your agent actually LAUGHED at me when I asked how to reset my camera. Laughed! I have never been so
+          insulted by a company. Absolutely disgusting attitude. Teach your staff some manners.
+      - style: angry
+        title: "Hung up on me - unbelievable"
+        difficulty_type: emotional_low_priority
+        body: >-
+          The woman on your support line was rude from the first second and then hung up on me when I asked for a
+          supervisor. Unbelievable. I am livid. This is the worst treatment I have ever had from a company.
+      - style: polite
+        title: "Feedback on a phone call"
+        customer_types: [vip]
+        difficulty_type: vip_minor
+        body: >-
+          Hello, I wanted to give some feedback. The agent I spoke with on {date:c-3} was rather impatient and
+          sarcastic when I asked a simple question about my bulbs. I am sure it was a bad day, but I thought you
+          should know.
+      - style: frustrated
+        title: "Condescending chat agent"
+        body: >-
+          The chat agent was really condescending - he kept saying "as I already explained" and made me feel stupid
+          for asking about the app settings. It is frustrating to be treated like that.
+
+  - scenario_id: STF-RUD-HARASS
+    pool: dev
+    subcategory: STF-RUD
+    intended_rule: RES-STF-RUD-02
+    primary_issue: "Harassment or discrimination by a support agent"
+    requested_resolution: explanation
+    include: {product: false}
+    signals: [staff_harassment]
+    texts:
+      - style: calm
+        title: "Inappropriate comments from an agent"
+        body: >-
+          During my call on {date:c-1} the agent made inappropriate comments about my accent and asked where I was
+          "really from". I would like this investigated.
+      - style: frustrated
+        title: "Sexist remarks on a support call"
+        body: >-
+          I phoned about a billing question and the agent made sexist remarks, saying I would not understand the
+          technical side and should ask my husband. I am upset and I want this dealt with.
+      - style: angry
+        title: "Agent threatened me"
+        lexical_traps: [business_impact]
+        body: >-
+          When I said I would take my business elsewhere, your agent threatened me and said he would make sure my
+          warranty was voided. That is intimidating and completely unacceptable.
+
+  - scenario_id: STF-RUD-COMP
+    pool: dev
+    subcategory: STF-RUD
+    intended_rule: RES-STF-RUD-03
+    primary_issue: "Compensation requested after a rude staff interaction"
+    requested_resolution: compensation
+    include: {product: false}
+    signals: [compensation_request]
+    texts:
+      - style: frustrated
+        title: "Rude agent - I expect a gesture"
+        body: >-
+          The agent I spoke to was rude and impatient. I expect a voucher or some compensation for being treated
+          like that - it is the least you can do.
+      - style: angry
+        title: "Unprofessional staff - compensation"
+        difficulty_type: unsupported_compensation
+        params: {demand: [50, 75, 150]}
+        body: >-
+          Your agent was unprofessional and belittled me on a recorded call. I want {comp:demand} compensation for
+          the distress. Anything less and I will take my custom elsewhere.
+
+  # ------------------------------------------------------------------ STF-MIS
+  - scenario_id: STF-MIS-CONDUCT
+    pool: dev
+    subcategory: STF-MIS
+    intended_rule: RES-STF-MIS-01
+    primary_issue: "Technician misconduct during a Pro Install visit"
+    order_profile: {name: install_completed, params: {days: [1, 10]}}
+    products: [SVC-INSTALL]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Technician conduct during installation"
+        body: >-
+          The {product} technician who came on {date:appointment} spent most of the visit on personal phone calls,
+          used our bathroom without asking and left the front door wide open when he went. I would like his conduct
+          reviewed.
+      - style: frustrated
+        title: "Installer arrived drunk"
+        body: >-
+          I am fairly sure the installer who came on {date:appointment} was drunk - he smelled of alcohol and could
+          barely hold the drill. I asked him to leave. This is not acceptable. Order {order_ref}.
+      - style: polite
+        title: "Concern about a technician's behaviour"
+        body: >-
+          Hello, the technician from our {product} visit went through our kitchen drawers looking for tools without
+          asking and photographed our alarm panel. It made us uneasy. Could someone look into it? Order
+          {order_ref}.
+
+  - scenario_id: STF-MIS-DAMAGE
+    pool: dev
+    subcategory: STF-MIS
+    intended_rule: RES-STF-MIS-02
+    primary_issue: "Technician caused property damage or suspected theft"
+    order_profile: {name: install_completed, params: {days: [1, 10]}}
+    products: [SVC-INSTALL]
+    requested_resolution: compensation
+    signals: [technician_damage_theft]
+    texts:
+      - style: frustrated
+        title: "Installer damaged my wall"
+        body: >-
+          The installer damaged my wall while fitting the camera bracket - there are three big holes in my wall where
+          he drilled in the wrong place and a crack in the plaster. I want this repaired at your cost. Order
+          {order_ref}.
+      - style: calm
+        title: "Floor scratched during the visit"
+        signals_add: [photo_evidence]
+        body: >-
+          During the {product} visit on {date:appointment} the technician dragged his toolbox and scratched my floor
+          in the hallway, quite deeply. I have photos. How do I claim for the repair? Order {order_ref}.
+      - style: angry
+        title: "Watch missing after the technician's visit"
+        body: >-
+          My watch went missing after the technician was in my bedroom to fit the sensor. It was on the dresser
+          before he arrived and gone after he left. I want this investigated immediately. Order {order_ref}.
+      - style: frustrated
+        title: "Technician damage - lawyer letter"
+        signals_add: [legal_threat, photo_evidence]
+        body: >-
+          The installer damaged my wall and cracked two tiles in the bathroom during the visit on {date:appointment}.
+          I have photos and a builder's quote. My lawyer will write to you if this is not put right. Order
+          {order_ref}.
+
+  - scenario_id: STF-MIS-HARASS
+    pool: dev
+    subcategory: STF-MIS
+    intended_rule: RES-STF-MIS-03
+    primary_issue: "Harassment or threats by a technician"
+    order_profile: {name: install_completed, params: {days: [1, 7]}}
+    products: [SVC-INSTALL]
+    requested_resolution: explanation
+    signals: [staff_harassment]
+    texts:
+      - style: calm
+        title: "Technician made me uncomfortable"
+        body: >-
+          I want to report the technician who came on {date:appointment}. He kept commenting on my appearance and
+          asking if I lived alone. He made me uncomfortable and I did not feel safe. Order {order_ref}.
+      - style: frustrated
+        title: "Installer was intimidating"
+        body: >-
+          When I pointed out that the lock was fitted crooked, the installer became intimidating - he stood over me
+          and raised his voice. I had to ask him to leave. I never want him in my house again. Order {order_ref}.
+      - style: polite
+        title: "Inappropriate comments during installation"
+        body: >-
+          Hello, I am sorry to raise this. During the {product} visit the technician made inappropriate comments to
+          my daughter, who is fifteen and was at home. I would like this handled seriously. Order {order_ref}.
+        signals_add: [child_involved]
+
+  # ------------------------------------------------------------------ STF-MIN
+  - scenario_id: STF-MIN-INFO
+    pool: dev
+    subcategory: STF-MIN
+    intended_rule: RES-STF-MIN-01
+    primary_issue: "Staff gave incorrect product or policy information"
+    requested_resolution: explanation
+    products: [LUM-TH-100, LUM-CAM-210, LUM-HUB-800]
+    texts:
+      - style: calm
+        title: "Wrong information from support"
+        body: >-
+          Before buying, I asked your chat team whether the {product} works without a subscription, and I was told it
+          does. Now half the features need Cloud Vault. I would like correct information on what works without it.
+      - style: frustrated
+        title: "Your agent gave me wrong information"
+        body: >-
+          Your agent said the {product} would work with my existing wiring. It does not, and I wasted a whole
+          afternoon. Why are your staff giving out wrong information?
+      - style: angry
+        title: "Misinformed by your staff"
+        difficulty_type: emotional_low_priority
+        body: >-
+          I was completely misinformed by your staff. The representative said the {product} supports my phone model
+          and it does not. What a waste of my time. Get your facts straight!
+
+  - scenario_id: STF-MIN-PROMISE
+    pool: dev
+    subcategory: STF-MIN
+    intended_rule: RES-STF-MIN-02
+    primary_issue: "Staff commitment outside policy not honoured"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Agent promised a refund - now denied"
+        body: >-
+          Your agent promised me a full refund over the phone last week and said I did not even need to send the item
+          back. Now I am told there is no record and no refund. I want what I was promised.
+      - style: calm
+        title: "Commitment made by your agent"
+        requested_resolution: compensation
+        signals_add: [compensation_request]
+        signals_remove: [refund_request]
+        body: >-
+          On my last call the agent assured me a credit to my account would be applied for the delayed repair. It
+          has not appeared. Could you check the call notes and confirm?
+      - style: angry
+        title: "Your staff lied to me"
+        body: >-
+          Your staff told me I would get a refund if I returned the hub within 60 days. I did, and now you refuse.
+          Your agent lied to me. Honour what you said or refund me.
+        lexical_traps: []
+
+  - scenario_id: STF-MIN-LOSS
+    pool: dev
+    subcategory: STF-MIN
+    intended_rule: RES-STF-MIN-03
+    primary_issue: "Misinformation from staff caused a financial loss"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Charged after being told it was free"
+        body: >-
+          The agent I spoke with said the upgrade to the annual Cloud Vault plan was free for existing customers,
+          so I accepted it. I was then charged {amt:99}. I would like that charge refunded.
+      - style: frustrated
+        title: "Wrong advice cost me money"
+        body: >-
+          On your agent's advice I bought the {amt:39} adapter kit for my thermostat, and it turns out I never needed
+          it. The agent gave me incorrect information. Please refund the adapter.
+
+  # ============================================================ HOLDOUT (STF)
+  - scenario_id: H-STF-RUD-BASIC
+    pool: holdout
+    subcategory: STF-RUD
+    intended_rule: RES-STF-RUD-01
+    primary_issue: "Rude support agent"
+    requested_resolution: explanation
+    include: {product: false}
+    texts:
+      - style: angry
+        title: "Snotty attitude on the phone"
+        difficulty_type: emotional_low_priority
+        body: >-
+          The person who answered your helpline had the most arrogant attitude I have ever come across - sighing,
+          interrupting, rolling their words. I am absolutely fuming about the way I was spoken to.
+      - style: calm
+        title: "Unprofessional reply by email"
+        body: >-
+          The email reply I received from your support team yesterday was curt and unprofessional, with no greeting
+          and a single line telling me to read the manual. Please pass this on.
+
+  - scenario_id: H-STF-RUD-HARASS
+    pool: holdout
+    subcategory: STF-RUD
+    intended_rule: RES-STF-RUD-02
+    primary_issue: "Discriminatory treatment by an agent"
+    requested_resolution: explanation
+    include: {product: false}
+    signals: [staff_harassment]
+    texts:
+      - style: calm
+        title: "Discriminatory remark from staff"
+        body: >-
+          The agent I spoke to said that "people like you" always complain, after hearing my name. I felt
+          discriminated against and would like a formal review of the call.
+
+  - scenario_id: H-STF-MIS-DAMAGE
+    pool: holdout
+    subcategory: STF-MIS
+    intended_rule: RES-STF-MIS-02
+    primary_issue: "Technician damaged property"
+    order_profile: {name: install_completed, params: {days: [1, 6]}}
+    products: [SVC-INSTALL]
+    requested_resolution: compensation
+    signals: [technician_damage_theft]
+    texts:
+      - style: frustrated
+        title: "Door frame split by the installer"
+        body: >-
+          The technician fitting our smart lock cracked the door frame by forcing the strike plate. We now have a
+          split frame that will cost money to repair. Order {order_ref}.
+
+  - scenario_id: H-STF-MIS-CONDUCT
+    pool: holdout
+    subcategory: STF-MIS
+    intended_rule: RES-STF-MIS-01
+    primary_issue: "Technician misconduct"
+    order_profile: {name: install_completed, params: {days: [1, 6]}}
+    products: [SVC-INSTALL]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Installer ignored house rules"
+        body: >-
+          The technician for our {product} walked through the house in muddy boots after being asked not to, and
+          let our cat out of the back door. We would like the visit reviewed.
+
+  - scenario_id: H-STF-MIS-HARASS
+    pool: holdout
+    subcategory: STF-MIS
+    intended_rule: RES-STF-MIS-03
+    primary_issue: "Technician harassment"
+    order_profile: {name: install_completed, params: {days: [1, 5]}}
+    products: [SVC-INSTALL]
+    requested_resolution: explanation
+    signals: [staff_harassment]
+    texts:
+      - style: polite
+        title: "Concerns about the technician's comments"
+        body: >-
+          Hello. The installer who came on {date:appointment} kept making comments about my body. I found it
+          harassing and I would prefer a different technician for any future visit. Order {order_ref}.
+        signals_add: []
+
+  - scenario_id: H-STF-MIN-INFO
+    pool: holdout
+    subcategory: STF-MIN
+    intended_rule: RES-STF-MIN-01
+    primary_issue: "Incorrect information from staff"
+    requested_resolution: explanation
+    products: [LUM-VAC-300]
+    texts:
+      - style: frustrated
+        title: "Chat advice was wrong"
+        body: >-
+          The live chat agent said the {product} maps several floors. It only stores one map. That wrong information
+          is the reason I picked this model.
+
+  - scenario_id: H-STF-MIN-PROMISE
+    pool: holdout
+    subcategory: STF-MIN
+    intended_rule: RES-STF-MIN-02
+    primary_issue: "Out-of-policy commitment by staff"
+    requested_resolution: replacement
+    include: {product: false}
+    signals: [replacement_request]
+    texts:
+      - style: calm
+        title: "Replacement I was assured of"
+        body: >-
+          The supervisor on my call guaranteed that a replacement would be dispatched the same day. That was over a
+          week ago and nothing has shipped. Could you confirm what was agreed?
+
+  - scenario_id: H-STF-MIN-LOSS
+    pool: holdout
+    subcategory: STF-MIN
+    intended_rule: RES-STF-MIN-03
+    primary_issue: "Misinformation causing a financial loss"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [refund_request]
+    texts:
+      - style: polite
+        title: "Charge after agent advice"
+        body: >-
+          Hi, an agent advised me that switching to express shipping was included in my order. I was charged
+          {amt:14.99} for it. Could that be refunded, please?

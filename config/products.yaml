@@ -1,0 +1,22 @@
+# =============================================================================
+# Lumora product & service catalog (fictional). Used for entity extraction,
+# simulated order ledger, warranty periods and dataset generation.
+# warranty_months: standard manufacturer warranty from delivery date (WAR-POL-07 s3).
+# hazard_class: lithium_battery products need specialist collection (SAF-POL-10 s5).
+# =============================================================================
+products:
+  - {sku: LUM-TH-100, name: Lumora Aura Smart Thermostat, line: Climate, type: device, price: 179.00, warranty_months: 24, aliases: [aura thermostat, smart thermostat, thermostat, aura]}
+  - {sku: LUM-CAM-200, name: Lumora Sentinel Indoor Camera, line: Security, type: device, price: 129.00, warranty_months: 12, aliases: [sentinel indoor, indoor camera, sentinel cam, indoor cam]}
+  - {sku: LUM-CAM-210, name: Lumora Sentinel Outdoor Camera, line: Security, type: device, price: 199.00, warranty_months: 12, aliases: [sentinel outdoor, outdoor camera, outdoor cam, doorbell camera]}
+  - {sku: LUM-VAC-300, name: Lumora Glide Robot Vacuum, line: Cleaning, type: device, price: 449.00, warranty_months: 12, aliases: [glide vacuum, robot vacuum, glide, vacuum]}
+  - {sku: LUM-PWR-400, name: Lumora PowerCell Portable Power Station, line: Power, type: device, price: 599.00, warranty_months: 24, hazard_class: lithium_battery, aliases: [powercell, power station, portable power station, battery pack, power bank]}
+  - {sku: LUM-SPK-500, name: Lumora Halo Smart Speaker, line: Audio, type: device, price: 99.00, warranty_months: 12, aliases: [halo speaker, smart speaker, halo, speaker]}
+  - {sku: LUM-PLG-600, name: Lumora Spark Smart Plug (2-pack), line: Power, type: device, price: 39.00, warranty_months: 12, aliases: [spark plug, smart plug, spark, plug]}
+  - {sku: LUM-BLB-610, name: Lumora Beam Smart Bulb (4-pack), line: Lighting, type: device, price: 49.00, warranty_months: 12, aliases: [beam bulb, smart bulb, beam, bulbs, bulb]}
+  - {sku: LUM-LCK-700, name: Lumora Keystone Smart Lock, line: Security, type: device, price: 249.00, warranty_months: 24, aliases: [keystone lock, smart lock, keystone, door lock, lock]}
+  - {sku: LUM-HUB-800, name: Lumora Nexus Home Hub, line: Platform, type: device, price: 149.00, warranty_months: 24, aliases: [nexus hub, home hub, nexus, hub]}
+  - {sku: LUM-AIR-900, name: Lumora Breeze Air Purifier, line: Climate, type: device, price: 299.00, warranty_months: 24, aliases: [breeze purifier, air purifier, breeze, purifier]}
+  - {sku: SVC-CLOUD, name: Lumora Cloud Vault, line: Subscription, type: subscription, price: 99.00, billing: "USD 9.99 monthly or USD 99.00 yearly", aliases: [cloud vault, cloud storage, cloud subscription, vault]}
+  - {sku: SVC-CARE, name: Lumora Care+ Protection Plan, line: Subscription, type: subscription, price: 129.00, billing: "USD 12.99 monthly or USD 129.00 yearly", aliases: [care+, care plus, careplus, protection plan]}
+  - {sku: SVC-INSTALL, name: Lumora Pro Install, line: Service, type: service, price: 149.00, aliases: [pro install, installation service, installer, technician visit, installation]}
+  - {sku: SVC-APP, name: Lumora Home App, line: Platform, type: software, price: 0.00, aliases: [lumora home app, lumora app, home app, the app, mobile app]}

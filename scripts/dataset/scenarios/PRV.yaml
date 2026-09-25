@@ -1,0 +1,375 @@
+# =============================================================================
+# Scenario bank - PRV (Privacy): PRV-BRC, PRV-CON, PRV-DSR
+# RES-PRV-BRC-03 matches camera/footage/recording/video/feed/live view wording and
+# RES-PRV-BRC-02 matches "someone else's / another customer's ..."; the default
+# BRC-01 texts avoid both on purpose. PRV-CON-01/02 texts avoid "sold/shared ... data"
+# and "third party" (RES-PRV-CON-03 / ESC-013).
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ PRV-BRC
+  - scenario_id: PRV-BRC-CAMERA
+    pool: dev
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-03
+    primary_issue: "Camera footage exposed to people outside the household"
+    products: [LUM-CAM-200, LUM-CAM-210]
+    requested_resolution: other
+    signals: [privacy_breach]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Shared clip link exposes my live view"
+        body: >-
+          I shared one clip from my {product} with my brother, but the link turned out to be publicly accessible
+          and it opens my full live view, not just the clip. I tested it in a private browser window. Please
+          disable it and tell me who may have viewed it.
+      - style: polite
+        title: "Footage of my daughter's bedroom exposed"
+        signals_add: [minors_data, child_involved]
+        body: >-
+          Hello, I am worried that my footage was exposed. A share link for my {product}, which covers my
+          daughter's bedroom, still works even though I deleted it in the app last week. Could you please revoke
+          it and confirm whether anyone opened it?
+      - style: frustrated
+        title: "Strangers can see my camera"
+        body: >-
+          A neighbour told me strangers can see my {product} feed through some link on a forum. I never shared it
+          publicly. This is my home and my family. I need this shut down and an explanation of how it happened.
+      - style: angry
+        title: "My recordings were leaked"
+        signals_add: [media_threat]
+        body: >-
+          My recordings were leaked. Clips from my {product} turned up on a public link that anyone could open.
+          If this is not taken down today I am going to the press and posting everything on social media.
+
+  - scenario_id: PRV-BRC-OTHERS
+    pool: dev
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-02
+    primary_issue: "Customer can see another customer's personal data"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [privacy_breach]
+    texts:
+      - style: calm
+        title: "I can see another customer's orders"
+        body: >-
+          When I opened my order history in the {product} today, I could see another customer's orders, including
+          their name and delivery address. I have not touched anything. I thought you should know straight away.
+      - style: frustrated
+        title: "Someone else's details on my invoice"
+        body: >-
+          My invoice PDF lists someone else's name, address and phone number instead of mine, so I can see someone
+          else's personal information. If I can see theirs, who can see mine? Please fix this and tell me if my
+          details went to them.
+      - style: polite
+        title: "Wrong name in my order email"
+        tags: [low_value_privacy]
+        body: >-
+          Hi, a small thing but I thought I should flag it: my order confirmation email greeted me with another
+          customer's first name and showed the last two digits of their phone number. Nothing else seemed wrong.
+      - style: angry
+        title: "You sent me another family's account details!"
+        body: >-
+          Your support agent just emailed me another family's account details - their address, their devices,
+          everything! What kind of data security is this? I am appalled and I want to know what you are doing.
+      - style: calm
+        title: "Another customer's name on my delivery note"
+        tags: [low_value_privacy]
+        body: >-
+          The delivery note in my parcel had another customer's first name and street printed on it instead of mine.
+          Nothing else was wrong, but you may want to check how that happened.
+
+  - scenario_id: PRV-BRC-DATA
+    pool: dev
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-01
+    primary_issue: "Customer's personal data exposed"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [privacy_breach]
+    texts:
+      - style: calm
+        title: "My address visible without login"
+        body: >-
+          My home address and phone number are publicly accessible on your order tracking page - anyone with the
+          tracking number can see them without logging in. Could you restrict that page?
+      - style: polite
+        title: "Email addresses visible to other recipients"
+        tags: [low_value_privacy]
+        body: >-
+          Hello, your newsletter this morning was sent with all recipients in the CC line, so my details were
+          visible to hundreds of other customers. It is only my email address, but I wanted to let you know.
+      - style: frustrated
+        title: "My information was exposed in a support reply"
+        tags: [low_value_privacy]
+        body: >-
+          My information was exposed when your support reply was sent to a mailing list instead of just me. My
+          name and account number are now in a group inbox. I am not happy about this at all.
+      - style: angry
+        title: "Data breach - my details are public"
+        signals_add: [legal_threat]
+        body: >-
+          This is a data breach. My data was exposed on a page that your own staff linked in a public forum post.
+          I will be reporting you to the data protection authority unless this is fixed today.
+
+  # ------------------------------------------------------------------ PRV-CON
+      - style: calm
+        title: "My first name on a public leaderboard"
+        tags: [low_value_privacy]
+        body: >-
+          The energy-saving challenge in the {product} shows my first name and my city on a public leaderboard that
+          anyone can view. I never chose to join it. It is minor, but my details were visible to everyone.
+
+  - scenario_id: PRV-CON-OPTOUT
+    pool: dev
+    subcategory: PRV-CON
+    intended_rule: RES-PRV-CON-01
+    primary_issue: "Marketing received after opting out (within the opt-out period)"
+    requested_resolution: other
+    include: {product: false}
+    signals: [consent_violation]
+    params: {optout: [3, 10]}
+    texts:
+      - style: calm
+        title: "Still getting marketing emails"
+        body: >-
+          I unsubscribed from your marketing emails {dur:optout} ago, but I am still getting promotional emails
+          almost every day. Could you make sure my preferences are updated?
+      - style: frustrated
+        title: "Opted out of texts but they keep coming"
+        body: >-
+          I opted out of your marketing texts and I am still receiving sales messages on my phone. I do not want
+          them. Please just stop.
+      - style: angry
+        title: "STOP the promotional emails"
+        body: >-
+          STOP. I unsubscribed and your promotional emails keep landing in my inbox. I do not want your offers, I do
+          not want your newsletter. Remove me now, it is not complicated!
+
+  - scenario_id: PRV-CON-LATE
+    pool: dev
+    subcategory: PRV-CON
+    intended_rule: RES-PRV-CON-02
+    primary_issue: "Marketing still received long after opting out"
+    requested_resolution: other
+    include: {product: false}
+    signals: [consent_violation]
+    params: {optout: [21, 28, 35, 45, 60]}
+    texts:
+      - style: frustrated
+        title: "Unsubscribed weeks ago - still getting emails"
+        body: >-
+          I unsubscribed from Lumora marketing {dur:optout} ago and I am still getting marketing emails every week.
+          Your policy says this should stop. This is not acceptable.
+        signals_add: [embedded_policy_claim]
+      - style: calm
+        title: "Marketing texts after opt-out"
+        body: >-
+          It has been {dur:optout} since I opted out of promotional texts, and I received another one this morning.
+          Please check that my consent settings are recorded correctly.
+
+  - scenario_id: PRV-CON-SHARED
+    pool: dev
+    subcategory: PRV-CON
+    intended_rule: RES-PRV-CON-03
+    primary_issue: "Personal data shared with a third party without consent"
+    requested_resolution: other
+    include: {product: false}
+    signals: [consent_violation]
+    texts:
+      - style: calm
+        title: "Contact details passed to a partner"
+        body: >-
+          Since buying from you I get calls from an insurance company that says it got my number from a Lumora
+          partner. I never agreed to that. Did you pass my details to a third party?
+      - style: angry
+        title: "You sold my data"
+        body: >-
+          You sold my data. A home-security company I have never heard of emailed me about my Lumora cameras, by
+          name. I never consented to this. I want to know exactly who you shared my information with.
+      - style: frustrated
+        title: "Shared my email without consent"
+        body: >-
+          Your "partner offers" email was sent by another company using my address, so you clearly shared my email
+          without my consent. I would like this investigated and stopped.
+
+  # ------------------------------------------------------------------ PRV-DSR
+      - style: polite
+        title: "Data shared with an agency - regulator"
+        signals_add: [legal_threat]
+        body: >-
+          Hello, a marketing agency told me Lumora shared my information with them. I never consented to that. I
+          would like a full explanation, and I am considering a complaint to the regulator.
+
+  - scenario_id: PRV-DSR-REQUEST
+    pool: dev
+    subcategory: PRV-DSR
+    intended_rule: RES-PRV-DSR-01
+    primary_issue: "Data-rights request (access, export or deletion)"
+    requested_resolution: other
+    include: {product: false}
+    signals: [data_rights_request]
+    texts:
+      - style: calm
+        title: "Please delete my account and data"
+        body: >-
+          I no longer use any Lumora devices. Please delete my account and data, including any camera clips stored
+          in Cloud Vault. Let me know what you need to verify my identity.
+      - style: polite
+        title: "Request for a copy of my data"
+        body: >-
+          Hello, I would like to request a copy of my personal data held by Lumora, including device logs and
+          support history. Could you tell me how to submit this formally? Thank you.
+      - style: frustrated
+        title: "How do I export my data?"
+        body: >-
+          I want to export my data before I close my account and there is no option anywhere in the app. Why is this
+          so hard? Please send me instructions or just do it for me.
+
+  - scenario_id: PRV-DSR-OVERDUE
+    pool: dev
+    subcategory: PRV-DSR
+    intended_rule: RES-PRV-DSR-02
+    primary_issue: "Data-rights request overdue beyond 30 days"
+    requested_resolution: other
+    include: {product: false}
+    signals: [data_rights_request]
+    params: {requested: [35, 42, 49, 60, 75]}
+    texts:
+      - style: frustrated
+        title: "Deletion request ignored"
+        body: >-
+          I asked you to delete my data {dur:requested} ago and my account is still active and you are still
+          emailing me. I would like confirmation that the deletion has been done.
+      - style: calm
+        title: "Follow-up on my data access request"
+        body: >-
+          I submitted a subject access request {dur:requested} ago and have not received my data yet. Could you
+          tell me when it will be provided?
+      - style: angry
+        title: "Right to be forgotten - still waiting"
+        signals_add: [legal_threat]
+        body: >-
+          I invoked my right to be forgotten {dur:requested} ago and nothing has happened. If my data is not
+          deleted this week I will file a complaint with the regulator.
+
+  # ============================================================ HOLDOUT (PRV)
+  - scenario_id: H-PRV-BRC-CAMERA
+    pool: holdout
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-03
+    primary_issue: "Camera footage accessible to someone outside the household"
+    products: [LUM-CAM-210, LUM-CAM-200]
+    requested_resolution: other
+    signals: [privacy_breach]
+    texts:
+      - style: calm
+        title: "Ex-partner still sees my camera"
+        body: >-
+          I removed my ex-partner from our home in the app, yet she messaged me a screenshot from my {product}
+          taken yesterday. It seems my recordings are visible to her account. Please revoke all access.
+      - style: polite
+        title: "Other people's footage in my timeline"
+        body: >-
+          Hi, this morning my {product} timeline showed clips from a garden that is not mine - I could see other
+          people's footage. I have closed the app. Please look into it urgently.
+
+  - scenario_id: H-PRV-BRC-OTHERS
+    pool: holdout
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-02
+    primary_issue: "Another customer's personal data visible"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [privacy_breach]
+    texts:
+      - style: frustrated
+        title: "Wrong account details in my app"
+        body: >-
+          My {product} account page lets me see another user's address and saved card ending digits. I do not want
+          anyone else's information and I dread to think who is seeing mine.
+        signals_add: []
+
+  - scenario_id: H-PRV-BRC-DATA
+    pool: holdout
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-01
+    primary_issue: "Personal data exposed"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [privacy_breach]
+    texts:
+      - style: calm
+        title: "Delivery label visible online"
+        tags: [low_value_privacy]
+        body: >-
+          Your returns portal shows my full name and address to anyone who guesses the return number - my
+          information was exposed that way when a friend tried a random number. Please secure it.
+
+  - scenario_id: H-PRV-CON-OPTOUT
+    pool: holdout
+    subcategory: PRV-CON
+    intended_rule: RES-PRV-CON-01
+    primary_issue: "Marketing after opting out"
+    requested_resolution: other
+    include: {product: false}
+    signals: [consent_violation]
+    texts:
+      - style: frustrated
+        title: "Promotions keep coming"
+        body: >-
+          I opted out in my account settings and I am still getting promo emails about the new vacuum. Please honour
+          my choice.
+
+  - scenario_id: H-PRV-CON-SHARED
+    pool: holdout
+    subcategory: PRV-CON
+    intended_rule: RES-PRV-CON-03
+    primary_issue: "Personal data shared with a partner without consent"
+    requested_resolution: other
+    include: {product: false}
+    signals: [consent_violation]
+    texts:
+      - style: calm
+        title: "Partner company has my details"
+        body: >-
+          An energy supplier contacted me saying Lumora passed on my details as part of a smart thermostat offer. I
+          did not agree to that. Please tell me what was shared and stop it.
+      - style: frustrated
+        title: "Reporting the data sharing"
+        signals_add: [legal_threat]
+        body: >-
+          A solar installer phoned me by name and said Lumora passed on my details. I did not agree to that and I
+          will report it to the data protection authority unless you explain what was shared.
+
+  - scenario_id: H-PRV-DSR-REQUEST
+    pool: holdout
+    subcategory: PRV-DSR
+    intended_rule: RES-PRV-DSR-01
+    primary_issue: "Data deletion request"
+    requested_resolution: other
+    include: {product: false}
+    signals: [data_rights_request]
+    texts:
+      - style: polite
+        title: "Erase my recordings and profile"
+        body: >-
+          Hello, I am moving abroad and would like you to delete my recordings and remove my profile. What steps do
+          you need from me? Thank you.
+
+  - scenario_id: H-PRV-DSR-OVERDUE
+    pool: holdout
+    subcategory: PRV-DSR
+    intended_rule: RES-PRV-DSR-02
+    primary_issue: "Overdue data access request"
+    requested_resolution: other
+    include: {product: false}
+    signals: [data_rights_request]
+    params: {requested: [40, 50]}
+    texts:
+      - style: frustrated
+        title: "Still no response to my data request"
+        body: >-
+          {dur:requested} ago I made a data access request asking what data you hold about my household. No file,
+          no reply. Please treat this as overdue.

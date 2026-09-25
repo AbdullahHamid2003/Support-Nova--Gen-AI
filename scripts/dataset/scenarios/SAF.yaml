@@ -1,0 +1,473 @@
+# =============================================================================
+# Scenario bank - SAF (Safety): SAF-OVH, SAF-ELC, SAF-INJ
+# Many texts are deliberately calm: risk signals, not tone, set urgency (URG-102).
+# RES-SAF-OVH-03 needs a referenced lithium-battery order (LUM-PWR-400).
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ SAF-OVH
+  - scenario_id: SAF-OVH-BASIC
+    pool: dev
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-01
+    primary_issue: "{product} overheating"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 10]}}
+    products: [LUM-PLG-600, LUM-TH-100, LUM-SPK-500, LUM-HUB-800, LUM-AIR-900, LUM-VAC-300]
+    requested_resolution: replacement
+    signals: [overheating]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "{product} too hot to touch"
+        body: >-
+          Just letting you know that my {product} was too hot to touch this evening, and there is a small scorch
+          mark on the wall socket behind it. I have unplugged it for now. Order {order_ref}. What should I do next?
+      - style: polite
+        title: "Burning smell from my {product:short}"
+        body: >-
+          Hello, I noticed a burning smell coming from the {product} this morning and the casing felt extremely hot.
+          I have switched it off at the wall. I would be grateful for advice on what to do with it. Order
+          {order_ref}.
+      - style: frustrated
+        title: "{product:short} overheating and melting"
+        body: >-
+          My {product} has started overheating - the plastic around the vent has melted slightly and it smells
+          terrible. I bought this to make my home safer, not more dangerous. Please tell me what happens now.
+        signals_add: []
+      - style: calm
+        title: "Unit overheats after an hour"
+        include: {order_reference: false}
+        body: >-
+          My {product} overheats after about an hour of use. The top gets really hot and there is a faint acrid
+          smell. It is not urgent for me as I have stopped using it, but I thought you should know.
+      - style: angry
+        title: "Your {product:short} MELTED"
+        body: >-
+          Your {product} MELTED on my shelf! The back is scorched and deformed. I could have lost my house. How is
+          this product even allowed on sale? I want this taken seriously. Order {order_ref}.
+
+  - scenario_id: SAF-OVH-FIRE
+    pool: dev
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-02
+    primary_issue: "{product} smoked or caught fire"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 12]}}
+    products: [LUM-PLG-600, LUM-SPK-500, LUM-HUB-800, LUM-VAC-300, LUM-AIR-900, LUM-BLB-610]
+    requested_resolution: refund
+    signals: [fire_event]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Smoke from my {product:short}"
+        body: >-
+          Last night smoke started coming out of my {product} while it was running. I switched it off at the wall
+          and opened the windows, and it has not been used since. Nobody was hurt. Order {order_ref}. How should
+          I proceed?
+        lexical_traps: []
+      - style: polite
+        title: "Small fire involving my {product:short}"
+        body: >-
+          I wanted to report that my {product} caught fire on the kitchen counter yesterday evening. The flames were
+          small and I put them out with a damp towel. I have kept the unit. Could someone from your safety team
+          contact me?
+      - style: frustrated
+        title: "{product:short} started smoking"
+        signals_add: [refund_request]
+        body: >-
+          My {product} started smoking out of nowhere and the whole room smelled of burnt plastic. This is
+          terrifying. I want a full refund and I want to know that you are investigating. Order {order_ref}.
+      - style: angry
+        title: "Your product nearly set my house alight"
+        signals_add: [refund_request, media_threat]
+        body: >-
+          Your {product} burst into flames in my living room! If I had not been home my house would be gone. I want
+          a full refund and a real answer, or I am posting this on Facebook with the photos.
+
+  - scenario_id: SAF-OVH-BATTERY
+    pool: dev
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-03
+    primary_issue: "PowerCell battery overheating or swelling"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 14]}}
+    products: [LUM-PWR-400]
+    requested_resolution: replacement
+    signals: [overheating]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "PowerCell case bulging"
+        body: >-
+          The case of my {product} has started bulging on one side, and it gets extremely hot when charging. I have
+          moved it outside onto the patio away from anything flammable. Order {order_ref}. What should I do?
+      - style: polite
+        title: "Swollen battery - please advise"
+        body: >-
+          Hello, I think the battery in my {product} is swollen - the panel has lifted and there is a slight hissing
+          sound. I have not charged it since. Could you tell me how to get it collected safely? Order {order_ref}.
+      - style: frustrated
+        title: "Power station overheating badly"
+        body: >-
+          My {product} is overheating badly every time I charge it and the side has warped. I paid {amt:total} for
+          this. I am scared to keep it in the house. Order {order_ref}.
+
+  - scenario_id: SAF-OVH-CHILD
+    pool: dev
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-04
+    primary_issue: "Overheating {product} involving a child"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 10]}}
+    products: [LUM-PLG-600, LUM-SPK-500, LUM-AIR-900, LUM-BLB-610]
+    requested_resolution: other
+    signals: [overheating, child_involved]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Child got a blister from a hot {product:short}"
+        signals_add: [injury]
+        body: >-
+          My 6-year-old touched the {product} in her bedroom and got a blister on her finger - it was burning hot. She
+          is fine now after some first aid. I have unplugged it. Order {order_ref}. Please advise.
+      - style: polite
+        title: "{product} extremely hot in my son's room"
+        body: >-
+          Good morning. Last night the {product} in my son's room became extremely hot and there was a burning
+          smell. He was asleep nearby. Nobody was hurt, but I am worried. Could you tell me what to do? Order
+          {order_ref}.
+        lexical_traps: [minors_data]
+      - style: frustrated
+        title: "Overheating near my kids"
+        body: >-
+          The {product} that sits next to my kids' play area overheated and scorched the table. My children play
+          there every day. I need to know this is being investigated. Order {order_ref}.
+
+  # ------------------------------------------------------------------ SAF-ELC
+  - scenario_id: SAF-ELC-BASIC
+    pool: dev
+    subcategory: SAF-ELC
+    intended_rule: RES-SAF-ELC-01
+    primary_issue: "Electrical hazard from {product}"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 10]}}
+    products: [LUM-PLG-600, LUM-TH-100, LUM-BLB-610, LUM-HUB-800, LUM-AIR-900]
+    requested_resolution: replacement
+    signals: [electrical_hazard]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "{product} trips the breaker"
+        body: >-
+          Each time I plug in my {product}, it has tripped the breaker for the whole kitchen - it happened twice
+          this week. Other devices on that socket are fine. I have stopped using it. Order {order_ref}.
+      - style: polite
+        title: "Sparks from my {product:short}"
+        body: >-
+          Hello, when I switched on my {product} this evening I saw sparks at the base and heard a crackle. I
+          unplugged it straight away. Could someone advise me on what to do next? Thank you. Order {order_ref}.
+      - style: frustrated
+        title: "Got an electric shock from the {product:short}"
+        body: >-
+          I got an electric shock when I touched the {product} to adjust it. It was not huge but it made my arm
+          tingle. This should not happen with a consumer device. Please investigate. Order {order_ref}.
+      - style: calm
+        title: "Exposed wiring on new {product:short}"
+        body: >-
+          I have just noticed exposed wiring near the connector of my {product} - the insulation has split. I have
+          not powered it on since. Please let me know how you want to handle this. Order {order_ref}.
+
+  - scenario_id: SAF-ELC-CHILD
+    pool: dev
+    subcategory: SAF-ELC
+    intended_rule: RES-SAF-ELC-02
+    primary_issue: "Electrical hazard involving a child or an injury"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 8]}}
+    products: [LUM-PLG-600, LUM-BLB-610, LUM-SPK-500]
+    requested_resolution: other
+    signals: [electrical_hazard]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "My daughter got a shock from the {product:short}"
+        signals_add: [child_involved]
+        body: >-
+          My daughter got a shock from the {product} when she pulled it out of the wall this afternoon. She is
+          fine, just startled. I have removed all of them from the house. Order {order_ref}.
+      - style: frustrated
+        title: "Sparks near my toddler"
+        signals_add: [child_involved]
+        body: >-
+          The {product} sparked right next to my toddler while she was playing on the floor. I grabbed her and cut
+          the power. I am shaking. How can a product like this be sold? Order {order_ref}.
+      - style: polite
+        title: "Shock caused a burn"
+        signals_add: [injury]
+        body: >-
+          Hello, I got an electric shock from the {product} and it has left a small burn on my palm. I went to urgent
+          care as a precaution. I would like this reported to your safety team. Order {order_ref}.
+
+  - scenario_id: SAF-ELC-FIRE
+    pool: dev
+    subcategory: SAF-ELC
+    intended_rule: RES-SAF-ELC-03
+    primary_issue: "Electrical fault with smoke or fire"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 12]}}
+    products: [LUM-PLG-600, LUM-TH-100, LUM-HUB-800]
+    requested_resolution: other
+    signals: [electrical_hazard, fire_event]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Sparks and smoke from {product:short}"
+        body: >-
+          My {product} sparked and then smoke came out of the socket behind it. I turned off the power at the fuse
+          box. Everyone is safe. Order {order_ref}. I would like your safety team to look at it.
+      - style: angry
+        title: "Your {product:short} set my wall socket on fire"
+        body: >-
+          Your {product} short-circuited and the wall socket caught fire! Sparks, smoke, the lot. My electrician
+          says the unit is to blame. I want this escalated to someone senior immediately. Order {order_ref}.
+
+  # ------------------------------------------------------------------ SAF-INJ
+  - scenario_id: SAF-INJ-BASIC
+    pool: dev
+    subcategory: SAF-INJ
+    intended_rule: RES-SAF-INJ-01
+    primary_issue: "Person injured by {product}"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 10]}}
+    products: [LUM-VAC-300, LUM-CAM-210, LUM-AIR-900, LUM-LCK-700]
+    requested_resolution: other
+    signals: [injury]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Injured by a falling {product:short}"
+        body: >-
+          The mounting bracket of my {product} gave way and the unit fell onto my hand, and it cut my knuckle quite
+          badly. I have cleaned it up. I would like to report this as a safety issue. Order {order_ref}.
+      - style: frustrated
+        title: "Finger trapped - bleeding"
+        body: >-
+          My finger got trapped in the {product} and it was bleeding badly. The edge is far too sharp for something
+          people use every day. I want this looked into properly. Order {order_ref}.
+      - style: angry
+        title: "I needed stitches because of your product"
+        body: >-
+          I needed stitches because the {product} has a razor-sharp edge on the housing. Seven stitches! This is
+          dangerous and irresponsible. Somebody at Lumora needs to answer for this. Order {order_ref}.
+      - style: polite
+        title: "Bruised by the {product:short}"
+        body: >-
+          Hello, I wanted to report that my {product} slipped off its stand without warning and I bruised my arm
+          quite badly catching it. I am okay, but someone more fragile could be seriously hurt. Order {order_ref}.
+        signals_add: []
+
+  - scenario_id: SAF-INJ-CHILD
+    pool: dev
+    subcategory: SAF-INJ
+    intended_rule: RES-SAF-INJ-02
+    primary_issue: "Child injured by {product}"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 10]}}
+    products: [LUM-VAC-300, LUM-BLB-610, LUM-AIR-900, LUM-SPK-500]
+    requested_resolution: other
+    signals: [injury, child_involved]
+    emotions_add: [Urgency]
+    texts:
+      - style: calm
+        title: "Toddler cut her hand on the {product:short}"
+        body: >-
+          My toddler cut her hand on a sharp edge of the {product} this morning. It was a small cut and we cleaned it
+          with first aid, but I think the edge is a hazard. Order {order_ref}.
+      - style: frustrated
+        title: "My son was injured by the {product:short}"
+        body: >-
+          My son got hurt when the {product} tipped over onto his foot. He has a bad bruise and we spent the evening
+          at urgent care. It should not tip that easily. Order {order_ref}.
+
+  - scenario_id: SAF-INJ-LEGAL
+    pool: dev
+    subcategory: SAF-INJ
+    intended_rule: RES-SAF-INJ-03
+    primary_issue: "Injury with a legal threat"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 10]}}
+    products: [LUM-VAC-300, LUM-LCK-700, LUM-AIR-900, LUM-CAM-210]
+    requested_resolution: compensation
+    signals: [injury, legal_threat]
+    emotions_add: [Urgency]
+    texts:
+      - style: angry
+        title: "My lawyer will be in touch"
+        body: >-
+          I was injured by your {product} - it cut my hand open and I needed stitches at the emergency room. I have
+          already spoken to a lawyer and I will be taking legal action if you do not respond properly.
+      - style: calm
+        title: "Injury - legal advice being sought"
+        body: >-
+          I was hurt by the {product} last week when a part snapped off and cut my arm. I have kept the pieces and my
+          medical notes. I have spoken to a solicitor and would like your response in writing. Order {order_ref}.
+        signals_add: []
+
+  # ============================================================ HOLDOUT (SAF)
+  - scenario_id: H-SAF-OVH-BASIC
+    pool: holdout
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-01
+    primary_issue: "{product} overheating"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 8]}}
+    products: [LUM-HUB-800, LUM-SPK-500]
+    requested_resolution: replacement
+    signals: [overheating]
+    texts:
+      - style: calm
+        title: "Scorching on the back of the unit"
+        body: >-
+          Tidying behind the TV, I found the {product} had scorch marks on its underside and the plastic smell was
+          strong. It has been unplugged ever since. Order {order_ref} - how would you like me to proceed?
+      - style: polite
+        title: "Unusually hot device"
+        body: >-
+          Good afternoon. Our {product} has been getting dangerously hot at the power socket within minutes of
+          switching it on. We would like guidance before using it again. Order {order_ref}.
+        signals_add: []
+
+  - scenario_id: H-SAF-OVH-FIRE
+    pool: holdout
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-02
+    primary_issue: "{product} caught fire"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 9]}}
+    products: [LUM-VAC-300, LUM-PLG-600]
+    requested_resolution: other
+    signals: [fire_event]
+    texts:
+      - style: calm
+        title: "Charging dock smouldering"
+        body: >-
+          While the {product} was charging overnight, the dock was smouldering when I came down - black marks and a
+          strong smell. I put it outside. No injuries. Order {order_ref}.
+
+  - scenario_id: H-SAF-OVH-BATTERY
+    pool: holdout
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-03
+    primary_issue: "PowerCell battery swelling"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 12]}}
+    products: [LUM-PWR-400]
+    requested_resolution: replacement
+    signals: [overheating]
+    texts:
+      - style: polite
+        title: "Battery pack has swelled up"
+        body: >-
+          Hi, the {product} we keep for camping has swelled up so the lid no longer closes, and there is a battery
+          leak mark on one corner. We have isolated it in the garage. Could you arrange collection? {order_ref}.
+
+  - scenario_id: H-SAF-OVH-CHILD
+    pool: holdout
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-04
+    primary_issue: "Overheating device in a child's room"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 6]}}
+    products: [LUM-AIR-900]
+    requested_resolution: other
+    signals: [overheating, child_involved]
+    texts:
+      - style: calm
+        title: "Purifier overheated in the nursery"
+        body: >-
+          The {product} in our nursery was overheating this morning - the top grille was too hot to touch while our
+          newborn slept beside it. We have taken it out of the room. Order {order_ref}.
+        signals_add: [vulnerable_customer]
+
+  - scenario_id: H-SAF-ELC-BASIC
+    pool: holdout
+    subcategory: SAF-ELC
+    intended_rule: RES-SAF-ELC-01
+    primary_issue: "Electrical hazard"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 8]}}
+    products: [LUM-BLB-610, LUM-TH-100]
+    requested_resolution: replacement
+    signals: [electrical_hazard]
+    texts:
+      - style: frustrated
+        title: "Bulb blew a fuse and crackled"
+        body: >-
+          When the {product} switched on it made a buzzing noise, flashed, and blew a fuse in the hallway circuit.
+          I do not trust it now. Order {order_ref}.
+
+  - scenario_id: H-SAF-ELC-CHILD
+    pool: holdout
+    subcategory: SAF-ELC
+    intended_rule: RES-SAF-ELC-02
+    primary_issue: "Electrical shock involving a child"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 6]}}
+    products: [LUM-PLG-600]
+    requested_resolution: other
+    signals: [electrical_hazard, child_involved]
+    texts:
+      - style: polite
+        title: "Son felt a shock from the plug"
+        body: >-
+          Hello, my 9-year-old got a shock from the {product} when he unplugged the lamp. He says it felt like a
+          sting. He is fine, but I would like this investigated. Order {order_ref}.
+
+  - scenario_id: H-SAF-ELC-FIRE
+    pool: holdout
+    subcategory: SAF-ELC
+    intended_rule: RES-SAF-ELC-03
+    primary_issue: "Short circuit with fire"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 9]}}
+    products: [LUM-HUB-800]
+    requested_resolution: other
+    signals: [electrical_hazard, fire_event]
+    texts:
+      - style: frustrated
+        title: "Hub short-circuited and flames appeared"
+        body: >-
+          Our {product} had a short circuit - there was arcing at the power lead and then small flames. The fire was
+          put out quickly. We need to understand how this happened. Order {order_ref}.
+
+  - scenario_id: H-SAF-INJ-BASIC
+    pool: holdout
+    subcategory: SAF-INJ
+    intended_rule: RES-SAF-INJ-01
+    primary_issue: "Injury caused by {product}"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 7]}}
+    products: [LUM-LCK-700, LUM-VAC-300]
+    requested_resolution: other
+    signals: [injury]
+    texts:
+      - style: calm
+        title: "Hand injured by the device"
+        body: >-
+          The {product} closed on my fingers when it activated unexpectedly and I needed medical attention for the
+          swelling. I have stopped using it. Please advise on your safety process. Order {order_ref}.
+        lexical_traps: [overheating]
+
+  - scenario_id: H-SAF-INJ-CHILD
+    pool: holdout
+    subcategory: SAF-INJ
+    intended_rule: RES-SAF-INJ-02
+    primary_issue: "Child injured by {product}"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 5]}}
+    products: [LUM-BLB-610]
+    requested_resolution: other
+    signals: [injury, child_involved]
+    texts:
+      - style: calm
+        title: "Glass cut on my son's foot"
+        body: >-
+          One of the {product} shattered in its fitting and my son cut his foot on the glass. We needed urgent care
+          for two stitches. Order {order_ref}.
+
+  - scenario_id: H-SAF-INJ-LEGAL
+    pool: holdout
+    subcategory: SAF-INJ
+    intended_rule: RES-SAF-INJ-03
+    primary_issue: "Injury with legal action threatened"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 8]}}
+    products: [LUM-AIR-900]
+    requested_resolution: compensation
+    signals: [injury, legal_threat]
+    texts:
+      - style: angry
+        title: "Expect to hear from my attorney"
+        body: >-
+          Your {product} tipped over and broke my toe - I have the hospital report. Expect to hear from my attorney
+          this week about the injury.

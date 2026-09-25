@@ -1,0 +1,29 @@
+# =============================================================================
+# Policy precedence and document-control rules (PRC-*), CHP-POL-01 s10.
+# Used by retrieval, policy applicability and the validation pipeline
+# (SRS Step 7, 26; SRS 1.8(10) Contradictory Policy Challenge).
+# =============================================================================
+doc_type_rank:            # lower rank = higher precedence (CHP-POL-01 s10.2)
+  policy: 1
+  rules: 1
+  sop: 2
+  guideline: 3
+  faq: 4
+  template: 5
+
+precedence_rules:
+  - {rule_id: PRC-001, name: Active documents only, description: "Only Active documents within their effective and expiry dates can be primary evidence.", policy_refs: ["CHP-POL-01:10.1"]}
+  - {rule_id: PRC-002, name: Precedence by document type, description: "Policy = Rules > SOP > Guideline > FAQ > Template.", policy_refs: ["CHP-POL-01:10.2"]}
+  - {rule_id: PRC-003, name: Precedence by effective date, description: "Same type and topic: the most recent effective date prevails.", policy_refs: ["CHP-POL-01:10.3"]}
+  - {rule_id: PRC-004, name: Outdated documents, description: "Previous, Superseded, Draft, expired or not-yet-effective documents are never primary; shown as Outdated.", policy_refs: ["CHP-POL-01:10.4"]}
+  - {rule_id: PRC-005, name: Conflict handling, description: "Conflicting statements are resolved by PRC-002/PRC-003 and reported to the document owner.", policy_refs: ["CHP-POL-01:10.5"]}
+
+# Numeric-fact conflict detection: statements such as "within 3 business days"
+# are extracted per chunk and grouped by topic; different values for the same
+# fact key across ACTIVE documents are reported as conflicts.
+fact_keys:   # named group (?P<value>...) holds the compared value
+  - {key: refund_issue_time, topic: refunds, pattern: '\brefunds?\b.{0,60}\b(issued|processed|paid)\b.{0,40}\bwithin\s+(?P<value>\d+)\s+(business\s+|calendar\s+)?days?'}
+  - {key: refund_window_days, topic: refunds, pattern: '\b(return|refund)\w*\b.{0,60}\bwithin\s+(?P<value>\d+)\s+(calendar\s+)?days?\s+of\s+(the\s+)?delivery'}
+  - {key: delay_credit_usd, topic: delivery, pattern: '\bdelay\w*\b.{0,160}?\b(usd\s?|\$)(?P<value>\d+)\s+store\s+credit'}
+  - {key: agent_compensation_limit_usd, topic: compensation, pattern: '\bagents?\b.{0,80}?\b(up\s+to|of)\s+(usd\s?|\$)(?P<value>\d+)'}
+  - {key: duplicate_reversal, topic: billing, pattern: '\bduplicate\b.{0,100}?\breversed\s+(?P<value>immediately|within\s+\d+\s+business\s+days)'}

@@ -1,0 +1,35 @@
+# =============================================================================
+# Responsible departments (SRS Step 22). 10 departments (SRS minimum: 8).
+# Department IDs are validated in the GenAI JSON schema check (SRS Step 46).
+# =============================================================================
+departments:
+  - code: DEPT-BIL
+    name: Billing Operations
+    description: Charges, duplicate/incorrect billing, subscription billing, refund reconciliation and chargebacks.
+  - code: DEPT-TEC
+    name: Technical Support
+    description: Device troubleshooting, connectivity, app/firmware problems, set-up and service outages.
+  - code: DEPT-LOG
+    name: Logistics Support
+    description: Shipping, delivery delays, lost packages, wrong items and fulfilment errors (including missing parts).
+  - code: DEPT-RET
+    name: Returns & Refunds
+    description: Returns, refund eligibility, refund processing, damaged-on-arrival replacements.
+  - code: DEPT-WAR
+    name: Warranty Services
+    description: Warranty claims, denials, appeals and Care+ protection-plan claims.
+  - code: DEPT-CRL
+    name: Customer Relations
+    description: Service quality, staff conduct, installation service quality and customer-experience recovery.
+  - code: DEPT-SEC
+    name: Account Security
+    description: Login recovery, unauthorized access, account takeover, smart-lock security incidents and fraud.
+  - code: DEPT-CMP
+    name: Compliance & Privacy
+    description: Privacy incidents, data-rights requests, consent, legal threats and regulatory matters.
+  - code: DEPT-SAF
+    name: Product Safety
+    description: Overheating, fire, electrical hazards, injuries, recalls and hazardous-product collection.
+  - code: DEPT-MGT
+    name: Management Escalations
+    description: Critical management escalations, high-value disputes and cross-department failures.

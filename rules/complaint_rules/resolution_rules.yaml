@@ -1,0 +1,1742 @@
+# =============================================================================
+# Complaint Resolution Rule Matrix - resolution rules (RES-*), SRS Step 8 and
+# deliverable 5. 116 rules over 35 subcategories.
+#
+# Selection (per subcategory): rules are evaluated in descending `precedence`.
+# The first rule whose conditions are TRUE is selected. Rules whose conditions
+# cannot be evaluated because facts are unknown (e.g. no order reference) are
+# recorded as "pending verification": any eligibility dimension on which a
+# pending rule disagrees with the selected rule becomes `requires_verification`.
+# Every subcategory has a default rule (precedence 10, no conditions).
+#
+# Priority is computed from urgency x impact with rules/complaint_rules/priority_rules.yaml.
+# `escalation` records the escalation inherent to the rule (mandatory escalation
+# conditions are enforced separately and globally by rules/escalation_rules).
+# `timelines` lists the parameters a customer response may quote as timelines.
+# `required_actions` entries may be {any_of: [...]} groups.
+#
+# Facts available to conditions (built deterministically by the fact builder):
+#   complaint.*   customer_type, channel, requested_resolution, word_count, has_order_reference,
+#                 product_sku, product_line, has_photo_evidence, max_amount,
+#                 requested_compensation_amount, max_elapsed_days, outage_hours
+#   order.*       exists, delivered, dispatched, shipping_method, order_total, business_days_late,
+#                 duplicate_charge_verified, overcharge_verified, return_received,
+#                 restocking_fee_applied, return_reason, cancellation_confirmed,
+#                 charged_after_cancellation, billing_period, trace_completed, is_hazardous
+#   customer.*    is_care_plus
+#   eligibility.* within_doa_window, within_defect_window, within_refund_window, within_warranty,
+#                 replacement_limit_reached, delay_qualifies, within_dispute_window,
+#                 within_cooling_off, refund_late, refund_trace_due, careplus_claims_available
+#   history.*     prior_same_issue_count, unresolved_prior_same_issue, references_resolved_complaint
+#   case.*        claimed_amount, priority
+#   {signal: X} {any_signal: [..]} {text_matches: regex} {subcategory_in: [..]} {category_in: [..]}
+# =============================================================================
+resolution_rules:
+  # ============================ PRODUCT DEFECT ===============================
+  - rule_id: RES-PRD-DOA-01
+    name: Damaged on arrival - verification pending
+    subcategory: PRD-DOA
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, REQUEST_PHOTO_EVIDENCE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GUARANTEE_COMPENSATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Request for additional information, due_hours: 24}
+    timelines: [doa_report_days, replacement_dispatch_business_days]
+    policy_refs: ["RPL-POL-03:3.1"]
+  - rule_id: RES-PRD-DOA-02
+    name: Damaged on arrival reported within 7 days with evidence
+    subcategory: PRD-DOA
+    precedence: 30
+    when: {all: [{fact: eligibility.within_doa_window, op: eq, value: true}, {fact: complaint.has_photo_evidence, op: eq, value: true}]}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, {any_of: [SHIP_REPLACEMENT, PROCESS_REFUND]}, ISSUE_RETURN_LABEL]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Replacement-status update, due_hours: 72}
+    timelines: [replacement_dispatch_business_days, return_label_business_days, refund_issue_business_days]
+    policy_refs: ["RPL-POL-03:3.1", "RPL-POL-03:4.1", "RPL-POL-03:4.2", "REF-POL-02:6.2"]
+  - rule_id: RES-PRD-DOA-03
+    name: Damage reported after the 7-day window
+    subcategory: PRD-DOA
+    precedence: 20
+    when: {fact: eligibility.within_doa_window, op: eq, value: false}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER]
+    recommended_actions: [VERIFY_WARRANTY_STATUS, ESCALATE_SUPERVISOR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION, SHIP_REPLACEMENT]
+    eligibility: {refund: not_eligible, replacement: not_eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [doa_report_days]
+    policy_refs: ["RPL-POL-03:3.1", "RPL-POL-03:3.3"]
+  - rule_id: RES-PRD-DOA-04
+    name: Damaged lithium-battery product - hazardous handling
+    subcategory: PRD-DOA
+    precedence: 50
+    when: {fact: order.is_hazardous, op: eq, value: true}
+    urgency: High
+    impact: High
+    required_actions: [VERIFY_ORDER, ADVISE_STOP_USING, ARRANGE_SPECIALIST_COLLECTION]
+    prohibited_actions: [SHIP_DAMAGED_BATTERY_BY_MAIL, ISSUE_RETURN_LABEL, DISMISS_SAFETY_CONCERN]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Replacement-status update, due_hours: 48}
+    timelines: [replacement_dispatch_business_days]
+    policy_refs: ["RPL-POL-03:6.1", "SAF-POL-10:5.2"]
+
+  - rule_id: RES-PRD-MAL-01
+    name: Product malfunction - purchase date unknown
+    subcategory: PRD-MAL
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, REMOTE_TROUBLESHOOTING]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: []
+    policy_refs: ["TEC-GDL-20:2", "RPL-POL-03:3.2"]
+  - rule_id: RES-PRD-MAL-02
+    name: Malfunction within 30 days of delivery
+    subcategory: PRD-MAL
+    precedence: 30
+    when: {fact: eligibility.within_defect_window, op: eq, value: true}
+    urgency: Medium
+    impact: Medium
+    supporting_departments: [DEPT-RET]
+    required_actions: [VERIFY_ORDER, REMOTE_TROUBLESHOOTING]
+    recommended_actions: [SHIP_REPLACEMENT, PROCESS_REFUND]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Replacement-status update, due_hours: 72}
+    timelines: [replacement_dispatch_business_days, refund_issue_business_days]
+    policy_refs: ["REF-POL-02:3.3", "RPL-POL-03:3.2"]
+  - rule_id: RES-PRD-MAL-03
+    name: Malfunction after 30 days, within warranty
+    subcategory: PRD-MAL
+    precedence: 20
+    when: {all: [{fact: eligibility.within_defect_window, op: eq, value: false}, {fact: eligibility.within_warranty, op: eq, value: true}]}
+    urgency: Medium
+    impact: Medium
+    supporting_departments: [DEPT-WAR]
+    required_actions: [VERIFY_ORDER, REMOTE_TROUBLESHOOTING, OPEN_WARRANTY_CLAIM]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_eligible, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 240}
+    timelines: [warranty_decision_business_days]
+    policy_refs: ["RPL-POL-03:3.3", "WAR-POL-07:4.1", "WAR-POL-07:4.2"]
+  - rule_id: RES-PRD-MAL-04
+    name: Malfunction outside warranty
+    subcategory: PRD-MAL
+    precedence: 25
+    when: {fact: eligibility.within_warranty, op: eq, value: false}
+    urgency: Low
+    impact: Medium
+    required_actions: [VERIFY_ORDER, REMOTE_TROUBLESHOOTING, VERIFY_WARRANTY_STATUS]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION, SHIP_REPLACEMENT]
+    eligibility: {refund: not_eligible, replacement: not_eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: []
+    policy_refs: ["WAR-POL-07:3", "WAR-POL-07:5"]
+  - rule_id: RES-PRD-MAL-05
+    name: Replacement unit also defective
+    subcategory: PRD-MAL
+    precedence: 40
+    when: {any: [{signal: replacement_failed}, {fact: eligibility.replacement_limit_reached, op: eq, value: true}]}
+    urgency: Medium
+    impact: Medium
+    supporting_departments: [DEPT-WAR]
+    required_actions: [VERIFY_ORDER, LINK_PREVIOUS_COMPLAINT, ESCALATE_SUPERVISOR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, SHIP_REPLACEMENT]
+    eligibility: {refund: requires_verification, replacement: not_eligible, compensation: not_applicable}
+    escalation: Supervisor Review
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: []
+    policy_refs: ["RPL-POL-03:3.4", "ESC-SOP-12:4.13"]
+
+  - rule_id: RES-PRD-MIS-01
+    name: Missing part - dispatch at no cost
+    subcategory: PRD-MIS
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Low
+    required_actions: [VERIFY_ORDER, SHIP_MISSING_PART]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Replacement-status update, due_hours: 120}
+    timelines: [missing_parts_dispatch_business_days]
+    policy_refs: ["RPL-POL-03:5.2"]
+  - rule_id: RES-PRD-MIS-02
+    name: Missing part - order reference missing
+    subcategory: PRD-MIS
+    precedence: 20
+    when: {fact: complaint.has_order_reference, op: eq, value: false}
+    urgency: Medium
+    impact: Low
+    required_actions: [REQUEST_ORDER_REFERENCE]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Request for additional information, due_hours: 24}
+    timelines: [missing_parts_dispatch_business_days]
+    policy_refs: ["RPL-POL-03:5.2", "CHP-POL-01:4.2"]
+  - rule_id: RES-PRD-MIS-03
+    name: Box delivered empty or product missing
+    subcategory: PRD-MIS
+    precedence: 30
+    when: {text_matches: '\b(empty\s+box|box\s+was\s+empty|nothing\s+(was\s+)?inside|device\s+(itself\s+)?(was\s+)?missing)\b'}
+    urgency: High
+    impact: Medium
+    supporting_departments: [DEPT-LOG]
+    required_actions: [VERIFY_ORDER, INITIATE_CARRIER_TRACE]
+    recommended_actions: [RESHIP_ORDER]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [carrier_trace_business_days]
+    policy_refs: ["DEL-POL-04:6.1", "RPL-POL-03:5.2"]
+
+  # ================================ BILLING =================================
+  - rule_id: RES-BIL-DUP-01
+    name: Duplicate charge - verification pending
+    subcategory: BIL-DUP
+    precedence: 10
+    when: {}
+    urgency: High
+    impact: Medium
+    required_actions: [CHECK_TRANSACTION]
+    recommended_actions: [REVERSE_DUPLICATE_CHARGE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 48}
+    timelines: [duplicate_reversal_business_days, bank_posting_max_business_days]
+    policy_refs: ["BIL-POL-05:4.1"]
+  - rule_id: RES-BIL-DUP-02
+    name: Duplicate charge verified in transaction records
+    subcategory: BIL-DUP
+    precedence: 30
+    when: {fact: order.duplicate_charge_verified, op: eq, value: true}
+    urgency: High
+    impact: Medium
+    required_actions: [CHECK_TRANSACTION, REVERSE_DUPLICATE_CHARGE]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS, GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 48}
+    timelines: [duplicate_reversal_business_days, bank_posting_max_business_days]
+    policy_refs: ["BIL-POL-05:4.1"]
+  - rule_id: RES-BIL-DUP-03
+    name: No duplicate found in transaction records
+    subcategory: BIL-DUP
+    precedence: 20
+    when: {fact: order.duplicate_charge_verified, op: eq, value: false}
+    urgency: Medium
+    impact: Medium
+    required_actions: [CHECK_TRANSACTION, REQUEST_ADDITIONAL_INFO]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, REVERSE_DUPLICATE_CHARGE]
+    eligibility: {refund: not_eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Request for additional information, due_hours: 24}
+    timelines: []
+    policy_refs: ["BIL-POL-05:4.1"]
+  - rule_id: RES-BIL-DUP-04
+    name: Duplicate charge raised after the 60-day dispute window
+    subcategory: BIL-DUP
+    precedence: 40
+    when: {fact: eligibility.within_dispute_window, op: eq, value: false}
+    urgency: Medium
+    impact: Medium
+    required_actions: [CHECK_TRANSACTION, ESCALATE_SUPERVISOR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: Supervisor Review
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: []
+    policy_refs: ["BIL-POL-05:4.3"]
+
+  - rule_id: RES-BIL-INC-01
+    name: Incorrect charge - investigation
+    subcategory: BIL-INC
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [CHECK_TRANSACTION]
+    recommended_actions: [CORRECT_BILLING_ERROR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [incorrect_charge_investigation_business_days]
+    policy_refs: ["BIL-POL-05:4.2"]
+  - rule_id: RES-BIL-INC-02
+    name: Overcharge verified against the order price
+    subcategory: BIL-INC
+    precedence: 30
+    when: {fact: order.overcharge_verified, op: eq, value: true}
+    urgency: Medium
+    impact: Medium
+    required_actions: [CHECK_TRANSACTION, CORRECT_BILLING_ERROR]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 120}
+    timelines: [incorrect_charge_investigation_business_days, bank_posting_max_business_days]
+    policy_refs: ["BIL-POL-05:4.2"]
+  - rule_id: RES-BIL-INC-03
+    name: Incorrect charge raised after the dispute window
+    subcategory: BIL-INC
+    precedence: 40
+    when: {fact: eligibility.within_dispute_window, op: eq, value: false}
+    urgency: Medium
+    impact: Medium
+    required_actions: [CHECK_TRANSACTION, ESCALATE_SUPERVISOR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: Supervisor Review
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: []
+    policy_refs: ["BIL-POL-05:4.3"]
+
+  - rule_id: RES-BIL-RFM-01
+    name: Refund missing - check refund status
+    subcategory: BIL-RFM
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [CHECK_REFUND_STATUS]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 72}
+    timelines: [bank_posting_max_business_days, refund_trace_after_business_days]
+    policy_refs: ["REF-POL-02:4.4", "BIL-POL-05:6.1"]
+  - rule_id: RES-BIL-RFM-02
+    name: Issued refund not received after 10 business days - payment trace
+    subcategory: BIL-RFM
+    precedence: 30
+    when: {fact: eligibility.refund_trace_due, op: eq, value: true}
+    urgency: Medium
+    impact: Medium
+    required_actions: [CHECK_REFUND_STATUS, OPEN_PAYMENT_TRACE]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS, GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 72}
+    timelines: [refund_trace_reference_business_days, refund_trace_after_business_days]
+    policy_refs: ["BIL-POL-05:6.1", "BIL-POL-05:6.2", "REF-POL-02:5.2"]
+  - rule_id: RES-BIL-RFM-03
+    name: Issued refund still within bank posting time
+    subcategory: BIL-RFM
+    precedence: 20
+    when: {fact: eligibility.refund_trace_due, op: eq, value: false}
+    urgency: Low
+    impact: Medium
+    required_actions: [CHECK_REFUND_STATUS]
+    prohibited_actions: [OPEN_PAYMENT_TRACE, GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 120}
+    timelines: [bank_posting_max_business_days]
+    policy_refs: ["REF-POL-02:4.4"]
+
+  - rule_id: RES-BIL-SUB-01
+    name: Subscription renewal dispute - verification pending
+    subcategory: BIL-SUB
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Low
+    required_actions: [CHECK_TRANSACTION, VERIFY_ACCOUNT]
+    recommended_actions: [CANCEL_SUBSCRIPTION]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: [annual_cooling_off_days, renewal_notice_days]
+    policy_refs: ["SUB-POL-22:4.1", "CAN-POL-06:4.3"]
+  - rule_id: RES-BIL-SUB-02
+    name: Annual renewal cancelled within 14 days - full refund
+    subcategory: BIL-SUB
+    precedence: 30
+    when: {fact: eligibility.within_cooling_off, op: eq, value: true}
+    urgency: Medium
+    impact: Low
+    required_actions: [CHECK_TRANSACTION, CANCEL_SUBSCRIPTION, PROCESS_REFUND]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 120}
+    timelines: [annual_cooling_off_days, refund_issue_business_days]
+    policy_refs: ["CAN-POL-06:4.3", "SUB-POL-22:5"]
+  - rule_id: RES-BIL-SUB-03
+    name: Annual renewal disputed after 14 days - no refund
+    subcategory: BIL-SUB
+    precedence: 20
+    when: {fact: eligibility.within_cooling_off, op: eq, value: false}
+    urgency: Medium
+    impact: Low
+    required_actions: [CHECK_TRANSACTION, CANCEL_SUBSCRIPTION]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION, PROCESS_REFUND]
+    eligibility: {refund: not_eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: [annual_cooling_off_days]
+    policy_refs: ["CAN-POL-06:4.3", "SUB-POL-22:4.2"]
+  - rule_id: RES-BIL-SUB-04
+    name: Monthly plan - no partial-month refunds
+    subcategory: BIL-SUB
+    precedence: 40
+    when: {fact: order.billing_period, op: eq, value: monthly}
+    urgency: Low
+    impact: Low
+    required_actions: [CHECK_TRANSACTION, CANCEL_SUBSCRIPTION]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, PROCESS_REFUND]
+    eligibility: {refund: not_eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: []
+    policy_refs: ["CAN-POL-06:4.1", "CAN-POL-06:4.2"]
+
+  - rule_id: RES-BIL-CAN-01
+    name: Charged after cancellation - verification pending
+    subcategory: BIL-CAN
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_CANCELLATION_RECORD, CHECK_TRANSACTION]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 120}
+    timelines: [post_cancellation_refund_business_days]
+    policy_refs: ["CAN-POL-06:5.1"]
+  - rule_id: RES-BIL-CAN-02
+    name: Confirmed cancellation then charged - refund charge
+    subcategory: BIL-CAN
+    precedence: 30
+    when: {all: [{fact: order.cancellation_confirmed, op: eq, value: true}, {fact: order.charged_after_cancellation, op: eq, value: true}]}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_CANCELLATION_RECORD, REFUND_POST_CANCELLATION_CHARGE]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 120}
+    timelines: [post_cancellation_refund_business_days, bank_posting_max_business_days]
+    policy_refs: ["CAN-POL-06:5.1"]
+  - rule_id: RES-BIL-CAN-03
+    name: No confirmed cancellation on record
+    subcategory: BIL-CAN
+    precedence: 20
+    when: {fact: order.cancellation_confirmed, op: eq, value: false}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_CANCELLATION_RECORD, REQUEST_ADDITIONAL_INFO]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, REFUND_POST_CANCELLATION_CHARGE]
+    eligibility: {refund: not_eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Request for additional information, due_hours: 24}
+    timelines: []
+    policy_refs: ["CAN-POL-06:5.1", "CAN-POL-06:4.1"]
+  - rule_id: RES-BIL-CAN-04
+    name: Order cancellation requested before dispatch
+    subcategory: BIL-CAN
+    precedence: 40
+    when: {all: [{fact: order.dispatched, op: eq, value: false}, {fact: order.exists, op: eq, value: true}]}
+    urgency: Medium
+    impact: Low
+    required_actions: [VERIFY_ORDER, CANCEL_ORDER]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 120}
+    timelines: [refund_issue_business_days]
+    policy_refs: ["CAN-POL-06:3.1"]
+
+  # ================================ DELIVERY ================================
+  - rule_id: RES-DEL-DLY-01
+    name: Delayed delivery - verify with carrier
+    subcategory: DEL-DLY
+    precedence: 10
+    when: {}
+    urgency: High
+    impact: Medium
+    required_actions: [VERIFY_SHIPMENT_STATUS, CONTACT_CARRIER]
+    prohibited_actions: [UNSUPPORTED_DELIVERY_DEADLINE, GUARANTEE_COMPENSATION, OFFER_STORE_CREDIT]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_eligible}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: []
+    policy_refs: ["DEL-POL-04:5.1"]
+  - rule_id: RES-DEL-DLY-02
+    name: Standard order delayed more than 3 business days - delay credit
+    subcategory: DEL-DLY
+    precedence: 20
+    when: {fact: eligibility.delay_qualifies, op: eq, value: true}
+    urgency: High
+    impact: Medium
+    required_actions: [VERIFY_SHIPMENT_STATUS, CONTACT_CARRIER, OFFER_STORE_CREDIT]
+    prohibited_actions: [UNSUPPORTED_DELIVERY_DEADLINE, GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: {status: eligible, type: store_credit, amount_usd: "$param:delay_credit_usd"}}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: []
+    policy_refs: ["DEL-POL-04:5.1", "DEL-POL-04:5.2", "CPN-POL-11:6"]
+  - rule_id: RES-DEL-DLY-03
+    name: Late express order - refund express fee
+    subcategory: DEL-DLY
+    precedence: 30
+    when: {all: [{fact: order.shipping_method, op: eq, value: express}, {fact: order.business_days_late, op: gt, value: 0}]}
+    urgency: High
+    impact: Medium
+    required_actions: [VERIFY_SHIPMENT_STATUS, REFUND_SHIPPING_FEE]
+    prohibited_actions: [UNSUPPORTED_DELIVERY_DEADLINE, GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: {status: eligible, type: shipping_fee_refund}}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: []
+    policy_refs: ["DEL-POL-04:5.3", "CPN-POL-11:6"]
+  - rule_id: RES-DEL-DLY-04
+    name: Delayed more than 10 business days - handle as lost package
+    subcategory: DEL-DLY
+    precedence: 40
+    when: {fact: order.business_days_late, op: gt, value: "$param:lost_to_delay_threshold_business_days"}
+    urgency: High
+    impact: Medium
+    supporting_departments: []
+    required_actions: [VERIFY_SHIPMENT_STATUS, INITIATE_CARRIER_TRACE]
+    recommended_actions: [OFFER_STORE_CREDIT, RESHIP_ORDER]
+    prohibited_actions: [UNSUPPORTED_DELIVERY_DEADLINE, GUARANTEE_COMPENSATION, PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: {status: eligible, type: store_credit, amount_usd: "$param:delay_credit_usd"}}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [carrier_trace_business_days]
+    policy_refs: ["DEL-POL-04:5.4", "DEL-POL-04:6.1", "DEL-POL-04:6.2"]
+  - rule_id: RES-DEL-DLY-05
+    name: Delay caused by customer address error or force majeure - no credit
+    subcategory: DEL-DLY
+    precedence: 35
+    when: {any_signal: [customer_address_error, force_majeure]}
+    urgency: Medium
+    impact: Low
+    required_actions: [VERIFY_SHIPMENT_STATUS, CONTACT_CARRIER]
+    prohibited_actions: [UNSUPPORTED_DELIVERY_DEADLINE, GUARANTEE_COMPENSATION, OFFER_STORE_CREDIT]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_eligible}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: []
+    policy_refs: ["DEL-POL-04:5.2", "CPN-POL-11:7"]
+
+  - rule_id: RES-DEL-LST-01
+    name: Lost package - carrier trace
+    subcategory: DEL-LST
+    precedence: 10
+    when: {}
+    urgency: High
+    impact: Medium
+    required_actions: [VERIFY_SHIPMENT_STATUS, INITIATE_CARRIER_TRACE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, UNSUPPORTED_DELIVERY_DEADLINE]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [carrier_trace_business_days]
+    policy_refs: ["DEL-POL-04:6.1", "DEL-POL-04:6.2"]
+  - rule_id: RES-DEL-LST-02
+    name: Trace completed without locating the package - reship or refund
+    subcategory: DEL-LST
+    precedence: 20
+    when: {fact: order.trace_completed, op: eq, value: true}
+    urgency: High
+    impact: Medium
+    required_actions: [VERIFY_SHIPMENT_STATUS, {any_of: [RESHIP_ORDER, PROCESS_REFUND]}]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: [refund_issue_business_days]
+    policy_refs: ["DEL-POL-04:6.2"]
+  - rule_id: RES-DEL-LST-03
+    name: Lost order valued at USD 500 or more
+    subcategory: DEL-LST
+    precedence: 30
+    when: {fact: order.order_total, op: gte, value: "$param:high_value_supervisor_usd"}
+    urgency: High
+    impact: High
+    required_actions: [VERIFY_SHIPMENT_STATUS, INITIATE_CARRIER_TRACE, ESCALATE_SUPERVISOR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, UNSUPPORTED_DELIVERY_DEADLINE]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Supervisor Review
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [carrier_trace_business_days]
+    policy_refs: ["DEL-POL-04:6.3", "ESC-SOP-12:4.6"]
+
+  - rule_id: RES-DEL-WRG-01
+    name: Wrong item - verification pending
+    subcategory: DEL-WRG
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, REQUEST_PHOTO_EVIDENCE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Request for additional information, due_hours: 24}
+    timelines: [wrong_item_dispatch_business_days]
+    policy_refs: ["RPL-POL-03:5.1"]
+  - rule_id: RES-DEL-WRG-02
+    name: Wrong item on a verified delivered order - ship correct item
+    subcategory: DEL-WRG
+    precedence: 20
+    when: {all: [{fact: order.exists, op: eq, value: true}, {fact: order.delivered, op: eq, value: true}]}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, SHIP_CORRECT_ITEM, ISSUE_RETURN_LABEL]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Replacement-status update, due_hours: 72}
+    timelines: [wrong_item_dispatch_business_days, return_label_business_days]
+    policy_refs: ["RPL-POL-03:5.1"]
+  - rule_id: RES-DEL-WRG-03
+    name: Wrong item - customer prefers a refund
+    subcategory: DEL-WRG
+    precedence: 30
+    when: {all: [{fact: order.delivered, op: eq, value: true}, {fact: complaint.requested_resolution, op: eq, value: refund}]}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, ISSUE_RETURN_LABEL]
+    recommended_actions: [PROCESS_REFUND]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 120}
+    timelines: [return_label_business_days, refund_issue_business_days, return_inspection_business_days]
+    policy_refs: ["RPL-POL-03:5.1", "REF-POL-02:6.2"]
+
+  # ================================= REFUND =================================
+  - rule_id: RES-REF-REQ-01
+    name: Refund request - order verification required
+    subcategory: REF-REQ
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER]
+    recommended_actions: [REQUEST_ORDER_REFERENCE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Request for additional information, due_hours: 24}
+    timelines: [refund_window_days]
+    policy_refs: ["REF-POL-02:4.1", "REF-POL-02:3.1"]
+  - rule_id: RES-REF-REQ-02
+    name: Refund request within the refund window
+    subcategory: REF-REQ
+    precedence: 30
+    when: {fact: eligibility.within_refund_window, op: eq, value: true}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, ISSUE_RETURN_LABEL, INSPECT_RETURNED_ITEM]
+    recommended_actions: [PROCESS_REFUND]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 120}
+    timelines: [refund_window_days, care_plus_refund_window_days, return_inspection_business_days, refund_issue_business_days, bank_posting_max_business_days, return_label_business_days]
+    policy_refs: ["REF-POL-02:3.1", "REF-POL-02:3.2", "REF-POL-02:4.2", "REF-POL-02:4.3", "REF-POL-02:6.1"]
+  - rule_id: RES-REF-REQ-03
+    name: Refund request outside the refund window
+    subcategory: REF-REQ
+    precedence: 20
+    when: {fact: eligibility.within_refund_window, op: eq, value: false}
+    urgency: Medium
+    impact: Low
+    required_actions: [VERIFY_ORDER]
+    recommended_actions: [ESCALATE_SUPERVISOR, VERIFY_WARRANTY_STATUS]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION, PROCESS_REFUND]
+    eligibility: {refund: not_eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: [refund_window_days, care_plus_refund_window_days]
+    policy_refs: ["REF-POL-02:3.1", "REF-POL-02:7.1", "REF-POL-02:7.2"]
+  - rule_id: RES-REF-REQ-04
+    name: Refund request for a non-refundable service
+    subcategory: REF-REQ
+    precedence: 35
+    when: {fact: complaint.product_sku, op: in, value: [SVC-INSTALL]}
+    urgency: Low
+    impact: Low
+    required_actions: [VERIFY_ORDER]
+    recommended_actions: [SCHEDULE_INSTALL_REVISIT]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, PROCESS_REFUND, GRANT_POLICY_EXCEPTION]
+    eligibility: {refund: not_eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: [install_revisit_business_days]
+    policy_refs: ["REF-POL-02:3.4", "INS-POL-24:5.1"]
+  - rule_id: RES-REF-REQ-05
+    name: Refund request for a product damaged by misuse
+    subcategory: REF-REQ
+    precedence: 40
+    when: {signal: misuse_damage}
+    urgency: Low
+    impact: Low
+    required_actions: [VERIFY_ORDER]
+    recommended_actions: [VERIFY_CAREPLUS_COVERAGE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, PROCESS_REFUND, GRANT_POLICY_EXCEPTION]
+    eligibility: {refund: not_eligible, replacement: not_eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: []
+    policy_refs: ["REF-POL-02:3.4", "WAR-POL-07:6.2"]
+
+  - rule_id: RES-REF-DLY-01
+    name: Refund delay - check refund status
+    subcategory: REF-DLY
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, CHECK_REFUND_STATUS]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 24}
+    timelines: [refund_issue_business_days, refund_delay_status_update_business_days]
+    policy_refs: ["REF-POL-02:4.3", "REF-POL-02:5.1"]
+  - rule_id: RES-REF-DLY-02
+    name: Approved refund not issued within 5 business days
+    subcategory: REF-DLY
+    precedence: 30
+    when: {fact: eligibility.refund_late, op: eq, value: true}
+    urgency: Medium
+    impact: Medium
+    required_actions: [CHECK_REFUND_STATUS, PROCESS_REFUND]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 24}
+    timelines: [refund_delay_status_update_business_days, bank_posting_max_business_days]
+    policy_refs: ["REF-POL-02:5.1", "REF-POL-02:4.3"]
+  - rule_id: RES-REF-DLY-03
+    name: Refund still within the 5 business-day target
+    subcategory: REF-DLY
+    precedence: 20
+    when: {fact: eligibility.refund_late, op: eq, value: false}
+    urgency: Low
+    impact: Medium
+    required_actions: [CHECK_REFUND_STATUS]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 72}
+    timelines: [refund_issue_business_days, return_inspection_business_days, bank_posting_max_business_days]
+    policy_refs: ["REF-POL-02:4.2", "REF-POL-02:4.3"]
+  - rule_id: RES-REF-DLY-04
+    name: Return not yet received by Lumora
+    subcategory: REF-DLY
+    precedence: 25
+    when: {fact: order.return_received, op: eq, value: false}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_SHIPMENT_STATUS, CHECK_REFUND_STATUS]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, PROCESS_REFUND]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 48}
+    timelines: [return_inspection_business_days, refund_issue_business_days]
+    policy_refs: ["REF-POL-02:4.2", "REF-POL-02:4.1"]
+
+  - rule_id: RES-REF-PAR-01
+    name: Partial refund dispute - itemised breakdown
+    subcategory: REF-PAR
+    precedence: 10
+    when: {}
+    urgency: Low
+    impact: Low
+    required_actions: [CHECK_REFUND_STATUS, PROVIDE_FEE_BREAKDOWN]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 72}
+    timelines: [partial_refund_breakdown_business_days]
+    policy_refs: ["REF-POL-02:6.1", "REF-POL-02:6.3"]
+  - rule_id: RES-REF-PAR-02
+    name: Restocking fee charged where policy exempts it
+    subcategory: REF-PAR
+    precedence: 30
+    when: {all: [{fact: order.restocking_fee_applied, op: eq, value: true}, {any: [{fact: customer.is_care_plus, op: eq, value: true}, {fact: order.return_reason, op: in, value: [defective, damaged_on_arrival, wrong_item]}]}]}
+    urgency: Low
+    impact: Low
+    required_actions: [CHECK_REFUND_STATUS, CORRECT_BILLING_ERROR]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Refund-status update, due_hours: 120}
+    timelines: [refund_issue_business_days, partial_refund_breakdown_business_days]
+    policy_refs: ["REF-POL-02:6.1", "REF-POL-02:6.2"]
+  - rule_id: RES-REF-PAR-03
+    name: Restocking fee correctly applied
+    subcategory: REF-PAR
+    precedence: 20
+    when: {all: [{fact: order.restocking_fee_applied, op: eq, value: true}, {fact: customer.is_care_plus, op: eq, value: false}, {fact: order.return_reason, op: in, value: [changed_mind, not_needed, other]}]}
+    urgency: Low
+    impact: Low
+    required_actions: [CHECK_REFUND_STATUS, PROVIDE_FEE_BREAKDOWN]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION]
+    eligibility: {refund: not_eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: [partial_refund_breakdown_business_days]
+    policy_refs: ["REF-POL-02:6.1", "REF-POL-02:6.3"]
+
+  # ================================ ACCOUNT =================================
+  - rule_id: RES-ACC-LGN-01
+    name: Login problem - verified password reset
+    subcategory: ACC-LGN
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_IDENTITY, GUIDE_PASSWORD_RESET]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: [account_recovery_business_days]
+    policy_refs: ["SEC-POL-09:7.1", "SEC-POL-09:7.2", "SEC-POL-09:6"]
+  - rule_id: RES-ACC-LGN-02
+    name: Login problem with signs of compromise
+    subcategory: ACC-LGN
+    precedence: 30
+    when: {signal: security_breach}
+    urgency: Critical
+    impact: High
+    required_actions: [VERIFY_IDENTITY, REVIEW_ACCOUNT_ACTIVITY, REVOKE_SESSIONS, FORCE_PASSWORD_RESET]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Specialist Team
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [security_response_hours]
+    policy_refs: ["SEC-POL-09:4.1", "SEC-POL-09:4.3"]
+  - rule_id: RES-ACC-LGN-03
+    name: Login blocked by an outdated account email
+    subcategory: ACC-LGN
+    precedence: 20
+    when: {text_matches: '\b(old|previous|former)\s+email\b|\bno\s+longer\s+(have|use)\s+(access\s+to\s+)?(that|the|my)\s+email\b'}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_IDENTITY, UPDATE_ACCOUNT_DETAILS, GUIDE_PASSWORD_RESET]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: [account_recovery_business_days]
+    policy_refs: ["SEC-POL-09:6", "SEC-POL-09:7.2"]
+
+  - rule_id: RES-ACC-UNA-01
+    name: Unauthorized account access - contain and investigate
+    subcategory: ACC-UNA
+    precedence: 10
+    when: {}
+    urgency: Critical
+    impact: High
+    required_actions: [VERIFY_IDENTITY, LOCK_ACCOUNT, REVOKE_SESSIONS, FORCE_PASSWORD_RESET, REVIEW_ACCOUNT_ACTIVITY, ESCALATE_SPECIALIST_TEAM]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Specialist Team
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [security_response_hours]
+    policy_refs: ["SEC-POL-09:4.1", "SEC-POL-09:4.2", "SEC-POL-09:4.3", "ESC-SOP-12:4.2"]
+  - rule_id: RES-ACC-UNA-02
+    name: Unauthorized purchases on a compromised account
+    subcategory: ACC-UNA
+    precedence: 30
+    when: {text_matches: '\b(orders?|purchases?|bought|charged)\b.{0,40}\b(did\s+not|didn''t|never)\s+(place|make|order|buy|authori[sz]e)\b|\bunauthori[sz]ed\s+(orders?|purchases?|charges?)\b'}
+    urgency: Critical
+    impact: High
+    supporting_departments: [DEPT-BIL]
+    required_actions: [VERIFY_IDENTITY, LOCK_ACCOUNT, REVOKE_SESSIONS, REVIEW_ACCOUNT_ACTIVITY, ESCALATE_SPECIALIST_TEAM]
+    recommended_actions: [REVERSE_UNAUTHORIZED_PURCHASES]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS, PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: Specialist Team
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [security_response_hours]
+    policy_refs: ["SEC-POL-09:4.1", "SEC-POL-09:4.4"]
+  - rule_id: RES-ACC-UNA-03
+    name: Smart-lock security incident
+    subcategory: ACC-UNA
+    precedence: 40
+    when: {signal: lock_security}
+    urgency: Critical
+    impact: High
+    supporting_departments: [DEPT-MGT]
+    required_actions: [VERIFY_IDENTITY, ADVISE_PHYSICAL_KEY, REVIEW_ACCOUNT_ACTIVITY, REVOKE_SESSIONS, ESCALATE_CRITICAL_MANAGEMENT]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS, DISMISS_SAFETY_CONCERN]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Critical Management Escalation
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [security_response_hours]
+    policy_refs: ["SEC-POL-09:5.1", "SEC-POL-09:5.2", "SEC-POL-09:5.3"]
+
+  - rule_id: RES-ACC-UPD-01
+    name: Account update issue - verified update
+    subcategory: ACC-UPD
+    precedence: 10
+    when: {}
+    urgency: Low
+    impact: Low
+    required_actions: [VERIFY_IDENTITY, UPDATE_ACCOUNT_DETAILS]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: []
+    policy_refs: ["SEC-POL-09:6"]
+  - rule_id: RES-ACC-UPD-02
+    name: Delivery address change after dispatch
+    subcategory: ACC-UPD
+    precedence: 20
+    when: {all: [{fact: order.dispatched, op: eq, value: true}, {text_matches: '\baddress\b'}]}
+    urgency: Medium
+    impact: Low
+    supporting_departments: [DEPT-LOG]
+    required_actions: [VERIFY_ORDER, VERIFY_SHIPMENT_STATUS]
+    prohibited_actions: [UNSUPPORTED_DELIVERY_DEADLINE, REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: []
+    policy_refs: ["DEL-POL-04:4.2"]
+
+  # =========================== TECHNICAL SUPPORT ============================
+  - rule_id: RES-TEC-CON-01
+    name: Connectivity issue - guided troubleshooting
+    subcategory: TEC-CON
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Low
+    required_actions: [REMOTE_TROUBLESHOOTING]
+    recommended_actions: [FIRMWARE_UPDATE_GUIDANCE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: []
+    policy_refs: ["TEC-GDL-20:2", "TEC-GDL-20:3"]
+  - rule_id: RES-TEC-CON-02
+    name: Connectivity issue after troubleshooting already attempted
+    subcategory: TEC-CON
+    precedence: 20
+    when: {text_matches: '\b(already|have)\s+(tried|restarted|reset|rebooted|reinstalled)\b|\b(tried|done)\s+everything\b|\bfactory\s+reset\b'}
+    urgency: Medium
+    impact: Medium
+    required_actions: [REMOTE_TROUBLESHOOTING, VERIFY_WARRANTY_STATUS]
+    recommended_actions: [SCHEDULE_TECHNICIAN_VISIT, OPEN_WARRANTY_CLAIM]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_applicable, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: []
+    policy_refs: ["TEC-GDL-20:6", "TEC-GDL-20:7"]
+  - rule_id: RES-TEC-CON-03
+    name: Security device offline
+    subcategory: TEC-CON
+    precedence: 30
+    when: {fact: complaint.product_line, op: in, value: [Security, Platform]}
+    urgency: Medium
+    impact: Medium
+    required_actions: [REMOTE_TROUBLESHOOTING]
+    recommended_actions: [FIRMWARE_UPDATE_GUIDANCE, SCHEDULE_TECHNICIAN_VISIT]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 24}
+    timelines: []
+    policy_refs: ["TEC-GDL-20:3.3"]
+
+  - rule_id: RES-TEC-APP-01
+    name: App or software issue - troubleshooting
+    subcategory: TEC-APP
+    precedence: 10
+    when: {}
+    urgency: Low
+    impact: Low
+    required_actions: [REMOTE_TROUBLESHOOTING, FIRMWARE_UPDATE_GUIDANCE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: []
+    policy_refs: ["TEC-GDL-20:4.1"]
+  - rule_id: RES-TEC-APP-02
+    name: Firmware update caused a malfunction - rollback
+    subcategory: TEC-APP
+    precedence: 20
+    when: {text_matches: '\b(after|since)\s+(the\s+)?(latest\s+|last\s+|recent\s+|new\s+)?(firmware|software|app)?\s*update\b'}
+    urgency: Medium
+    impact: Medium
+    required_actions: [FIRMWARE_UPDATE_GUIDANCE]
+    recommended_actions: [REMOTE_TROUBLESHOOTING]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: []
+    policy_refs: ["TEC-GDL-20:4.2"]
+
+  - rule_id: RES-TEC-SET-01
+    name: Setup issue - guided setup
+    subcategory: TEC-SET
+    precedence: 10
+    when: {}
+    urgency: Low
+    impact: Medium
+    required_actions: [REMOTE_TROUBLESHOOTING]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: []
+    policy_refs: ["TEC-GDL-20:5"]
+  - rule_id: RES-TEC-SET-02
+    name: Thermostat wiring compatibility
+    subcategory: TEC-SET
+    precedence: 20
+    when: {all: [{fact: complaint.product_sku, op: eq, value: LUM-TH-100}, {text_matches: '\b(wir(e|es|ing)|c-wire|terminal|compatib)'}]}
+    urgency: Low
+    impact: Medium
+    required_actions: [REMOTE_TROUBLESHOOTING]
+    recommended_actions: [SCHEDULE_TECHNICIAN_VISIT]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 48}
+    timelines: []
+    policy_refs: ["TEC-GDL-20:5.1", "TEC-GDL-20:7"]
+  - rule_id: RES-TEC-SET-03
+    name: Smart lock setup or calibration failure
+    subcategory: TEC-SET
+    precedence: 30
+    when: {fact: complaint.product_sku, op: eq, value: LUM-LCK-700}
+    urgency: Medium
+    impact: Medium
+    required_actions: [REMOTE_TROUBLESHOOTING]
+    recommended_actions: [SCHEDULE_TECHNICIAN_VISIT]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, REQUEST_SENSITIVE_CREDENTIALS]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 24}
+    timelines: []
+    policy_refs: ["TEC-GDL-20:5.2"]
+
+  # ============================ SERVICE QUALITY =============================
+  - rule_id: RES-SVC-SUP-01
+    name: Poor support experience - review interactions
+    subcategory: SVC-SUP
+    precedence: 10
+    when: {}
+    urgency: Low
+    impact: Low
+    required_actions: [REVIEW_INTERACTION_RECORDS]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [staff_review_business_days]
+    policy_refs: ["STF-POL-21:3", "STF-POL-21:5.1"]
+  - rule_id: RES-SVC-SUP-02
+    name: Support failed to resolve an earlier contact
+    subcategory: SVC-SUP
+    precedence: 20
+    when: {any: [{signal: repeat_indicator}, {fact: history.prior_same_issue_count, op: gte, value: 1}]}
+    urgency: Medium
+    impact: Low
+    required_actions: [REVIEW_INTERACTION_RECORDS, LINK_PREVIOUS_COMPLAINT]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: [staff_review_business_days]
+    policy_refs: ["STF-POL-21:3.1", "CHP-POL-01:7.2"]
+  - rule_id: RES-SVC-SUP-03
+    name: Compensation requested for poor support
+    subcategory: SVC-SUP
+    precedence: 30
+    when: {signal: compensation_request}
+    urgency: Low
+    impact: Low
+    required_actions: [REVIEW_INTERACTION_RECORDS]
+    prohibited_actions: [GUARANTEE_COMPENSATION, CASH_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: {status: requires_verification, type: store_credit, max_amount_usd: "$param:agent_compensation_limit_usd"}}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [staff_review_business_days]
+    policy_refs: ["CPN-POL-11:3.1", "CPN-POL-11:5.1"]
+
+  - rule_id: RES-SVC-INS-01
+    name: Installation workmanship issue - no-cost re-visit
+    subcategory: SVC-INS
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Low
+    required_actions: [REVIEW_INTERACTION_RECORDS, SCHEDULE_INSTALL_REVISIT]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_eligible, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [install_revisit_business_days]
+    policy_refs: ["INS-POL-24:5.1"]
+  - rule_id: RES-SVC-INS-02
+    name: Re-visit already failed - installation fee refund review
+    subcategory: SVC-INS
+    precedence: 30
+    when: {any: [{fact: history.prior_same_issue_count, op: gte, value: 1}, {text_matches: '\b(second|another|re-?)\s*visit\b.{0,60}\b(still|also|again|failed|did\s+not|didn''t)\b'}]}
+    urgency: Medium
+    impact: Medium
+    required_actions: [REVIEW_INTERACTION_RECORDS, ESCALATE_SUPERVISOR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: Supervisor Review
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: []
+    policy_refs: ["INS-POL-24:5.2"]
+  - rule_id: RES-SVC-INS-03
+    name: Technician late or no-show
+    subcategory: SVC-INS
+    precedence: 20
+    when: {text_matches: '\b(no[- ]show|did\s+not\s+(show|turn)\s+up|didn''t\s+(show|turn)\s+up|never\s+(showed|arrived|came)|(arrived|was)\s+\d+\s+hours?\s+late|missed\s+(the|my)\s+appointment)\b'}
+    urgency: Medium
+    impact: Low
+    required_actions: [REVIEW_INTERACTION_RECORDS, SCHEDULE_INSTALL_REVISIT]
+    prohibited_actions: [GUARANTEE_COMPENSATION, CASH_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: {status: requires_verification, type: store_credit, max_amount_usd: "$param:agent_compensation_limit_usd"}}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: [install_revisit_business_days]
+    policy_refs: ["INS-POL-24:3.1", "CPN-POL-11:5.1"]
+
+  - rule_id: RES-SVC-OUT-01
+    name: Service outage - status check
+    subcategory: SVC-OUT
+    precedence: 10
+    when: {}
+    urgency: High
+    impact: Medium
+    required_actions: [CHECK_SERVICE_STATUS]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: requires_verification}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 24}
+    timelines: [outage_credit_threshold_hours]
+    policy_refs: ["SUB-POL-22:6.1"]
+  - rule_id: RES-SVC-OUT-02
+    name: Cloud Vault outage over 24 hours - subscription credit
+    subcategory: SVC-OUT
+    precedence: 30
+    when: {fact: complaint.outage_hours, op: gt, value: "$param:outage_credit_threshold_hours"}
+    urgency: High
+    impact: High
+    required_actions: [CHECK_SERVICE_STATUS, OFFER_SUBSCRIPTION_CREDIT]
+    prohibited_actions: [GUARANTEE_COMPENSATION, CASH_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: {status: eligible, type: subscription_credit}}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 24}
+    timelines: [outage_credit_threshold_hours]
+    policy_refs: ["SUB-POL-22:6.1", "CPN-POL-11:4"]
+  - rule_id: RES-SVC-OUT-03
+    name: Short outage under 24 hours - no credit
+    subcategory: SVC-OUT
+    precedence: 20
+    when: {fact: complaint.outage_hours, op: lte, value: "$param:outage_credit_threshold_hours"}
+    urgency: Medium
+    impact: Medium
+    required_actions: [CHECK_SERVICE_STATUS]
+    prohibited_actions: [GUARANTEE_COMPENSATION, OFFER_SUBSCRIPTION_CREDIT]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_eligible}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 24}
+    timelines: [outage_credit_threshold_hours]
+    policy_refs: ["SUB-POL-22:6.1"]
+
+  # ================================ WARRANTY ================================
+  - rule_id: RES-WAR-CLM-01
+    name: Warranty claim - verify purchase and coverage
+    subcategory: WAR-CLM
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, VERIFY_WARRANTY_STATUS, REMOTE_TROUBLESHOOTING]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_eligible, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Request for additional information, due_hours: 24}
+    timelines: [warranty_decision_business_days]
+    policy_refs: ["WAR-POL-07:4.1"]
+  - rule_id: RES-WAR-CLM-02
+    name: Warranty claim within coverage
+    subcategory: WAR-CLM
+    precedence: 30
+    when: {fact: eligibility.within_warranty, op: eq, value: true}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ORDER, VERIFY_WARRANTY_STATUS, REMOTE_TROUBLESHOOTING, OPEN_WARRANTY_CLAIM]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_eligible, replacement: eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 240}
+    timelines: [warranty_decision_business_days]
+    policy_refs: ["WAR-POL-07:3", "WAR-POL-07:4.2", "WAR-POL-07:4.3"]
+  - rule_id: RES-WAR-CLM-03
+    name: Warranty claim outside coverage
+    subcategory: WAR-CLM
+    precedence: 20
+    when: {fact: eligibility.within_warranty, op: eq, value: false}
+    urgency: Low
+    impact: Medium
+    required_actions: [VERIFY_ORDER, VERIFY_WARRANTY_STATUS]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION, SHIP_REPLACEMENT]
+    eligibility: {refund: not_eligible, replacement: not_eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: []
+    policy_refs: ["WAR-POL-07:3.1", "WAR-POL-07:3.2"]
+  - rule_id: RES-WAR-CLM-04
+    name: Warranty claim for physical or liquid damage
+    subcategory: WAR-CLM
+    precedence: 40
+    when: {all: [{signal: misuse_damage}, {fact: customer.is_care_plus, op: eq, value: false}]}
+    urgency: Low
+    impact: Medium
+    required_actions: [VERIFY_WARRANTY_STATUS]
+    recommended_actions: [VERIFY_CAREPLUS_COVERAGE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION, SHIP_REPLACEMENT]
+    eligibility: {refund: not_eligible, replacement: not_eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: []
+    policy_refs: ["WAR-POL-07:5"]
+
+  - rule_id: RES-WAR-DEN-01
+    name: Warranty denial appeal - supervisor review
+    subcategory: WAR-DEN
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_WARRANTY_STATUS, REVIEW_WARRANTY_APPEAL, ESCALATE_SUPERVISOR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION]
+    eligibility: {refund: not_eligible, replacement: requires_verification, compensation: not_applicable}
+    escalation: Supervisor Review
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 240}
+    timelines: [warranty_decision_business_days, warranty_appeal_window_days]
+    policy_refs: ["WAR-POL-07:7.1", "WAR-POL-07:7.2"]
+  - rule_id: RES-WAR-DEN-02
+    name: Appeal raised after the 30-day appeal window
+    subcategory: WAR-DEN
+    precedence: 30
+    when: {fact: complaint.max_elapsed_days, op: gt, value: "$param:warranty_appeal_window_days"}
+    urgency: Low
+    impact: Medium
+    required_actions: [VERIFY_WARRANTY_STATUS, ESCALATE_SUPERVISOR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, GRANT_POLICY_EXCEPTION]
+    eligibility: {refund: not_eligible, replacement: not_eligible, compensation: not_applicable}
+    escalation: Supervisor Review
+    follow_up: {required: false}
+    timelines: [warranty_appeal_window_days]
+    policy_refs: ["WAR-POL-07:7.1"]
+  - rule_id: RES-WAR-DEN-03
+    name: Care+ member disputing a denial
+    subcategory: WAR-DEN
+    precedence: 20
+    when: {fact: customer.is_care_plus, op: eq, value: true}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_CAREPLUS_COVERAGE, REVIEW_WARRANTY_APPEAL, ESCALATE_SUPERVISOR]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_eligible, replacement: requires_verification, compensation: not_applicable}
+    escalation: Supervisor Review
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 240}
+    timelines: [warranty_decision_business_days]
+    policy_refs: ["WAR-POL-07:6", "WAR-POL-07:7.2"]
+
+  - rule_id: RES-WAR-CPL-01
+    name: Care+ coverage issue - verify plan
+    subcategory: WAR-CPL
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_CAREPLUS_COVERAGE]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: not_applicable, replacement: requires_verification, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Replacement-status update, due_hours: 72}
+    timelines: []
+    policy_refs: ["WAR-POL-07:6"]
+  - rule_id: RES-WAR-CPL-02
+    name: Care+ accidental-damage claim with claims available
+    subcategory: WAR-CPL
+    precedence: 30
+    when: {all: [{fact: customer.is_care_plus, op: eq, value: true}, {fact: eligibility.careplus_claims_available, op: eq, value: true}]}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_CAREPLUS_COVERAGE, SHIP_ADVANCE_REPLACEMENT]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Replacement-status update, due_hours: 72}
+    timelines: [replacement_dispatch_business_days]
+    policy_refs: ["WAR-POL-07:6.2", "WAR-POL-07:6.3", "RPL-POL-03:4.3"]
+  - rule_id: RES-WAR-CPL-03
+    name: Care+ claim from a customer without an active plan
+    subcategory: WAR-CPL
+    precedence: 20
+    when: {fact: customer.is_care_plus, op: eq, value: false}
+    urgency: Low
+    impact: Medium
+    required_actions: [VERIFY_CAREPLUS_COVERAGE]
+    recommended_actions: [VERIFY_WARRANTY_STATUS]
+    prohibited_actions: [PROMISE_REFUND_BEFORE_VERIFICATION, SHIP_ADVANCE_REPLACEMENT, GRANT_POLICY_EXCEPTION]
+    eligibility: {refund: not_applicable, replacement: not_eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: []
+    policy_refs: ["WAR-POL-07:6.1", "SUB-POL-22:7"]
+  - rule_id: RES-WAR-CPL-04
+    name: Care+ accidental-damage claim limit reached
+    subcategory: WAR-CPL
+    precedence: 40
+    when: {fact: eligibility.careplus_claims_available, op: eq, value: false}
+    urgency: Low
+    impact: Medium
+    required_actions: [VERIFY_CAREPLUS_COVERAGE]
+    prohibited_actions: [SHIP_ADVANCE_REPLACEMENT, GRANT_POLICY_EXCEPTION]
+    eligibility: {refund: not_applicable, replacement: not_eligible, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: false}
+    timelines: []
+    policy_refs: ["WAR-POL-07:6.2"]
+
+  # ================================ PRIVACY =================================
+  - rule_id: RES-PRV-BRC-01
+    name: Privacy incident - log, contain, compliance review
+    subcategory: PRV-BRC
+    precedence: 10
+    when: {}
+    urgency: Critical
+    impact: High
+    required_actions: [LOG_PRIVACY_INCIDENT, CONTAIN_DATA_EXPOSURE, ESCALATE_COMPLIANCE]
+    prohibited_actions: [DISCLOSE_OTHER_CUSTOMER_DATA, PROMISE_REGULATORY_OUTCOME, GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Compliance Review
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [privacy_incident_log_hours, compliance_assessment_hours]
+    policy_refs: ["PRV-POL-08:7.1", "PRV-POL-08:7.2", "PRV-POL-08:7.3", "PRV-POL-08:7.4"]
+  - rule_id: RES-PRV-BRC-02
+    name: Customer can see another person's data
+    subcategory: PRV-BRC
+    precedence: 30
+    when: {text_matches: '\b(someone\s+else''s|another\s+(customer|person|family|user)''?s?|other\s+(people''s|customers''|users''))\b'}
+    urgency: Critical
+    impact: High
+    required_actions: [LOG_PRIVACY_INCIDENT, CONTAIN_DATA_EXPOSURE, REVIEW_ACCOUNT_ACTIVITY, ESCALATE_COMPLIANCE]
+    prohibited_actions: [DISCLOSE_OTHER_CUSTOMER_DATA, PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Compliance Review
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [privacy_incident_log_hours, compliance_assessment_hours]
+    policy_refs: ["PRV-POL-08:7.1", "PRV-POL-08:7.4", "PRV-POL-08:8"]
+  - rule_id: RES-PRV-BRC-03
+    name: Camera footage exposure
+    subcategory: PRV-BRC
+    precedence: 40
+    when: {text_matches: '\b(camera|footage|recordings?|video|feed|live\s+view)\b'}
+    urgency: Critical
+    impact: High
+    supporting_departments: [DEPT-SEC]
+    required_actions: [LOG_PRIVACY_INCIDENT, CONTAIN_DATA_EXPOSURE, REVOKE_SESSIONS, ESCALATE_COMPLIANCE]
+    prohibited_actions: [DISCLOSE_OTHER_CUSTOMER_DATA, PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Compliance Review
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [privacy_incident_log_hours, compliance_assessment_hours]
+    policy_refs: ["PRV-POL-08:6.1", "PRV-POL-08:7.4"]
+
+  - rule_id: RES-PRV-CON-01
+    name: Marketing consent - apply opt-out
+    subcategory: PRV-CON
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ACCOUNT, UPDATE_CONSENT_PREFERENCES]
+    prohibited_actions: [PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 240}
+    timelines: [marketing_optout_business_days]
+    policy_refs: ["PRV-POL-08:5.1", "PRV-POL-08:5.2"]
+  - rule_id: RES-PRV-CON-02
+    name: Marketing received after the opt-out period
+    subcategory: PRV-CON
+    precedence: 30
+    when: {all: [{signal: consent_violation}, {fact: complaint.max_elapsed_days, op: gt, value: 14}]}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_ACCOUNT, UPDATE_CONSENT_PREFERENCES, LOG_PRIVACY_INCIDENT]
+    prohibited_actions: [PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [marketing_optout_business_days]
+    policy_refs: ["PRV-POL-08:5.2"]
+  - rule_id: RES-PRV-CON-03
+    name: Personal data shared or sold without consent
+    subcategory: PRV-CON
+    precedence: 40
+    when: {text_matches: '\b(sold|selling|shared|sharing|passed|gave)\b.{0,40}\b(data|information|details|email|number)\b|\bthird[- ]part(y|ies)\b'}
+    urgency: High
+    impact: High
+    required_actions: [LOG_PRIVACY_INCIDENT, UPDATE_CONSENT_PREFERENCES, ESCALATE_COMPLIANCE]
+    prohibited_actions: [PROMISE_REGULATORY_OUTCOME, DISCLOSE_OTHER_CUSTOMER_DATA]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Compliance Review
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 4}
+    timelines: [privacy_incident_log_hours, compliance_assessment_hours]
+    policy_refs: ["PRV-POL-08:5.3", "ESC-SOP-12:4.3"]
+
+  - rule_id: RES-PRV-DSR-01
+    name: Data-rights request - verify identity and fulfil
+    subcategory: PRV-DSR
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Medium
+    required_actions: [VERIFY_IDENTITY, PROCESS_DATA_REQUEST]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS, PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 720}
+    timelines: [dsar_fulfilment_days]
+    policy_refs: ["PRV-POL-08:4.1", "PRV-POL-08:4.2"]
+  - rule_id: RES-PRV-DSR-02
+    name: Overdue data-rights request
+    subcategory: PRV-DSR
+    precedence: 30
+    when: {fact: complaint.max_elapsed_days, op: gt, value: "$param:dsar_fulfilment_days"}
+    urgency: High
+    impact: Medium
+    required_actions: [VERIFY_IDENTITY, PROCESS_DATA_REQUEST, ESCALATE_COMPLIANCE]
+    prohibited_actions: [REQUEST_SENSITIVE_CREDENTIALS, PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Compliance Review
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 4}
+    timelines: [dsar_fulfilment_days]
+    policy_refs: ["PRV-POL-08:4.3", "ESC-SOP-12:4.3"]
+
+  # ================================= SAFETY =================================
+  - rule_id: RES-SAF-OVH-01
+    name: Overheating hazard - stop use, log, specialist team
+    subcategory: SAF-OVH
+    precedence: 10
+    when: {}
+    urgency: Critical
+    impact: High
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ESCALATE_SPECIALIST_TEAM]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY, SHIP_DAMAGED_BATTERY_BY_MAIL, GUARANTEE_COMPENSATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Specialist Team
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:4.1", "SAF-POL-10:4.2", "SAF-POL-10:4.3", "SAF-POL-10:4.4", "SAF-POL-10:6"]
+  - rule_id: RES-SAF-OVH-02
+    name: Fire or smoke - critical management escalation
+    subcategory: SAF-OVH
+    precedence: 30
+    when: {signal: fire_event}
+    urgency: Critical
+    impact: High
+    supporting_departments: [DEPT-MGT]
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ESCALATE_CRITICAL_MANAGEMENT]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY, SHIP_DAMAGED_BATTERY_BY_MAIL, GUARANTEE_COMPENSATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Critical Management Escalation
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:4.4", "ESC-SOP-12:4.1"]
+  - rule_id: RES-SAF-OVH-03
+    name: Overheating lithium-battery product - specialist collection
+    subcategory: SAF-OVH
+    precedence: 20
+    when: {fact: order.is_hazardous, op: eq, value: true}
+    urgency: Critical
+    impact: High
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ARRANGE_SPECIALIST_COLLECTION, ESCALATE_SPECIALIST_TEAM]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY, SHIP_DAMAGED_BATTERY_BY_MAIL, ISSUE_RETURN_LABEL]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Specialist Team
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:5.1", "SAF-POL-10:5.2", "RPL-POL-03:6.1"]
+  - rule_id: RES-SAF-OVH-04
+    name: Overheating with injury or a child involved
+    subcategory: SAF-OVH
+    precedence: 40
+    when: {any_signal: [injury, child_involved]}
+    urgency: Critical
+    impact: High
+    supporting_departments: [DEPT-MGT, DEPT-CMP]
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ESCALATE_CRITICAL_MANAGEMENT]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY, SHIP_DAMAGED_BATTERY_BY_MAIL, PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Critical Management Escalation
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:4.4", "SAF-POL-10:7.3"]
+
+  - rule_id: RES-SAF-ELC-01
+    name: Electrical hazard - stop use, log, specialist team
+    subcategory: SAF-ELC
+    precedence: 10
+    when: {}
+    urgency: Critical
+    impact: High
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ESCALATE_SPECIALIST_TEAM]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY, GUARANTEE_COMPENSATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Specialist Team
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:4.1", "SAF-POL-10:4.2", "SAF-POL-10:4.4"]
+  - rule_id: RES-SAF-ELC-02
+    name: Electrical hazard with injury or a child involved
+    subcategory: SAF-ELC
+    precedence: 30
+    when: {any_signal: [injury, child_involved]}
+    urgency: Critical
+    impact: High
+    supporting_departments: [DEPT-MGT, DEPT-CMP]
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ESCALATE_CRITICAL_MANAGEMENT]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY, PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Critical Management Escalation
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:4.4", "SAF-POL-10:7.3"]
+  - rule_id: RES-SAF-ELC-03
+    name: Electrical fault with fire or smoke
+    subcategory: SAF-ELC
+    precedence: 20
+    when: {signal: fire_event}
+    urgency: Critical
+    impact: High
+    supporting_departments: [DEPT-MGT]
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ESCALATE_CRITICAL_MANAGEMENT]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Critical Management Escalation
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:4.4", "ESC-SOP-12:4.1"]
+
+  - rule_id: RES-SAF-INJ-01
+    name: Injury incident - critical management escalation
+    subcategory: SAF-INJ
+    precedence: 10
+    when: {}
+    urgency: Critical
+    impact: High
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ESCALATE_CRITICAL_MANAGEMENT]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY, PROMISE_REGULATORY_OUTCOME, GUARANTEE_COMPENSATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Critical Management Escalation
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:4.4", "SAF-POL-10:7.1", "SAF-POL-10:7.3"]
+  - rule_id: RES-SAF-INJ-02
+    name: Injury involving a child
+    subcategory: SAF-INJ
+    precedence: 30
+    when: {signal: child_involved}
+    urgency: Critical
+    impact: High
+    supporting_departments: [DEPT-MGT, DEPT-CMP]
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ESCALATE_CRITICAL_MANAGEMENT]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY, PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Critical Management Escalation
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:4.4", "ESC-SOP-12:4.1"]
+  - rule_id: RES-SAF-INJ-03
+    name: Injury with a legal threat
+    subcategory: SAF-INJ
+    precedence: 20
+    when: {signal: legal_threat}
+    urgency: Critical
+    impact: High
+    supporting_departments: [DEPT-CMP, DEPT-MGT]
+    required_actions: [ADVISE_STOP_USING, LOG_SAFETY_INCIDENT, NOTIFY_PRODUCT_SAFETY, ESCALATE_CRITICAL_MANAGEMENT, ESCALATE_COMPLIANCE]
+    prohibited_actions: [DISMISS_SAFETY_CONCERN, ADMIT_LIABILITY, PROMISE_REGULATORY_OUTCOME, GUARANTEE_COMPENSATION]
+    eligibility: {refund: requires_verification, replacement: requires_verification, compensation: not_applicable}
+    escalation: Critical Management Escalation
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 1}
+    timelines: [safety_incident_log_hours]
+    policy_refs: ["SAF-POL-10:7.1", "CMP-GDL-19:3.1", "CMP-GDL-19:3.2"]
+
+  # ============================= STAFF BEHAVIOR =============================
+  - rule_id: RES-STF-RUD-01
+    name: Rude staff - review and inform manager
+    subcategory: STF-RUD
+    precedence: 10
+    when: {}
+    urgency: Low
+    impact: Low
+    required_actions: [REVIEW_INTERACTION_RECORDS, NOTIFY_STAFF_MANAGER]
+    prohibited_actions: [GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [staff_review_business_days]
+    policy_refs: ["STF-POL-21:5.1", "STF-POL-21:5.2"]
+  - rule_id: RES-STF-RUD-02
+    name: Staff harassment or discrimination
+    subcategory: STF-RUD
+    precedence: 30
+    when: {signal: staff_harassment}
+    urgency: High
+    impact: Medium
+    supporting_departments: [DEPT-CMP]
+    required_actions: [REVIEW_INTERACTION_RECORDS, ESCALATE_COMPLIANCE]
+    prohibited_actions: [GUARANTEE_COMPENSATION, PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Compliance Review
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 4}
+    timelines: [staff_review_business_days]
+    policy_refs: ["STF-POL-21:6", "CMP-GDL-19:6"]
+  - rule_id: RES-STF-RUD-03
+    name: Compensation requested after a staff complaint
+    subcategory: STF-RUD
+    precedence: 20
+    when: {signal: compensation_request}
+    urgency: Low
+    impact: Low
+    required_actions: [REVIEW_INTERACTION_RECORDS, NOTIFY_STAFF_MANAGER]
+    prohibited_actions: [GUARANTEE_COMPENSATION, CASH_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: {status: requires_verification, type: store_credit, max_amount_usd: "$param:agent_compensation_limit_usd"}}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [staff_review_business_days]
+    policy_refs: ["STF-POL-21:5.1", "CPN-POL-11:3.1"]
+
+  - rule_id: RES-STF-MIS-01
+    name: Technician misconduct - department manager review
+    subcategory: STF-MIS
+    precedence: 10
+    when: {}
+    urgency: High
+    impact: Medium
+    required_actions: [REVIEW_INTERACTION_RECORDS, NOTIFY_STAFF_MANAGER, ESCALATE_DEPARTMENT_MANAGER]
+    prohibited_actions: [GUARANTEE_COMPENSATION, ADMIT_LIABILITY]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Department Manager
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 4}
+    timelines: [staff_review_business_days]
+    policy_refs: ["STF-POL-21:6", "ESC-SOP-12:4.10"]
+  - rule_id: RES-STF-MIS-02
+    name: Technician-caused property damage
+    subcategory: STF-MIS
+    precedence: 30
+    when: {signal: technician_damage_theft}
+    urgency: High
+    impact: Medium
+    required_actions: [REVIEW_INTERACTION_RECORDS, INVESTIGATE_PROPERTY_DAMAGE, ESCALATE_DEPARTMENT_MANAGER]
+    prohibited_actions: [GUARANTEE_COMPENSATION, ADMIT_LIABILITY, CASH_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: requires_verification}
+    escalation: Department Manager
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [technician_damage_investigation_business_days]
+    policy_refs: ["INS-POL-24:6.1", "INS-POL-24:6.2"]
+  - rule_id: RES-STF-MIS-03
+    name: Technician harassment or threats
+    subcategory: STF-MIS
+    precedence: 40
+    when: {signal: staff_harassment}
+    urgency: High
+    impact: Medium
+    supporting_departments: [DEPT-CMP]
+    required_actions: [REVIEW_INTERACTION_RECORDS, ESCALATE_COMPLIANCE]
+    prohibited_actions: [GUARANTEE_COMPENSATION, ADMIT_LIABILITY, PROMISE_REGULATORY_OUTCOME]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: Compliance Review
+    follow_up: {required: true, type: Escalation acknowledgement, due_hours: 4}
+    timelines: []
+    policy_refs: ["STF-POL-21:6", "ESC-SOP-12:4.10"]
+
+  - rule_id: RES-STF-MIN-01
+    name: Misinformation by staff - correct the information
+    subcategory: STF-MIN
+    precedence: 10
+    when: {}
+    urgency: Medium
+    impact: Low
+    required_actions: [REVIEW_INTERACTION_RECORDS, CORRECT_MISINFORMATION]
+    prohibited_actions: [GRANT_POLICY_EXCEPTION, GUARANTEE_COMPENSATION]
+    eligibility: {refund: not_applicable, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [staff_review_business_days]
+    policy_refs: ["STF-POL-21:4.1", "STF-POL-21:4.2"]
+  - rule_id: RES-STF-MIN-02
+    name: Staff commitment outside policy - supervisor review
+    subcategory: STF-MIN
+    precedence: 30
+    when: {text_matches: '\b(promised|assured|guaranteed|told\s+me\s+(i|we)\s+would|said\s+(i|we)\s+would)\b'}
+    urgency: Medium
+    impact: Medium
+    required_actions: [REVIEW_INTERACTION_RECORDS, CORRECT_MISINFORMATION, ESCALATE_SUPERVISOR]
+    prohibited_actions: [GRANT_POLICY_EXCEPTION, PROMISE_REFUND_BEFORE_VERIFICATION, GUARANTEE_COMPENSATION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: requires_verification}
+    escalation: Supervisor Review
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 72}
+    timelines: [staff_review_business_days]
+    policy_refs: ["STF-POL-21:4.2", "ESC-SOP-12:4.9"]
+  - rule_id: RES-STF-MIN-03
+    name: Misinformation that caused a financial loss
+    subcategory: STF-MIN
+    precedence: 20
+    when: {fact: complaint.max_amount, op: gt, value: 0}
+    urgency: Medium
+    impact: Medium
+    required_actions: [REVIEW_INTERACTION_RECORDS, CORRECT_MISINFORMATION, CHECK_TRANSACTION]
+    prohibited_actions: [GRANT_POLICY_EXCEPTION, PROMISE_REFUND_BEFORE_VERIFICATION]
+    eligibility: {refund: requires_verification, replacement: not_applicable, compensation: not_applicable}
+    escalation: No Escalation
+    follow_up: {required: true, type: Resolution confirmation, due_hours: 120}
+    timelines: [staff_review_business_days]
+    policy_refs: ["STF-POL-21:4.2"]

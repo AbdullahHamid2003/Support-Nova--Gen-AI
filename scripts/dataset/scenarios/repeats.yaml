@@ -1,0 +1,864 @@
+# =============================================================================
+# Repeat, exact-duplicate and near-duplicate complaints (CHP-POL-01 s3.3/3.4/7, ESC-SOP-12 s4.5).
+# Each chain is one customer + one order/issue. History facts are computed from the chain:
+#   prior_same_issue_count      = earlier chain complaints that are cases (original/repeat)
+#   unresolved_prior_same_issue = those whose seed_status is New/In Progress/Escalated/Awaiting Customer
+#   references_resolved_complaint = the cited complaint was seeded Resolved/Closed (reopen -> ESC-019)
+# Exact/near duplicates are linked to their source (is_duplicate_of / is_near_duplicate_of) and are
+# not counted as separate cases. Steps with `pool: holdout` continue a dev chain in the holdout set.
+# =============================================================================
+scenarios:
+  - scenario_id: RPT-INVALID-PREVREF
+    pool: dev
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-02
+    difficulty_type: repeat
+    tags: [invalid_complaint_reference]
+    primary_issue: "Follow-up quoting a complaint reference that does not exist"
+    requested_resolution: explanation
+    include: {product: false}
+    signals: [repeat_indicator]
+    params: {prev_ref_literal: CMP-99999}
+    texts:
+      - style: frustrated
+        title: "Follow-up on complaint {prev_ref}"
+        body: >-
+          I am following up on my previous complaint {prev_ref} about my thermostat app. Nobody got back to me and
+          the case number does not show in my account. Please pick it up.
+
+chains:
+  - scenario_id: RPT-DLY-ESCALATING
+    pool: dev
+    subcategory: DEL-DLY
+    primary_issue: "Late order chased repeatedly"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [4, 5]}}
+    products: [LUM-VAC-300, LUM-AIR-900, LUM-TH-100]
+    requested_resolution: explanation
+    steps:
+      - link: original
+        style: calm
+        seed_status: In Progress
+        intended_rule: RES-DEL-DLY-02
+        title: "Order {order_ref} is late"
+        body: >-
+          My {product} (order {order_ref}) was due on {date:eta} and has not arrived. Could you check with the
+          courier please?
+      - link: repeat
+        gap_days: 3
+        style: frustrated
+        seed_status: Escalated
+        cite_previous: true
+        intended_rule: RES-DEL-DLY-02
+        title: "Still no delivery - see {prev_ref}"
+        body: >-
+          Following up on {prev_ref}. My order {order_ref} is still not here and nobody has updated me. This is the
+          second time I am asking. Where is it?
+      - link: repeat
+        gap_days: 10
+        style: angry
+        cite_previous: true
+        intended_rule: RES-DEL-DLY-04
+        requested_resolution: replacement
+        signals_add: [replacement_request, refund_request]
+        title: "THIRD complaint - order {order_ref} still missing"
+        body: >-
+          This is my third complaint. {prev_ref} and the one before it are still not resolved. My {product} was due
+          on {date:eta} - weeks ago. Send a replacement or refund me, I am done waiting.
+        lexical_traps: []
+
+  - scenario_id: RPT-DUP-ESCALATING
+    pool: dev
+    subcategory: BIL-DUP
+    primary_issue: "Duplicate charge chased with a resubmission and two follow-ups"
+    order_profile: {name: duplicate_charge, params: {days: [3, 8], gap_days: [0, 1]}}
+    products: [LUM-TH-100, LUM-CAM-210, LUM-SPK-500]
+    requested_resolution: refund
+    signals: [refund_request]
+    steps:
+      - link: original
+        style: calm
+        seed_status: In Progress
+        intended_rule: RES-BIL-DUP-02
+        title: "Duplicate charge on {order_ref}"
+        body: >-
+          I have been charged twice for order {order_ref}, {amt:charge} each time. Please refund the duplicate
+          payment.
+      - link: exact_duplicate
+        gap_days: 1
+        of: 0
+        intended_rule: RES-BIL-DUP-02
+        style: calm
+      - link: repeat
+        gap_days: 5
+        style: frustrated
+        seed_status: In Progress
+        cite_previous: true
+        intended_rule: RES-BIL-DUP-02
+        title: "Duplicate charge still not refunded ({prev_ref})"
+        body: >-
+          I reported a duplicate charge in {prev_ref} and I am still waiting. The second {amt:charge} is still on
+          my card. Please refund it.
+      - link: repeat
+        gap_days: 6
+        style: angry
+        cite_previous: true
+        intended_rule: RES-BIL-DUP-02
+        signals_add: [chargeback_threat]
+        title: "Second follow-up - duplicate charge"
+        body: >-
+          Still not resolved. {prev_ref} and my earlier complaint have been ignored. Refund the duplicate
+          {amt:charge} this week or I will raise a chargeback with my bank.
+
+  - scenario_id: RPT-CON-REOPEN
+    pool: dev
+    subcategory: TEC-CON
+    primary_issue: "Connectivity fault returns after a resolved complaint"
+    products: [LUM-TH-100, LUM-SPK-500, LUM-AIR-900]
+    requested_resolution: repair
+    steps:
+      - link: original
+        style: calm
+        seed_status: Resolved
+        intended_rule: RES-TEC-CON-02
+        title: "{product} keeps dropping Wi-Fi"
+        body: >-
+          My {product} keeps losing its Wi-Fi connection. I have already restarted it and the router several times.
+          Could you help?
+        signals_add: [repeat_indicator]
+      - link: repeat
+        gap_days: 8
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-TEC-CON-02
+        title: "Please reopen {prev_ref}"
+        body: >-
+          Please reopen {prev_ref}. The fix your team suggested worked for a week, and now my {product} drops off the
+          network again every evening. I have tried everything again. It is clearly not fixed.
+
+  - scenario_id: RPT-LGN-REOPEN
+    pool: dev
+    subcategory: ACC-LGN
+    primary_issue: "Login problem returns after a resolved complaint"
+    products: [SVC-APP]
+    requested_resolution: other
+    steps:
+      - link: original
+        style: calm
+        seed_status: Resolved
+        intended_rule: RES-ACC-LGN-01
+        title: "Cannot log in"
+        body: >-
+          I cannot log in to the {product}; the reset link says it has expired when I click it. Could you help?
+      - link: repeat
+        gap_days: 6
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-ACC-LGN-01
+        title: "Login problem is back - {prev_ref}"
+        body: >-
+          My complaint {prev_ref} was marked as resolved, but I cannot log in again - the same error. Please reopen
+          it and fix it properly this time.
+
+  - scenario_id: RPT-INS-REOPEN
+    pool: dev
+    subcategory: SVC-INS
+    primary_issue: "Installation problem returns after a resolved complaint"
+    order_profile: {name: install_completed, params: {days: [5, 8]}}
+    products: [SVC-INSTALL]
+    requested_resolution: repair
+    steps:
+      - link: original
+        style: calm
+        seed_status: Resolved
+        intended_rule: RES-SVC-INS-01
+        title: "Camera mounted badly"
+        body: >-
+          The {product} technician mounted our doorbell camera at an angle so it only shows the path. Could someone
+          come back to adjust it? Order {order_ref}.
+      - link: repeat
+        gap_days: 9
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-SVC-INS-02
+        requested_resolution: refund
+        signals_add: [refund_request]
+        title: "Reopening {prev_ref} - still not right"
+        body: >-
+          I am reopening {prev_ref}. The camera was adjusted, but it has slipped back and points at the path again.
+          I would like the installation fee refunded. Order {order_ref}.
+
+  - scenario_id: RPT-MAL-FOURTIMES
+    pool: dev
+    subcategory: PRD-MAL
+    primary_issue: "Faulty product reported four times without resolution"
+    order_profile: {name: delivered_days_ago, params: {days: [5, 7]}}
+    products: [LUM-TH-100, LUM-AIR-900, LUM-SPK-500]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    steps:
+      - link: original
+        style: frustrated
+        seed_status: In Progress
+        intended_rule: RES-PRD-MAL-02
+        title: "New {product:short} keeps switching off"
+        body: >-
+          My new {product} keeps switching off after a few minutes. It arrived on {date:delivered}. I would like a
+          replacement. Order {order_ref}.
+      - link: repeat
+        gap_days: 5
+        style: frustrated
+        seed_status: In Progress
+        cite_previous: true
+        intended_rule: RES-PRD-MAL-02
+        title: "Chasing {prev_ref}"
+        body: >-
+          Chasing {prev_ref}: my {product} is still cutting out and the replacement I asked for has not been sent.
+      - link: repeat
+        gap_days: 6
+        style: angry
+        seed_status: Escalated
+        cite_previous: true
+        intended_rule: RES-PRD-MAL-02
+        title: "Third time asking about my faulty {product:short}"
+        body: >-
+          Third time asking. {prev_ref} was supposedly escalated and still nothing. The {product} is useless and I
+          want the replacement you owe me.
+      - link: repeat
+        gap_days: 5
+        style: angry
+        cite_previous: true
+        intended_rule: RES-PRD-MAL-02
+        title: "Fourth complaint - enough"
+        body: >-
+          Fourth complaint about the same {product}, order {order_ref}. Three complaints, including {prev_ref}, all
+          still open. I want a manager to deal with this today and a replacement shipped.
+
+  - scenario_id: RPT-REFDLY-NEARDUP
+    pool: dev
+    subcategory: REF-DLY
+    primary_issue: "Late refund resubmitted, then chased"
+    order_profile: {name: return_received_late, params: {mode: approved, bdays: [7, 8], reason: changed_mind}}
+    products: [LUM-SPK-500, LUM-HUB-800]
+    customer_types: [care_plus]
+    requested_resolution: refund
+    signals: [refund_request]
+    steps:
+      - link: original
+        style: calm
+        seed_status: Awaiting Customer
+        intended_rule: RES-REF-DLY-02
+        title: "Refund not issued after approval"
+        body: >-
+          My return for order {order_ref} was approved on {date:inspection_approved}, but the refund of
+          {amt:refund_amount} has not been issued. Could you check it please?
+      - link: near_duplicate
+        gap_days: 2
+        of: 0
+        edits: [resend_prefix, update_suffix]
+        intended_rule: RES-REF-DLY-02
+        style: calm
+      - link: repeat
+        gap_days: 4
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-REF-DLY-02
+        title: "Refund still missing - {prev_ref}"
+        body: >-
+          I raised {prev_ref} about my refund over a week ago. The {amt:refund_amount} still has not arrived and I
+          have had no update. Please sort this out.
+
+  - scenario_id: RPT-OUT-EXACTDUP
+    pool: dev
+    subcategory: SVC-OUT
+    primary_issue: "Cloud Vault outage complaint resubmitted"
+    products: [SVC-CLOUD]
+    requested_resolution: compensation
+    signals: [severe_service_failure]
+    params: {outage: [30, 36]}
+    steps:
+      - link: original
+        style: frustrated
+        intended_rule: RES-SVC-OUT-02
+        title: "{product} down for {hours:outage}"
+        body: >-
+          {product} was down for {hours:outage} and I lost my recordings for that time. What will you do about it?
+      - link: exact_duplicate
+        gap_days: 1
+        intended_rule: RES-SVC-OUT-02
+        style: frustrated
+
+  - scenario_id: RPT-SUB-NEARDUP
+    pool: dev
+    subcategory: BIL-SUB
+    primary_issue: "Renewal refund request resubmitted with small edits"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [3, 6]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request]
+    steps:
+      - link: original
+        style: calm
+        intended_rule: RES-BIL-SUB-02
+        title: "Refund my annual renewal"
+        body: >-
+          My {product} renewed on {date:renewal} for {amt:charge}. I do not need it any more, so please refund the
+          renewal and close the plan. I received the renewal email but missed it.
+      - link: near_duplicate
+        gap_days: 2
+        edits: [typo, chase_suffix]
+        intended_rule: RES-BIL-SUB-02
+        style: calm
+
+  - scenario_id: RPT-DSR-OVERDUE
+    pool: dev
+    subcategory: PRV-DSR
+    primary_issue: "Data deletion request chased after it became overdue"
+    requested_resolution: other
+    include: {product: false}
+    signals: [data_rights_request]
+    steps:
+      - link: original
+        style: calm
+        seed_status: In Progress
+        intended_rule: RES-PRV-DSR-01
+        params: {requested: 20}
+        title: "Status of my deletion request"
+        body: >-
+          I asked you to delete my data {dur:requested} ago. Could you tell me how far along the request is?
+      - link: repeat
+        gap_days: 15
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-PRV-DSR-02
+        params: {requested: 35}
+        title: "Deletion request now overdue - {prev_ref}"
+        body: >-
+          Following up on {prev_ref}. I asked you to delete my data {dur:requested} ago, which is past your 30-day
+          limit. Please complete it and confirm in writing.
+
+  - scenario_id: RPT-CLM-DUPS
+    pool: dev
+    subcategory: WAR-CLM
+    primary_issue: "Warranty claim resubmitted twice"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 8]}}
+    products: [LUM-HUB-800, LUM-TH-100, LUM-SPK-500]
+    requested_resolution: repair
+    steps:
+      - link: original
+        style: calm
+        seed_status: Awaiting Customer
+        intended_rule: RES-WAR-CLM-02
+        title: "Warranty claim for my {product:short}"
+        body: >-
+          I would like to open a warranty claim for my {product}. It no longer powers on. It was delivered on
+          {date:delivered}. Order {order_ref}. I have tried the reset steps already.
+      - link: near_duplicate
+        gap_days: 3
+        of: 0
+        edits: [resend_prefix, drop_last_sentence]
+        intended_rule: RES-WAR-CLM-02
+        style: calm
+      - link: exact_duplicate
+        gap_days: 2
+        of: 1
+        intended_rule: RES-WAR-CLM-02
+        style: calm
+
+  - scenario_id: RPT-RUD-EXACTDUP
+    pool: dev
+    subcategory: STF-RUD
+    primary_issue: "Rude-agent complaint submitted twice"
+    requested_resolution: explanation
+    include: {product: false}
+    steps:
+      - link: original
+        style: angry
+        intended_rule: RES-STF-RUD-01
+        title: "Rude agent on the phone"
+        body: >-
+          The agent I spoke to today was incredibly rude and sarcastic, and ended the call while I was mid-sentence.
+          Disgraceful way to treat a customer.
+      - link: exact_duplicate
+        gap_days: 1
+        intended_rule: RES-STF-RUD-01
+        style: angry
+
+  - scenario_id: RPT-LST-ESCALATING
+    pool: dev
+    subcategory: DEL-LST
+    primary_issue: "Lost parcel chased twice without resolution"
+    order_profile: {name: lost_no_updates, params: {bdays_since_update: [8, 9]}}
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-HUB-800]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    steps:
+      - link: original
+        style: calm
+        seed_status: In Progress
+        intended_rule: RES-DEL-LST-01
+        title: "Parcel has not moved"
+        body: >-
+          The tracking for {order_ref} has not updated since {date:tracking}. Please investigate and send a
+          replacement if it is lost.
+      - link: repeat
+        gap_days: 5
+        style: frustrated
+        seed_status: Escalated
+        cite_previous: true
+        intended_rule: RES-DEL-LST-01
+        title: "Lost parcel - following up {prev_ref}"
+        body: >-
+          Following up on {prev_ref}: still no parcel and still no update from you. I need the replacement sent.
+      - link: repeat
+        gap_days: 5
+        style: angry
+        cite_previous: true
+        intended_rule: RES-DEL-LST-01
+        title: "Third time - where is my replacement?"
+        body: >-
+          Third time I am writing about order {order_ref}. {prev_ref} was escalated and nothing happened. Send the
+          replacement now.
+
+  - scenario_id: RPT-APP-NEARDUP
+    pool: dev
+    subcategory: TEC-APP
+    primary_issue: "App bug report resubmitted"
+    products: [SVC-APP]
+    requested_resolution: repair
+    steps:
+      - link: original
+        style: calm
+        intended_rule: RES-TEC-APP-01
+        title: "Room names reset in the app"
+        body: >-
+          Every few days the {product} resets my room names to "Room 1", "Room 2" and so on. It is a small thing but
+          quite irritating. Could you look into it?
+      - link: near_duplicate
+        gap_days: 1
+        edits: [lowercase_start, update_suffix]
+        intended_rule: RES-TEC-APP-01
+        style: calm
+
+  - scenario_id: RPT-SUP-FOLLOWUP
+    pool: dev
+    subcategory: SVC-SUP
+    primary_issue: "Poor support experience followed up"
+    requested_resolution: explanation
+    include: {product: false}
+    steps:
+      - link: original
+        style: frustrated
+        seed_status: In Progress
+        intended_rule: RES-SVC-SUP-01
+        title: "Waited ages on hold"
+        body: >-
+          I waited 70 minutes on hold today to ask a simple question about my hub and then got cut off.
+      - link: repeat
+        gap_days: 7
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-SVC-SUP-02
+        title: "No response to {prev_ref}"
+        body: >-
+          I complained about your phone support in {prev_ref} a week ago and have not heard anything back. Is anyone
+          reading these?
+
+  - scenario_id: RPT-CAN-DUPS
+    pool: dev
+    subcategory: BIL-CAN
+    primary_issue: "Charge-after-cancellation complaint resubmitted twice"
+    order_profile: {name: cancelled_then_charged, params: {plan: monthly, cancel_days: [12, 18]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [cancellation_mentioned, refund_request]
+    steps:
+      - link: original
+        style: frustrated
+        intended_rule: RES-BIL-CAN-02
+        title: "Charged after cancelling {product}"
+        body: >-
+          I cancelled my {product} on {date:cancel_requested} and you charged me {amt:charge} on {date:charge}. Please
+          refund it.
+      - link: exact_duplicate
+        gap_days: 1
+        intended_rule: RES-BIL-CAN-02
+        style: frustrated
+      - link: near_duplicate
+        gap_days: 2
+        of: 0
+        edits: [resend_prefix]
+        intended_rule: RES-BIL-CAN-02
+        style: frustrated
+
+  - scenario_id: RPT-UPD-NEARDUP
+    pool: dev
+    subcategory: ACC-UPD
+    primary_issue: "Profile update problem resubmitted"
+    products: [SVC-APP]
+    requested_resolution: other
+    steps:
+      - link: original
+        style: calm
+        intended_rule: RES-ACC-UPD-01
+        title: "Cannot change my email"
+        body: >-
+          The {product} will not let me update my email address. It says the request cannot be completed. Could you
+          change it for me?
+      - link: near_duplicate
+        gap_days: 2
+        edits: [typo, chase_suffix]
+        intended_rule: RES-ACC-UPD-01
+        style: calm
+
+  - scenario_id: RPT-MIS-EXACTDUP
+    pool: dev
+    subcategory: PRD-MIS
+    primary_issue: "Missing-part complaint submitted twice"
+    order_profile: {name: delivered_recent, params: {days: [1, 5]}}
+    products: [LUM-CAM-210, LUM-LCK-700]
+    requested_resolution: replacement
+    params:
+      part: {LUM-CAM-210: mounting bracket, LUM-LCK-700: mounting screws}
+    steps:
+      - link: original
+        style: polite
+        intended_rule: RES-PRD-MIS-01
+        title: "Missing {param:part}"
+        body: >-
+          Hello, my {product} (order {order_ref}) arrived without the {param:part}. Could you send one please? Thank
+          you.
+      - link: exact_duplicate
+        gap_days: 2
+        intended_rule: RES-PRD-MIS-01
+        style: polite
+
+  - scenario_id: RPT-WRG-NEARDUP
+    pool: dev
+    subcategory: DEL-WRG
+    primary_issue: "Wrong-item report resubmitted"
+    order_profile: {name: delivered_recent, params: {days: [1, 4]}}
+    products: [LUM-TH-100, LUM-HUB-800]
+    product2: [LUM-PLG-600, LUM-BLB-610]
+    requested_resolution: replacement
+    include: {photo: true}
+    steps:
+      - link: original
+        style: calm
+        intended_rule: RES-DEL-WRG-02
+        title: "Wrong item in {order_ref}"
+        body: >-
+          My order {order_ref} contained a {product2} instead of the {product} I ordered. Photos attached. Please send
+          the correct item.
+      - link: near_duplicate
+        gap_days: 1
+        edits: [resend_prefix]
+        intended_rule: RES-DEL-WRG-02
+        style: calm
+
+  - scenario_id: RPT-REQ-EXACTDUP
+    pool: dev
+    subcategory: REF-REQ
+    primary_issue: "Refund request submitted twice"
+    order_profile: {name: delivered_days_ago, params: {days: [5, 15]}}
+    products: [LUM-AIR-900, LUM-SPK-500]
+    requested_resolution: refund
+    signals: [refund_request]
+    steps:
+      - link: original
+        style: calm
+        intended_rule: RES-REF-REQ-02
+        title: "Return for refund - {order_ref}"
+        body: >-
+          I would like to return my {product} for a refund - it does not suit our space. Order {order_ref}, delivered
+          on {date:delivered}.
+      - link: exact_duplicate
+        gap_days: 1
+        intended_rule: RES-REF-REQ-02
+        style: calm
+
+  - scenario_id: RPT-OVH-NEARDUP
+    pool: dev
+    subcategory: SAF-OVH
+    primary_issue: "Overheating report resubmitted"
+    order_profile: {name: delivered_months_ago, params: {months: [1, 6]}}
+    products: [LUM-PLG-600, LUM-HUB-800]
+    requested_resolution: replacement
+    signals: [overheating]
+    steps:
+      - link: original
+        style: calm
+        intended_rule: RES-SAF-OVH-01
+        title: "{product} getting too hot"
+        body: >-
+          My {product} gets too hot to touch after about an hour. I have unplugged it for now. Order {order_ref}.
+      - link: near_duplicate
+        gap_days: 1
+        edits: [resend_prefix, update_suffix]
+        intended_rule: RES-SAF-OVH-01
+        style: calm
+
+  - scenario_id: RPT-CON-EXACTDUP
+    pool: dev
+    subcategory: PRV-CON
+    primary_issue: "Marketing opt-out complaint submitted twice"
+    requested_resolution: other
+    include: {product: false}
+    signals: [consent_violation]
+    steps:
+      - link: original
+        style: frustrated
+        intended_rule: RES-PRV-CON-01
+        title: "Unsubscribed but still getting emails"
+        body: >-
+          I unsubscribed from your newsletter and I am still getting marketing emails. Please remove me.
+      - link: exact_duplicate
+        gap_days: 3
+        intended_rule: RES-PRV-CON-01
+        style: frustrated
+
+  - scenario_id: RPT-INC-NEARDUP
+    pool: dev
+    subcategory: BIL-INC
+    primary_issue: "Overcharge complaint resubmitted"
+    order_profile: {name: overcharged, params: {days: [4, 12], diff: [20.00, 25.00]}}
+    products: [LUM-CAM-200, LUM-SPK-500]
+    requested_resolution: refund
+    signals: [refund_request]
+    steps:
+      - link: original
+        style: calm
+        intended_rule: RES-BIL-INC-02
+        title: "Charged more than the order total"
+        body: >-
+          My order {order_ref} total was {amt:total} but my card was charged {amt:charge}. I believe the discount was
+          not applied at payment. Please refund the difference. Thank you in advance.
+      - link: near_duplicate
+        gap_days: 2
+        edits: [typo, drop_last_sentence]
+        intended_rule: RES-BIL-INC-02
+        style: calm
+
+  - scenario_id: RPT-CPL-EXACTDUP
+    pool: dev
+    subcategory: WAR-CPL
+    primary_issue: "Care+ claim submitted twice"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 10], careplus_claims: 0}}
+    products: [LUM-SPK-500, LUM-CAM-210]
+    customer_types: [care_plus]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    steps:
+      - link: original
+        style: polite
+        intended_rule: RES-WAR-CPL-02
+        title: "Care+ accidental damage claim"
+        body: >-
+          Hello, my {product} was knocked over and cracked. I have Care+ - could I get an advance replacement? Order
+          {order_ref}. Thank you.
+      - link: exact_duplicate
+        gap_days: 2
+        intended_rule: RES-WAR-CPL-02
+        style: polite
+
+  - scenario_id: RPT-SET-NEARDUP
+    pool: dev
+    subcategory: TEC-SET
+    primary_issue: "Setup problem resubmitted"
+    products: [LUM-CAM-200, LUM-SPK-500]
+    requested_resolution: explanation
+    steps:
+      - link: original
+        style: frustrated
+        intended_rule: RES-TEC-SET-01
+        title: "Setup keeps failing"
+        body: >-
+          Setup for my {product} fails at the network step every single time. The instructions are no help at all.
+          What am I doing wrong?
+      - link: near_duplicate
+        gap_days: 1
+        edits: [resend_prefix, typo]
+        intended_rule: RES-TEC-SET-01
+        style: frustrated
+
+  - scenario_id: RPT-MIN-NEARDUP
+    pool: dev
+    subcategory: STF-MIN
+    primary_issue: "Misinformation complaint resubmitted"
+    products: [LUM-TH-100]
+    requested_resolution: explanation
+    steps:
+      - link: original
+        style: calm
+        intended_rule: RES-STF-MIN-01
+        title: "Incorrect advice from chat"
+        body: >-
+          Your chat agent said the {product} works with any boiler, which turned out to be wrong for mine. I would like
+          accurate compatibility information, please.
+      - link: near_duplicate
+        gap_days: 2
+        edits: [update_suffix]
+        intended_rule: RES-STF-MIN-01
+        style: calm
+
+  # --------------------------------------------------- chains continued in the HOLDOUT set
+  - scenario_id: RPT-RFM-TO-HOLDOUT
+    pool: dev
+    subcategory: BIL-RFM
+    primary_issue: "Missing refund chased twice in dev, then again (holdout)"
+    order_profile: {name: refund_issued_bd_ago, params: {bdays: [11, 12], reason: defective}}
+    products: [LUM-SPK-500, LUM-TH-100]
+    requested_resolution: refund
+    signals: [refund_request]
+    steps:
+      - link: original
+        style: calm
+        seed_status: In Progress
+        intended_rule: RES-BIL-RFM-02
+        title: "Refund not received"
+        body: >-
+          Your email of {date:refund_issued} confirmed my refund of {amt:refund_amount} for order {order_ref}, but it
+          has not reached my bank. Could you check?
+      - link: repeat
+        gap_days: 4
+        style: frustrated
+        seed_status: Escalated
+        cite_previous: true
+        intended_rule: RES-BIL-RFM-02
+        title: "Refund still missing ({prev_ref})"
+        body: >-
+          Following up on {prev_ref}: the refund of {amt:refund_amount} still has not shown up on my statement.
+      - link: repeat
+        gap_days: 5
+        pool: holdout
+        scenario_id: H-RPT-RFM-THIRD
+        style: angry
+        cite_previous: true
+        intended_rule: RES-BIL-RFM-02
+        title: "Money you confirmed - where is it?"
+        body: >-
+          Two earlier cases, {prev_ref} being the latest, and my confirmed refund of {amt:refund_amount} is still
+          nowhere. My bank has confirmed there is no incoming credit. Trace it today.
+
+  - scenario_id: RPT-APP-TO-HOLDOUT
+    pool: dev
+    subcategory: TEC-APP
+    primary_issue: "App fault after an update returns after a resolved complaint (holdout reopen)"
+    products: [LUM-CAM-200, LUM-HUB-800]
+    requested_resolution: repair
+    steps:
+      - link: original
+        style: calm
+        seed_status: Resolved
+        intended_rule: RES-TEC-APP-02
+        title: "Problems since the firmware update"
+        body: >-
+          Since the latest firmware update my {product} will not send motion alerts. Could you roll it back?
+      - link: repeat
+        gap_days: 9
+        pool: holdout
+        scenario_id: H-RPT-APP-REOPEN
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-TEC-APP-02
+        title: "The rollback did not stick"
+        body: >-
+          The fix from {prev_ref} lasted a few days. After the new update pushed on Monday, the alerts stopped again.
+          Please reopen my case rather than starting from scratch.
+
+  - scenario_id: RPT-DEN-TO-HOLDOUT
+    pool: dev
+    subcategory: WAR-DEN
+    primary_issue: "Warranty appeal chased (holdout repeat)"
+    order_profile: {name: delivered_months_ago, params: {months: [4, 9]}}
+    products: [LUM-VAC-300, LUM-CAM-210]
+    customer_types: [individual, vip]
+    requested_resolution: repair
+    steps:
+      - link: original
+        style: calm
+        seed_status: In Progress
+        intended_rule: RES-WAR-DEN-01
+        params: {denied: 6}
+        title: "Appealing a warranty denial"
+        body: >-
+          My warranty claim for the {product} was rejected {dur:denied} ago. I disagree and would like to appeal.
+          Order {order_ref}.
+      - link: repeat
+        gap_days: 8
+        pool: holdout
+        scenario_id: H-RPT-DEN-CHASE
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-WAR-DEN-01
+        params: {denied: 14}
+        title: "Nobody has reviewed my appeal"
+        body: >-
+          My appeal ({prev_ref}) has sat untouched since I lodged it. The denial itself was {dur:denied} ago. Can a
+          supervisor actually look at it?
+
+  - scenario_id: H-RPT-DLY-NEARDUP
+    pool: holdout
+    subcategory: DEL-DLY
+    primary_issue: "Late delivery complaint resubmitted with small edits"
+    order_profile: {name: in_transit_late_standard, params: {bdays_late: [5, 6]}}
+    products: [LUM-AIR-900, LUM-SPK-500]
+    requested_resolution: explanation
+    steps:
+      - link: original
+        style: calm
+        intended_rule: RES-DEL-DLY-02
+        title: "Delivery overdue - {order_ref}"
+        body: >-
+          The {product} I ordered should have come on {date:eta}. The courier page has shown "in transit" for days.
+          Would you chase it for me? Many thanks.
+      - link: near_duplicate
+        gap_days: 1
+        edits: [resend_prefix, typo]
+        intended_rule: RES-DEL-DLY-02
+        style: calm
+
+  - scenario_id: H-RPT-DSR-EXACTDUP
+    pool: holdout
+    subcategory: PRV-DSR
+    primary_issue: "Data export request submitted twice"
+    requested_resolution: other
+    include: {product: false}
+    signals: [data_rights_request]
+    steps:
+      - link: original
+        style: polite
+        intended_rule: RES-PRV-DSR-01
+        title: "Request to export my data"
+        body: >-
+          Hello, please could you export my data - device history, recordings list and account details - into a file
+          I can download? Thank you.
+      - link: exact_duplicate
+        gap_days: 2
+        intended_rule: RES-PRV-DSR-01
+        style: polite
+
+  - scenario_id: RPT-LGN-TO-HOLDOUT
+    pool: dev
+    subcategory: ACC-LGN
+    primary_issue: "Login issue chased (holdout repeat)"
+    products: [SVC-APP]
+    requested_resolution: other
+    steps:
+      - link: original
+        style: calm
+        seed_status: Awaiting Customer
+        intended_rule: RES-ACC-LGN-01
+        title: "Two-factor code never arrives"
+        body: >-
+          The two-factor code for signing in to the {product} never arrives by text. Could you help me get in?
+      - link: repeat
+        gap_days: 6
+        pool: holdout
+        scenario_id: H-RPT-LGN-CHASE
+        style: frustrated
+        cite_previous: true
+        intended_rule: RES-ACC-LGN-01
+        title: "Still stuck at the code screen"
+        body: >-
+          Regarding {prev_ref}: I replied with the details you asked for and I still cannot get past the code screen.
+          It has been almost a week without access to my heating controls.

@@ -1,0 +1,87 @@
+# =============================================================================
+# Verification policy - how the Python Ground-Truth Validation Pipeline turns
+# individual check results into a transparent verification score and decision
+# (SRS 1.6 li "Verification Score", SRS Step 57). The score is computed ONLY
+# from deterministic check results - never from any model-reported confidence.
+#
+# score = 100 * sum(weight(severity) * value(status)) / sum(weight(severity))
+#         over applicable checks (status != not_applicable)
+# value: pass = 1.0, warn = 0.5, fail = 0.0
+# decision: Verified  if no critical failure, score >= verified_min_score and
+#                     no manual-review trigger fired; otherwise Manual Review.
+# =============================================================================
+decision:
+  verified_min_score: 80
+  review_below_score: 80
+severity_weights: {critical: 5, major: 3, minor: 1, info: 0}
+status_values: {pass: 1.0, warn: 0.5, fail: 0.0}
+
+dimensions:
+  schema: Complete AI answer with valid codes and references
+  classification: Category, subcategory, secondary issues and sentiment
+  routing: Primary and supporting departments
+  priority: Urgency and priority
+  policy: Cited policies, versions and conflicts
+  resolution: Required, recommended and prohibited actions
+  eligibility: Refund, replacement and compensation eligibility
+  escalation: Required escalation, level and notes
+  follow_up: Follow-up and missing information
+  communication: Customer response and follow-up message
+  grounding: Facts backed by the complaint, policies or rules
+  security: Manipulation attempts and sensitive data
+
+# Check catalogue (code -> dimension, default severity). Severity may be raised
+# at runtime for high-risk contexts (e.g. a missing safety action is critical).
+checks:
+  SCH-001: {dimension: schema, severity: critical, name: AI answer is complete and well-formed}
+  SCH-002: {dimension: schema, severity: critical, name: Category and subcategory are valid}
+  SCH-003: {dimension: schema, severity: critical, name: Departments are valid}
+  SCH-004: {dimension: schema, severity: major, name: Cited policies exist}
+  SCH-005: {dimension: schema, severity: major, name: Escalation details are consistent}
+  SCH-006: {dimension: schema, severity: major, name: Resolution steps use known actions}
+  CLS-001: {dimension: classification, severity: major, name: Category matches the rules}
+  CLS-002: {dimension: classification, severity: minor, name: Subcategory matches the rules}
+  CLS-003: {dimension: classification, severity: minor, name: Secondary issues identified}
+  CLS-004: {dimension: classification, severity: info, name: Sentiment matches the rule check}
+  CLS-005: {dimension: classification, severity: minor, name: Reference numbers captured}
+  RTE-001: {dimension: routing, severity: critical, name: Primary department matches the routing rules}
+  RTE-002: {dimension: routing, severity: major, name: Required supporting departments included}
+  PRI-001: {dimension: priority, severity: critical, name: Urgency matches the rules}
+  PRI-002: {dimension: priority, severity: major, name: Priority matches the priority matrix}
+  PRI-003: {dimension: priority, severity: minor, name: Urgency not inflated by emotional language}
+  PRI-004: {dimension: priority, severity: minor, name: AI priority fits its urgency and impact}
+  POL-001: {dimension: policy, severity: major, name: At least one policy cited}
+  POL-002: {dimension: policy, severity: critical, name: No outdated policy cited}
+  POL-003: {dimension: policy, severity: major, name: Cited policies are in the case evidence}
+  POL-004: {dimension: policy, severity: minor, name: Policies required by the rules are cited}
+  POL-005: {dimension: policy, severity: minor, name: Policy applicability matches the rules}
+  POL-006: {dimension: policy, severity: major, name: Higher-ranking policy followed in conflicts}
+  RES-001: {dimension: resolution, severity: major, name: Required actions present}
+  RES-002: {dimension: resolution, severity: critical, name: No prohibited actions}
+  RES-003: {dimension: resolution, severity: minor, name: Recommended actions considered}
+  RES-004: {dimension: resolution, severity: major, name: No contradictory actions}
+  ELG-001: {dimension: eligibility, severity: major, name: Refund eligibility matches the rules}
+  ELG-002: {dimension: eligibility, severity: major, name: Replacement eligibility matches the rules}
+  ELG-003: {dimension: eligibility, severity: major, name: Compensation and amount match the rules}
+  ESC-001: {dimension: escalation, severity: critical, name: Required escalation identified}
+  ESC-002: {dimension: escalation, severity: major, name: Escalation level meets the rules}
+  ESC-003: {dimension: escalation, severity: minor, name: No unnecessary escalation}
+  ESC-004: {dimension: escalation, severity: major, name: Escalation notes are complete}
+  FUP-001: {dimension: follow_up, severity: minor, name: Follow-up requirement matches the rules}
+  FUP-002: {dimension: follow_up, severity: minor, name: Follow-up type matches the rules}
+  MIS-001: {dimension: follow_up, severity: major, name: Missing information identified}
+  MIS-002: {dimension: follow_up, severity: major, name: Questions ask for the missing information}
+  RSP-001: {dimension: communication, severity: major, name: Response includes the required parts}
+  RSP-002: {dimension: communication, severity: critical, name: No unsupported promises}
+  RSP-003: {dimension: communication, severity: major, name: Timelines supported by policy or SLA}
+  RSP-004: {dimension: communication, severity: major, name: Amounts and references match the case}
+  RSP-005: {dimension: communication, severity: minor, name: Requested tone used}
+  RSP-006: {dimension: communication, severity: critical, name: No prohibited statements in the response}
+  RSP-007: {dimension: communication, severity: minor, name: Follow-up message is safe to send}
+  HAL-001: {dimension: grounding, severity: major, name: "Claims backed by the complaint, policies or rules"}
+  HAL-002: {dimension: grounding, severity: major, name: Extracted details appear in the complaint}
+  HAL-003: {dimension: grounding, severity: minor, name: Summary sticks to the facts}
+  HAL-004: {dimension: grounding, severity: major, name: Policies named in the text exist}
+  SEC-001: {dimension: security, severity: critical, name: AI ignored instructions in the complaint}
+  SEC-002: {dimension: security, severity: major, name: No sensitive data in the response}
+  SEC-003: {dimension: security, severity: info, name: Complaint screened for manipulation}

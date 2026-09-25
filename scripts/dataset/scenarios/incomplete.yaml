@@ -1,0 +1,626 @@
+# =============================================================================
+# Incomplete complaints (SRS 1.8(11) Missing Information Challenge; missing_info_rules MIS-001..008).
+# Missing order number, product, date, photos, a vague (< 8 word) description, invalid /
+# unknown / malformed order references, and an order that belongs to another customer.
+# The expected outcome is a clarification request - never invented facts.
+# =============================================================================
+scenarios:
+  - scenario_id: INC-MAL-NOREF-NODATE
+    pool: dev
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference", "missing:date"]
+    primary_issue: "{product} malfunction - no order reference or purchase date"
+    products: [LUM-TH-100, LUM-SPK-500, LUM-AIR-900]
+    requested_resolution: repair
+    expect: {missing_information_include: [order_reference, transaction_date]}
+    texts:
+      - style: frustrated
+        title: "{product} not working"
+        body: >-
+          My {product} keeps freezing and then restarting by itself. It is really annoying. What can you do about
+          it?
+      - style: calm
+        title: "Faulty {product:short}"
+        body: >-
+          The {product} I bought from you has stopped responding to the buttons. Could you tell me how to get it
+          fixed?
+
+  - scenario_id: INC-DOA-NOPHOTO
+    pool: dev
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-01
+    difficulty_type: incomplete
+    tags: ["missing:photo_evidence"]
+    primary_issue: "Damage on arrival reported without photos"
+    order_profile: {name: delivered_within_doa, params: {days: [1, 4]}}
+    products: [LUM-CAM-210, LUM-HUB-800, LUM-AIR-900]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    expect: {missing_information_include: [photo_evidence]}
+    texts:
+      - style: calm
+        title: "Arrived broken"
+        body: >-
+          My {product} arrived broken on {date:delivered}. The corner is smashed. Please send a replacement. Order
+          {order_ref}.
+      - style: angry
+        title: "Smashed on arrival"
+        body: >-
+          Smashed. That is how your {product} arrived. Order {order_ref}. I want a replacement, not a list of
+          questions.
+
+  - scenario_id: INC-DOA-NOREF-NOPHOTO
+    pool: dev
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference", "missing:photo_evidence"]
+    primary_issue: "Damage on arrival - no order reference and no photos"
+    products: [LUM-SPK-500, LUM-CAM-200]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    expect: {missing_information_include: [order_reference, photo_evidence]}
+    texts:
+      - style: frustrated
+        title: "Cracked on arrival"
+        channels: [chat, social_media, mobile_app]
+        body: >-
+          Just got my {product} and it is cracked down the front. I need a replacement please.
+
+  - scenario_id: INC-WRG-NOPHOTO
+    pool: dev
+    subcategory: DEL-WRG
+    intended_rule: RES-DEL-WRG-02
+    difficulty_type: incomplete
+    tags: ["missing:photo_evidence"]
+    primary_issue: "Wrong item reported without photos"
+    order_profile: {name: delivered_recent, params: {days: [1, 5]}}
+    products: [LUM-TH-100, LUM-CAM-210]
+    product2: [LUM-SPK-500, LUM-BLB-610]
+    requested_resolution: replacement
+    expect: {missing_information_include: [photo_evidence]}
+    texts:
+      - style: calm
+        title: "Wrong product delivered"
+        body: >-
+          Order {order_ref} contained a {product2}, but I ordered a {product}. Please send the correct item.
+
+  - scenario_id: INC-VAGUE-MAL
+    pool: dev
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-01
+    difficulty_type: incomplete
+    tags: ["missing:problem_description", vague]
+    primary_issue: "Vague malfunction report (under 8 words)"
+    products: [LUM-TH-100, LUM-HUB-800]
+    channels: [web_form, mobile_app]
+    requested_resolution: none
+    expect: {missing_information_include: [problem_description]}
+    texts:
+      - style: frustrated
+        title: "Broken"
+        body: "{product} stopped. Help."
+      - style: calm
+        title: "Not working"
+        body: "It does not work anymore."
+        include: {product: false}
+
+  - scenario_id: INC-VAGUE-BIL
+    pool: dev
+    subcategory: BIL-INC
+    intended_rule: RES-BIL-INC-01
+    difficulty_type: incomplete
+    tags: ["missing:problem_description", vague]
+    primary_issue: "Vague billing complaint (under 8 words)"
+    channels: [web_form, mobile_app]
+    requested_resolution: none
+    include: {product: false}
+    expect: {missing_information_include: [problem_description, transaction_reference]}
+    texts:
+      - style: frustrated
+        title: "Charged wrong"
+        body: "Wrong amount taken. Fix it."
+      - style: angry
+        title: "Billing!!!"
+        body: "You overcharged me AGAIN!!"
+        signals_add: []
+
+  - scenario_id: INC-VAGUE-DSR
+    pool: dev
+    subcategory: PRV-DSR
+    intended_rule: RES-PRV-DSR-01
+    difficulty_type: incomplete
+    tags: ["missing:problem_description", vague]
+    primary_issue: "Very short data-deletion request"
+    channels: [web_form, mobile_app]
+    requested_resolution: other
+    include: {product: false}
+    signals: [data_rights_request]
+    texts:
+      - style: calm
+        title: "Delete"
+        body: "Delete my data please."
+
+  - scenario_id: INC-REF-NOREF
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference", "missing:date"]
+    primary_issue: "Refund request without order reference or purchase date"
+    products: [LUM-CAM-200, LUM-SPK-500, LUM-VAC-300]
+    requested_resolution: refund
+    signals: [refund_request]
+    expect: {missing_information_include: [order_reference, transaction_date]}
+    texts:
+      - style: calm
+        title: "Refund please"
+        body: >-
+          I would like a refund for the {product}. It is not right for us and I would like to send it back.
+      - style: frustrated
+        title: "Money back for my {product:short}"
+        body: >-
+          I want my money back for the {product}. I do not have the receipt. Just tell me what to do.
+
+  - scenario_id: INC-CLM-NOREF
+    pool: dev
+    subcategory: WAR-CLM
+    intended_rule: RES-WAR-CLM-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference", "missing:date"]
+    primary_issue: "Warranty claim without proof of purchase or purchase date"
+    products: [LUM-LCK-700, LUM-AIR-900]
+    requested_resolution: repair
+    expect: {missing_information_include: [order_reference, transaction_date]}
+    texts:
+      - style: calm
+        title: "Warranty repair needed"
+        body: >-
+          My {product} has a fault and I believe it is still under warranty. How do I get it repaired?
+
+  - scenario_id: INC-DUP-NOREF
+    pool: dev
+    subcategory: BIL-DUP
+    intended_rule: RES-BIL-DUP-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference", "missing:transaction_reference"]
+    primary_issue: "Duplicate charge reported without references or dates"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [refund_request]
+    expect: {missing_information_include: [order_reference, transaction_reference]}
+    texts:
+      - style: frustrated
+        title: "Double charge"
+        body: >-
+          You have charged me twice for the same thing. I want the extra payment refunded straight away.
+
+  - scenario_id: INC-CAN-NOREF
+    pool: dev
+    subcategory: BIL-CAN
+    intended_rule: RES-BIL-CAN-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference"]
+    primary_issue: "Charged after cancelling - order not identified"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [cancellation_mentioned, refund_request]
+    expect: {missing_information_include: [order_reference]}
+    texts:
+      - style: calm
+        title: "Charged after I cancelled"
+        body: >-
+          I cancelled my order on {date:c-9} but the payment still went through on {date:c-6}. Please refund me.
+
+  - scenario_id: INC-DLY-NOREF
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference"]
+    primary_issue: "Late delivery reported without an order reference"
+    products: [LUM-TH-100, LUM-VAC-300, LUM-SPK-500]
+    requested_resolution: explanation
+    expect: {missing_information_include: [order_reference]}
+    texts:
+      - style: frustrated
+        title: "Where is my order?"
+        body: >-
+          My {product} still hasn't arrived and it was supposed to be here last week. I can't find the confirmation
+          email. Where is it?
+      - style: calm
+        title: "Late delivery"
+        channels: [phone, chat]
+        params: {ordered: [9, 12]}
+        body: >-
+          My delivery is late. I ordered a {product} about {dur:ordered} ago. Could you check where it is?
+
+  - scenario_id: INC-LST-NOREF
+    pool: dev
+    subcategory: DEL-LST
+    intended_rule: RES-DEL-LST-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference"]
+    primary_issue: "Missing parcel reported without an order reference"
+    products: [LUM-CAM-210, LUM-HUB-800]
+    requested_resolution: replacement
+    expect: {missing_information_include: [order_reference]}
+    texts:
+      - style: calm
+        title: "Parcel marked delivered - not here"
+        body: >-
+          My {product} parcel says delivered but it never arrived. I do not have the order number with me.
+
+  - scenario_id: INC-REFDLY-NOREF
+    pool: dev
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference"]
+    primary_issue: "Refund delay reported without an order reference"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [refund_request]
+    expect: {missing_information_include: [order_reference]}
+    texts:
+      - style: frustrated
+        title: "Refund still pending"
+        body: >-
+          I sent my item back a while ago and my refund is still pending. Can you check? I have lost the paperwork.
+
+  - scenario_id: INC-RFM-NOREF
+    pool: dev
+    subcategory: BIL-RFM
+    intended_rule: RES-BIL-RFM-01
+    difficulty_type: incomplete
+    tags: ["missing:transaction_reference"]
+    primary_issue: "Missing refund reported without any reference or date"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [refund_request]
+    expect: {missing_information_include: [transaction_reference]}
+    texts:
+      - style: calm
+        title: "Refund not on my statement"
+        body: >-
+          Your team confirmed my refund but it is not on my bank statement. Could you check what happened?
+
+  - scenario_id: INC-SUB-NOREF
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-01
+    difficulty_type: incomplete
+    tags: ["missing:transaction_reference"]
+    primary_issue: "Renewal dispute without references or dates"
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request]
+    expect: {missing_information_include: [transaction_reference]}
+    texts:
+      - style: frustrated
+        title: "Renewal I did not want"
+        body: >-
+          My {product} renewed without me noticing and I want the renewal refunded. Please look into it.
+
+  - scenario_id: INC-CPL-NOREF
+    pool: dev
+    subcategory: WAR-CPL
+    intended_rule: RES-WAR-CPL-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference"]
+    primary_issue: "Care+ claim without identifying the covered device order"
+    products: [LUM-VAC-300, LUM-CAM-210]
+    customer_types: [care_plus]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    expect: {missing_information_include: [order_reference]}
+    texts:
+      - style: calm
+        title: "Care+ claim for accidental damage"
+        body: >-
+          I have Care+ and my {product} was damaged in an accident at home. How do I get a replacement? I cannot find
+          the original order.
+
+  - scenario_id: INC-MIS-NOREF
+    pool: dev
+    subcategory: PRD-MIS
+    intended_rule: RES-PRD-MIS-02
+    difficulty_type: incomplete
+    tags: ["missing:order_reference"]
+    primary_issue: "Missing accessory reported without an order reference"
+    products: [LUM-CAM-210, LUM-LCK-700]
+    requested_resolution: replacement
+    params:
+      part: {LUM-CAM-210: mounting bracket, LUM-LCK-700: mounting screws}
+    expect: {missing_information_include: [order_reference]}
+    texts:
+      - style: polite
+        title: "Missing {param:part}"
+        body: >-
+          Hello, my {product} came without the {param:part}. Could you send one? I am not sure which order it was
+          from. Thank you.
+
+  - scenario_id: INC-CON-NOPRODUCT
+    pool: dev
+    subcategory: TEC-CON
+    intended_rule: RES-TEC-CON-01
+    difficulty_type: incomplete
+    tags: ["missing:product"]
+    primary_issue: "Connectivity issue without saying which device"
+    requested_resolution: repair
+    include: {product: false}
+    expect: {missing_information_include: [product]}
+    texts:
+      - style: frustrated
+        title: "Device keeps going offline"
+        body: >-
+          My device keeps dropping off the Wi-Fi several times a day and shows as offline in the app. It is very
+          annoying. How do I fix it?
+        signals_add: [repeat_indicator]
+      - style: calm
+        title: "Wi-Fi connection problem"
+        body: >-
+          One of my Lumora devices disconnects from the network every night. It reconnects in the morning. What can
+          I do?
+
+  - scenario_id: INC-SET-NOPRODUCT
+    pool: dev
+    subcategory: TEC-SET
+    intended_rule: RES-TEC-SET-01
+    difficulty_type: incomplete
+    tags: ["missing:product"]
+    primary_issue: "Setup problem without naming the device"
+    requested_resolution: explanation
+    include: {product: false}
+    expect: {missing_information_include: [product]}
+    texts:
+      - style: polite
+        title: "Help finishing setup"
+        body: >-
+          Hi, I am trying to set up the new device I bought but the app will not get past the pairing screen. Could
+          you help?
+
+  - scenario_id: INC-SAF-NOPRODUCT
+    pool: dev
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-01
+    difficulty_type: incomplete
+    tags: ["missing:product"]
+    primary_issue: "Overheating device reported without naming it (never blocked)"
+    requested_resolution: other
+    include: {product: false}
+    signals: [overheating]
+    expect: {missing_information_include: [product]}
+    texts:
+      - style: calm
+        title: "One of my devices is overheating"
+        body: >-
+          One of the Lumora devices in my kitchen was too hot to touch this evening and gave off a burning smell. I
+          have unplugged it. I am not sure of the model name.
+
+  - scenario_id: INC-OUT-NODURATION
+    pool: dev
+    subcategory: SVC-OUT
+    intended_rule: RES-SVC-OUT-01
+    difficulty_type: incomplete
+    tags: ["missing:outage_duration"]
+    primary_issue: "Service problem reported without duration or details"
+    products: [SVC-CLOUD]
+    requested_resolution: explanation
+    texts:
+      - style: frustrated
+        title: "{product} not working"
+        body: >-
+          {product} is not working again. I cannot see anything. Please fix it and tell me what is going on.
+
+  - scenario_id: INC-INVALID-REF
+    pool: dev
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-01
+    difficulty_type: incomplete
+    order_mode: invalid_reference
+    tags: ["missing:order_reference_unverified"]
+    primary_issue: "Damage report quoting an order reference that does not exist"
+    products: [LUM-SPK-500, LUM-AIR-900]
+    requested_resolution: replacement
+    include: {photo: true}
+    signals: [replacement_request, photo_evidence]
+    expect: {missing_information_include: [order_reference_unverified]}
+    texts:
+      - style: calm
+        title: "Damaged item - order {order_ref}"
+        body: >-
+          My {product} arrived with a broken stand. The order number is {order_ref}. Photos attached. Please send a
+          replacement.
+
+  - scenario_id: INC-UNKNOWN-REF
+    pool: dev
+    subcategory: DEL-DLY
+    intended_rule: RES-DEL-DLY-01
+    difficulty_type: incomplete
+    order_mode: unknown_reference
+    tags: ["missing:order_reference_unverified"]
+    primary_issue: "Late delivery quoting an order reference that cannot be found"
+    products: [LUM-TH-100, LUM-CAM-200]
+    requested_resolution: explanation
+    expect: {missing_information_include: [order_reference_unverified]}
+    texts:
+      - style: frustrated
+        title: "Order {order_ref} late"
+        body: >-
+          Order {order_ref} for my {product} was due days ago and still hasn't arrived. Please chase the courier.
+      - style: calm
+        title: "Delivery status for {order_ref}"
+        body: >-
+          Could you tell me the delivery status of order {order_ref}? It was due on {date:c-4} and I have heard
+          nothing.
+
+  - scenario_id: INC-MALFORMED-REF
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-01
+    difficulty_type: incomplete
+    order_mode: malformed_reference
+    tags: ["missing:order_reference"]
+    primary_issue: "Refund request with a malformed order reference"
+    products: [LUM-SPK-500, LUM-BLB-610]
+    requested_resolution: refund
+    signals: [refund_request]
+    expect: {missing_information_include: [order_reference]}
+    texts:
+      - style: calm
+        title: "Refund - order {order_ref}"
+        body: >-
+          I would like to return my {product} for a refund. My order number is {order_ref}, bought on {date:c-10}.
+      - style: frustrated
+        title: "Return request"
+        body: >-
+          Refund please for the {product}. The order reference on my receipt is {order_ref}. Your form keeps saying
+          it is invalid.
+
+  - scenario_id: INC-OTHER-CUSTOMER
+    pool: dev
+    subcategory: DEL-WRG
+    intended_rule: RES-DEL-WRG-02
+    difficulty_type: incomplete
+    order_mode: other_customer
+    tags: ["missing:order_ownership"]
+    primary_issue: "Wrong-item report quoting an order that belongs to another account"
+    order_profile: {name: delivered_recent, params: {days: [1, 5]}}
+    products: [LUM-CAM-200, LUM-HUB-800]
+    product2: [LUM-PLG-600, LUM-SPK-500]
+    requested_resolution: replacement
+    include: {photo: true}
+    expect: {missing_information_include: [order_ownership]}
+    texts:
+      - style: calm
+        title: "Wrong item in order {order_ref}"
+        body: >-
+          Order {order_ref} arrived with a {product2} instead of my {product}. Photos attached. Please send the right
+          item.
+
+  - scenario_id: INC-OTHER-CUSTOMER-REFUND
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-02
+    difficulty_type: incomplete
+    order_mode: other_customer
+    tags: ["missing:order_ownership"]
+    primary_issue: "Refund request quoting an order reference registered to a different customer"
+    order_profile: {name: delivered_days_ago, params: {days: [4, 20]}}
+    products: [LUM-SPK-500, LUM-TH-100]
+    requested_resolution: refund
+    signals: [refund_request]
+    expect: {missing_information_include: [order_ownership]}
+    texts:
+      - style: polite
+        title: "Refund for {order_ref}"
+        body: >-
+          Hello, I would like to return my {product} for a refund. The order number I have written down is
+          {order_ref}. Thank you.
+
+  # ============================================================ HOLDOUT (incomplete)
+  - scenario_id: H-INC-MAL-NOREF
+    pool: holdout
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-01
+    difficulty_type: incomplete
+    tags: ["missing:order_reference", "missing:date"]
+    primary_issue: "Malfunction without order reference or date"
+    products: [LUM-VAC-300, LUM-AIR-900]
+    requested_resolution: repair
+    expect: {missing_information_include: [order_reference, transaction_date]}
+    texts:
+      - style: calm
+        title: "Unit keeps beeping"
+        body: >-
+          The {product} keeps beeping and flashing red, and it will not start a cycle. Please advise how to have it
+          looked at.
+
+  - scenario_id: H-INC-VAGUE
+    pool: holdout
+    subcategory: SVC-SUP
+    intended_rule: RES-SVC-SUP-01
+    difficulty_type: incomplete
+    tags: ["missing:problem_description", vague]
+    primary_issue: "Very vague complaint about service"
+    channels: [web_form, mobile_app]
+    requested_resolution: none
+    include: {product: false}
+    expect: {missing_information_include: [problem_description]}
+    texts:
+      - style: frustrated
+        title: "Terrible"
+        body: "Bad service. Not happy."
+
+  - scenario_id: H-INC-DOA-NOPHOTO
+    pool: holdout
+    subcategory: PRD-DOA
+    intended_rule: RES-PRD-DOA-01
+    difficulty_type: incomplete
+    tags: ["missing:photo_evidence"]
+    primary_issue: "Damage on arrival without photos"
+    order_profile: {name: delivered_within_doa, params: {days: [1, 3]}}
+    products: [LUM-TH-100]
+    requested_resolution: replacement
+    expect: {missing_information_include: [photo_evidence]}
+    texts:
+      - style: polite
+        title: "Screen cracked on delivery"
+        body: >-
+          Good morning, the {product} delivered on {date:delivered} has a cracked display. Reference {order_ref}. What
+          would you like me to do?
+
+  - scenario_id: H-INC-INVALID-REF
+    pool: holdout
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-01
+    difficulty_type: incomplete
+    order_mode: invalid_reference
+    tags: ["missing:order_reference_unverified"]
+    primary_issue: "Refund chase quoting a non-existent order"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [refund_request]
+    expect: {missing_information_include: [order_reference_unverified]}
+    texts:
+      - style: frustrated
+        title: "Refund for order {order_ref}"
+        body: >-
+          I returned the item from order {order_ref} {dur:14} ago and my refund has not arrived. Please sort it.
+
+  - scenario_id: H-INC-NOPRODUCT
+    pool: holdout
+    subcategory: TEC-APP
+    intended_rule: RES-TEC-APP-01
+    difficulty_type: incomplete
+    tags: ["missing:product"]
+    primary_issue: "App-side problem with no device named"
+    requested_resolution: repair
+    include: {product: false}
+    texts:
+      - style: calm
+        title: "Controls greyed out"
+        body: >-
+          In the app, the controls for one of my devices are greyed out and I cannot change anything. Not sure what
+          is causing it.
+
+  - scenario_id: H-INC-MALFORMED
+    pool: holdout
+    subcategory: BIL-INC
+    intended_rule: RES-BIL-INC-01
+    difficulty_type: incomplete
+    order_mode: malformed_reference
+    malformed_ref: "LMR {d6}"
+    tags: ["missing:order_reference"]
+    primary_issue: "Billing query with a malformed order reference"
+    requested_resolution: explanation
+    include: {product: false}
+    expect: {missing_information_include: [order_reference]}
+    texts:
+      - style: calm
+        title: "Charge query"
+        body: >-
+          I think the amount charged for order {order_ref} is higher than it should be. Can you check it?

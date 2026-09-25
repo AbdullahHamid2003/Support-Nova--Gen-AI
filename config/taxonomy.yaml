@@ -1,0 +1,97 @@
+# =============================================================================
+# Complaint taxonomy (SRS Steps 12, 14, 15). Seeded into the database; fully
+# configurable at runtime (Admin > Taxonomy). New categories/subcategories added
+# at runtime are picked up by the GenAI prompt and the Python rule engine without
+# code changes (SRS 1.8(5) Hidden Complaint Category).
+# 11 categories / 35 subcategories  (SRS minimum: 10 / 20)
+# =============================================================================
+categories:
+  - code: PRD
+    name: Product Defect
+    description: Physical product problems - damaged, faulty or incomplete devices.
+    subcategories:
+      - {code: PRD-DOA, name: Damaged on Arrival, description: Product arrived physically damaged or broken (cracked, dented, shattered) when unboxed.}
+      - {code: PRD-MAL, name: Product Malfunction, description: Device powers on but fails, stops working or behaves incorrectly during normal use (not transit damage).}
+      - {code: PRD-MIS, name: Missing Parts, description: Package is missing an accessory, cable, adapter, mount or component listed in the box contents.}
+
+  - code: BIL
+    name: Billing
+    description: Charges, payments, subscription billing and cancellations that affect what the customer paid.
+    subcategories:
+      - {code: BIL-DUP, name: Duplicate Charge, description: The same order or subscription was charged more than once.}
+      - {code: BIL-INC, name: Incorrect Charge, description: Charged amount differs from the agreed price, or an unexpected fee was applied.}
+      - {code: BIL-RFM, name: Refund Missing, description: Lumora confirmed a refund was issued but it has not appeared on the customer's statement.}
+      - {code: BIL-SUB, name: Subscription Renewal, description: Dispute about an automatic renewal charge for Cloud Vault or Care+.}
+      - {code: BIL-CAN, name: Cancellation Not Honored, description: Customer cancelled an order or subscription but was still charged or the cancellation was not processed.}
+
+  - code: DEL
+    name: Delivery
+    description: Shipping and fulfilment of physical orders.
+    subcategories:
+      - {code: DEL-DLY, name: Delayed Delivery, description: Order not delivered by the estimated delivery date.}
+      - {code: DEL-LST, name: Lost Package, description: Package has no tracking updates for an extended period, or is marked delivered but was not received.}
+      - {code: DEL-WRG, name: Wrong Item Delivered, description: Customer received a different product, model, colour or quantity than ordered.}
+
+  - code: REF
+    name: Refund
+    description: Requests for refunds and disputes about refunds that Lumora has not yet issued.
+    subcategories:
+      - {code: REF-REQ, name: Refund Request, description: Customer asks for their money back for a product or service.}
+      - {code: REF-DLY, name: Refund Delay, description: Return received or cancellation approved but Lumora has not issued the refund within the policy timeline.}
+      - {code: REF-PAR, name: Partial Refund Dispute, description: Customer received less than expected (restocking fee, shipping fee deducted, partial amount).}
+
+  - code: ACC
+    name: Account
+    description: Lumora account access, security and profile management.
+    subcategories:
+      - {code: ACC-LGN, name: Login Problem, description: Customer cannot sign in, reset password or complete two-factor authentication.}
+      - {code: ACC-UNA, name: Unauthorized Account Access, description: Someone else accessed or changed the customer's account, devices or orders.}
+      - {code: ACC-UPD, name: Account Update Issue, description: Customer cannot update profile details such as email, address or phone number.}
+
+  - code: TEC
+    name: Technical Support
+    description: Device connectivity, app and set-up problems that can usually be solved by troubleshooting.
+    subcategories:
+      - {code: TEC-CON, name: Connectivity Issue, description: Device will not connect to Wi-Fi, keeps going offline or loses pairing with the hub.}
+      - {code: TEC-APP, name: App or Software Issue, description: Lumora Home app crashes, features do not work, or a firmware update causes problems.}
+      - {code: TEC-SET, name: Setup Issue, description: Customer cannot complete initial set-up or configuration of a device.}
+
+  - code: SVC
+    name: Service Quality
+    description: Quality of Lumora's services - support interactions, installation work and online services.
+    subcategories:
+      - {code: SVC-SUP, name: Poor Support Experience, description: Long waits, repeated transfers, unhelpful or unresolved support contacts.}
+      - {code: SVC-INS, name: Installation Service Quality, description: Pro Install visit was late, incomplete or poorly done (no misconduct).}
+      - {code: SVC-OUT, name: Service Outage, description: Cloud Vault, app or hub services unavailable; recordings or automations lost.}
+
+  - code: WAR
+    name: Warranty
+    description: Warranty and Care+ protection-plan claims.
+    subcategories:
+      - {code: WAR-CLM, name: Warranty Claim, description: Product failed within the warranty period and the customer requests repair or replacement.}
+      - {code: WAR-DEN, name: Warranty Denial Dispute, description: Customer disputes a rejected warranty claim.}
+      - {code: WAR-CPL, name: Care+ Coverage Issue, description: Problem with a Care+ claim, accidental-damage cover or advance replacement.}
+
+  - code: PRV
+    name: Privacy
+    description: Personal data, camera footage, consent and data-rights matters.
+    subcategories:
+      - {code: PRV-BRC, name: Data Exposure, description: Customer's personal data or footage exposed, or customer can see another person's data.}
+      - {code: PRV-CON, name: Consent and Marketing, description: Unwanted marketing after opt-out or data shared without consent.}
+      - {code: PRV-DSR, name: Data Rights Request, description: Request to access, export or delete personal data, or such a request was not honoured.}
+
+  - code: SAF
+    name: Safety
+    description: Any risk of harm to people or property caused by a Lumora product.
+    subcategories:
+      - {code: SAF-OVH, name: Overheating or Fire Hazard, description: Product overheats, smokes, melts, swells or catches fire.}
+      - {code: SAF-ELC, name: Electrical Hazard, description: Sparks, electric shock, exposed wiring or tripping electrics caused by a product.}
+      - {code: SAF-INJ, name: Injury Incident, description: A person or pet was physically injured by a product.}
+
+  - code: STF
+    name: Staff Behavior
+    description: Conduct of Lumora support agents and installation technicians.
+    subcategories:
+      - {code: STF-RUD, name: Rude or Unprofessional Staff, description: Staff member was rude, dismissive or unprofessional.}
+      - {code: STF-MIS, name: Technician Misconduct, description: Technician damaged property, behaved inappropriately or is suspected of theft.}
+      - {code: STF-MIN, name: Misinformation by Staff, description: Staff member gave incorrect information or made a commitment Lumora did not honour.}

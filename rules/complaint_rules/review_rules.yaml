@@ -1,0 +1,21 @@
+# =============================================================================
+# Manual-review triggers (REV-*), SRS Step 57, CHP-SOP-13 s7.
+# Evaluated by the verification decision engine after all validation checks.
+# Any enabled trigger that fires sends the complaint to the manual review
+# queue with its reason code; the original AI output is never overwritten.
+# =============================================================================
+review_rules:
+  - {rule_id: REV-001, code: ai_python_category_mismatch, name: AI and rules disagree on the category, enabled: true, policy_refs: ["CHP-SOP-13:7"]}
+  - {rule_id: REV-002, code: critical_validation_failure, name: A critical check failed, enabled: true, policy_refs: ["CHP-SOP-13:3.6"]}
+  - {rule_id: REV-003, code: low_verification_score, name: Verification score too low, enabled: true, policy_refs: ["CHP-SOP-13:3.6"]}
+  - {rule_id: REV-004, code: missing_policy_support, name: No policy supports the decision, enabled: true, policy_refs: ["CHP-SOP-13:7", "CHP-POL-01:6.2"]}
+  - {rule_id: REV-005, code: ambiguous_complaint, name: Unclear complaint, enabled: true, policy_refs: ["CHP-SOP-13:7"]}
+  - {rule_id: REV-006, code: escalation_unclear, name: Escalation level unclear, enabled: true, policy_refs: ["CHP-SOP-13:7"]}
+  - {rule_id: REV-007, code: policy_contradiction, name: Conflicting policy information, enabled: true, policy_refs: ["CHP-SOP-13:7", "CHP-POL-01:10.5"]}
+  - {rule_id: REV-008, code: sensitive_case, name: Sensitive case needs human approval, enabled: true, categories: [SAF, PRV], signals: [legal_threat, staff_harassment, injury, lock_security], policy_refs: ["CHP-SOP-13:7", "CMP-GDL-19:8.2"]}
+  - {rule_id: REV-009, code: invalid_ai_output, name: No usable AI answer, enabled: true, policy_refs: ["CHP-SOP-13:7"]}
+  - {rule_id: REV-010, code: prompt_injection_detected, name: Attempt to manipulate the AI, enabled: true, policy_refs: ["CHP-POL-01:6.4", "CMP-GDL-19:8.3"]}
+  - {rule_id: REV-011, code: unsupported_promise, name: Response makes unsupported promises, enabled: true, policy_refs: ["CHP-POL-01:6.1"]}
+  - {rule_id: REV-012, code: hallucination_detected, name: Unsupported claims, enabled: true, policy_refs: ["CHP-POL-01:6.2"]}
+  - {rule_id: REV-013, code: unknown_category, name: Unknown category, enabled: true, policy_refs: ["CHP-POL-01:5.1"]}
+  - {rule_id: REV-014, code: reference_mismatch, name: Order not found for this customer, enabled: true, policy_refs: ["SEC-POL-09:6"]}

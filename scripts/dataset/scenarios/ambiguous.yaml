@@ -1,0 +1,421 @@
+# =============================================================================
+# Ambiguous complaints: vague wording or one issue that could fit two categories.
+# The expected primary follows the risk-first precedence (RTE-RUL-14 s5):
+#   SAF > ACC-UNA > PRV > LEGAL > BIL > PRD > DEL > WAR > others.
+# The competing reading is recorded as the tag "alt_subcategory:<code>". All are
+# expected to go to manual review (review rule REV-005).
+# =============================================================================
+scenarios:
+  - scenario_id: AMB-PRV-APP-FEED
+    pool: dev
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-03
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:TEC-APP"]
+    primary_issue: "Unknown camera feed visible in the app (possible privacy exposure or app bug)"
+    products: [LUM-CAM-200]
+    requested_resolution: explanation
+    signals: [privacy_breach]
+    texts:
+      - style: calm
+        title: "Strange camera feed in my app"
+        body: >-
+          My app is showing a live view from a room I do not recognise - it looks like someone else's camera. It
+          might just be a glitch in the app, but I wanted to check. It appeared after I added my new {product}.
+        emotions: [Confusion]
+
+  - scenario_id: AMB-UNA-INC-CODE
+    pool: dev
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:BIL-INC"]
+    primary_issue: "Unrequested verification code followed by an unrecognised charge"
+    products: [SVC-APP]
+    requested_resolution: explanation
+    signals: [security_breach]
+    texts:
+      - style: calm
+        title: "Code I didn't ask for, then a charge"
+        body: >-
+          This morning I got a text with a verification code I did not request, and an hour later a charge from
+          Lumora of {amt:charge_amt} that I do not recognise. Not sure if the two are related or if it is just a
+          billing mistake.
+        params: {charge_amt: [49, 99, 129]}
+        emotions: [Confusion]
+      - style: frustrated
+        title: "Security code and a mystery charge"
+        body: >-
+          I received two-factor codes I didn't request on my phone and then a charge of {amt:charge_amt} appeared on
+          my card. Is my account being used by someone, or did you bill me wrongly? I need to know which.
+        params: {charge_amt: [149, 179]}
+
+  - scenario_id: AMB-SAF-CON-WARM
+    pool: dev
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:TEC-CON"]
+    primary_issue: "Plug gets warm and then drops offline (possible heat hazard or connectivity fault)"
+    products: [LUM-PLG-600]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Plug gets warm then goes offline"
+        body: >-
+          My {product} gets noticeably warm after an hour or so, and then it disconnects from the app. Is the warmth
+          normal, or is that why it drops offline?
+        emotions: [Confusion]
+      - style: polite
+        title: "Warm plug and connection drops"
+        body: >-
+          Hi, the {product} powering my heater feels warm to the touch in the evenings and the app then shows it as
+          unavailable. I am not sure whether this is a safety thing or a Wi-Fi thing. Could you advise?
+        emotions: [Confusion]
+
+  - scenario_id: AMB-SAF-MAL-SMELL
+    pool: dev
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:PRD-MAL"]
+    primary_issue: "Vacuum stopped with an odd smell (possible heat hazard or malfunction)"
+    products: [LUM-VAC-300]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Vacuum stopped mid-clean with a funny smell"
+        body: >-
+          My {product} stopped in the middle of the living room today and there was a funny smell coming from it. It
+          started again after a while. I am not sure if something is broken inside.
+        emotions: [Confusion]
+      - style: frustrated
+        title: "Robot vacuum cutting out and smelling odd"
+        body: >-
+          The {product} keeps cutting out and when I pick it up there is an odd smell from underneath. Is it the
+          motor dying or something dangerous? Either way it is not doing its job.
+
+  - scenario_id: AMB-UNA-LGN-ADDRESS
+    pool: dev
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:ACC-LGN"]
+    primary_issue: "Cannot sign in and the account shows an unfamiliar address"
+    products: [SVC-APP]
+    requested_resolution: other
+    signals: [security_breach]
+    texts:
+      - style: calm
+        title: "Can't sign in - and a strange address"
+        body: >-
+          I cannot sign in on my phone, and on my laptop (still logged in) the orders page shows a delivery address in
+          another city. Maybe I mistyped something, or maybe someone accessed my account. Please check.
+        emotions: [Confusion]
+
+  - scenario_id: AMB-UNA-APP-LOCK
+    pool: dev
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-03
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:TEC-APP"]
+    primary_issue: "Lock history shows a night-time unlock (possible security incident or app error)"
+    products: [LUM-LCK-700]
+    requested_resolution: explanation
+    signals: [lock_security]
+    texts:
+      - style: calm
+        title: "Unlock at night in the app history"
+        body: >-
+          The app history says my {product} unlocked in the middle of the night on Sunday. It might have been my
+          partner coming home late, or the app might be wrong - but I would rather you checked.
+        emotions: [Confusion]
+      - style: polite
+        title: "Unexpected entry in the lock log"
+        body: >-
+          Hello, my lock log shows the smart lock unlocked at night on Wednesday at 2:10am. Nobody remembers doing it.
+          Could this be an app glitch? Thank you for looking.
+        emotions: [Confusion]
+
+  - scenario_id: AMB-PRV-INC-INVOICE
+    pool: dev
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-02
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:BIL-INC"]
+    primary_issue: "Invoice sent to someone else's email (possible data exposure or billing error)"
+    products: [SVC-APP]
+    requested_resolution: explanation
+    signals: [privacy_breach]
+    texts:
+      - style: frustrated
+        title: "My invoice went to someone else"
+        body: >-
+          My latest invoice was sent to someone else's email address instead of mine, so my details were shared with
+          a stranger, and the amount on it looks wrong too. Is this a billing mix-up or a data problem?
+        emotions: [Frustration, Confusion]
+
+  - scenario_id: AMB-UNA-UPD-EMAIL
+    pool: dev
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:ACC-UPD"]
+    primary_issue: "Email-change alert the customer may or may not have triggered"
+    products: [SVC-APP]
+    requested_resolution: explanation
+    signals: [security_breach]
+    texts:
+      - style: calm
+        title: "Email change notification"
+        body: >-
+          I got a notice that my email was changed on my Lumora account. I did try to update my profile last week but
+          gave up when it errored, so maybe it saved after all? Or is someone else in my account?
+        emotions: [Confusion]
+
+  - scenario_id: AMB-MIS-LST-EMPTY
+    pool: dev
+    subcategory: PRD-MIS
+    intended_rule: RES-PRD-MIS-03
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:DEL-LST"]
+    primary_issue: "Delivered box was empty (missing product or lost/stolen contents)"
+    order_profile: {name: marked_delivered, params: {days: [0, 2]}}
+    products: [LUM-SPK-500, LUM-CAM-200]
+    requested_resolution: replacement
+    texts:
+      - style: frustrated
+        title: "Delivered, but the box was empty"
+        body: >-
+          Tracking says order {order_ref} was delivered on {date:delivered}. There was a box on my porch but the box
+          was empty - no {product}, just packing. Was it never packed, or did someone take it?
+        emotions: [Frustration, Confusion]
+
+  - scenario_id: AMB-SUB-CPL-CHARGE
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-04
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:WAR-CPL"]
+    primary_issue: "Care+ shown as expired but still billed (billing or coverage issue)"
+    order_profile: {name: monthly_subscription, params: {months: [4, 12], last_charge_days: [3, 15]}}
+    products: [SVC-CARE]
+    customer_types: [care_plus]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Care+ says expired but I was charged"
+        body: >-
+          The app says my {product} has expired, yet I was charged {amt:charge} on {date:renewal}. Either the plan is
+          active and the app is wrong, or I am paying for nothing. Which is it?
+        emotions: [Confusion]
+
+  - scenario_id: AMB-PRV-APP-SPEAKER
+    pool: dev
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:TEC-APP"]
+    primary_issue: "Speaker activates by itself at night (possible privacy exposure or software fault)"
+    products: [LUM-SPK-500]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Speaker talking by itself at night"
+        body: >-
+          My {product} has started lighting up and speaking on its own late at night, as if someone had given it a
+          command. Is someone able to listen through it, or is this a software fault?
+        emotions: [Confusion]
+      - style: frustrated
+        title: "Is my speaker listening to me?"
+        body: >-
+          Three nights in a row my {product} has woken up by itself and answered a question nobody asked. I am
+          worried that someone is listening in. Please explain what is happening.
+        emotions: [Frustration, Confusion]
+
+  - scenario_id: AMB-INC-REF-RETURNED
+    pool: dev
+    subcategory: BIL-INC
+    intended_rule: RES-BIL-INC-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:REF-DLY"]
+    primary_issue: "Customer believes they are billed for a returned item (billing error or refund delay)"
+    order_profile: {name: return_received_recent, params: {bdays: [2, 3], reason: changed_mind}}
+    products: [LUM-HUB-800, LUM-CAM-200]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Still billed for a {product:short} I returned"
+        body: >-
+          I returned my {product} and you received it on {date:return_received}, but my statement still shows the
+          {amt:total} charge for order {order_ref}. Am I being billed for something I sent back, or is my refund just
+          slow?
+        emotions: [Frustration, Confusion]
+
+  - scenario_id: AMB-ELC-STATIC
+    pool: dev
+    subcategory: SAF-ELC
+    intended_rule: RES-SAF-ELC-02
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:PRD-MAL"]
+    primary_issue: "Child reports a shock from the plug (hazard or static discharge)"
+    products: [LUM-PLG-600]
+    requested_resolution: explanation
+    signals: [electrical_hazard, child_involved]
+    texts:
+      - style: calm
+        title: "Son says the plug zapped him"
+        body: >-
+          My son says he got a shock when he touched the {product} this morning. It may just have been static from
+          the carpet, but I would like to know if there is any chance the plug is faulty.
+        emotions: [Confusion]
+
+  - scenario_id: AMB-SUB-MIN-FREE
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-04
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:STF-MIN"]
+    primary_issue: "Monthly charges for a plan the customer was told was free (billing vs misinformation)"
+    order_profile: {name: monthly_subscription, params: {months: [3, 8], last_charge_days: [2, 12]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Charged monthly for a 'free' plan"
+        body: >-
+          I was told in store that {product} was free for the first year, but I have been charged {amt:charge} every
+          month, most recently on {date:renewal}. Either your staff got it wrong or your billing did. I would like
+          these charges refunded.
+        emotions: [Frustration, Confusion]
+
+  - scenario_id: AMB-OUT-CON-OFFLINE
+    pool: dev
+    subcategory: SVC-OUT
+    intended_rule: RES-SVC-OUT-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:TEC-CON"]
+    primary_issue: "Every device offline at once (service outage or home network fault)"
+    products: [SVC-APP]
+    requested_resolution: explanation
+    signals: [severe_service_failure]
+    texts:
+      - style: calm
+        title: "All my devices offline at once"
+        body: >-
+          Since about 6pm all my devices are offline in the {product}. My router seems fine and other apps work. Is
+          this an outage on your side or something wrong with my network?
+        emotions: [Confusion]
+
+  - scenario_id: AMB-CON-SUB-RENEW
+    pool: dev
+    subcategory: PRV-CON
+    intended_rule: RES-PRV-CON-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:BIL-SUB"]
+    primary_issue: "Renewal emails after the customer asked Lumora to stop contacting them"
+    requested_resolution: other
+    include: {product: false}
+    signals: [consent_violation]
+    texts:
+      - style: frustrated
+        title: "Stop emailing me about renewals"
+        body: >-
+          I opted out of all Lumora emails, yet I am still receiving messages telling me to renew my plan. Are these
+          marketing or billing notices? Either way, I asked you to stop.
+        emotions: [Frustration, Confusion]
+
+  - scenario_id: AMB-MAL-CLM-EIGHTMONTH
+    pool: dev
+    subcategory: PRD-MAL
+    intended_rule: RES-PRD-MAL-03
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:WAR-CLM"]
+    primary_issue: "Device stopped working after some months (malfunction report or warranty claim)"
+    order_profile: {name: delivered_months_ago, params: {months: [6, 10]}}
+    products: [LUM-TH-100, LUM-AIR-900]
+    requested_resolution: none
+    texts:
+      - style: calm
+        title: "{product} stopped working"
+        body: >-
+          My {product} is about {age:delivered} old and has stopped responding. I am not sure whether I should be
+          troubleshooting it or asking for a repair. Order {order_ref}.
+        emotions: [Confusion]
+
+  # ============================================================ HOLDOUT (ambiguous)
+  - scenario_id: H-AMB-UNA-RENAMED
+    pool: holdout
+    subcategory: ACC-UNA
+    intended_rule: RES-ACC-UNA-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:TEC-APP"]
+    primary_issue: "Devices renamed overnight (intrusion or app glitch)"
+    products: [SVC-APP]
+    requested_resolution: explanation
+    signals: [security_breach]
+    texts:
+      - style: calm
+        title: "Devices renamed overnight"
+        body: >-
+          All my devices were renamed overnight to numbers, and there is an unrecognised device in my account list.
+          Could this be an app bug, or has someone got into my account?
+        emotions: [Confusion]
+
+  - scenario_id: H-AMB-SAF-DOA-POWERCELL
+    pool: holdout
+    subcategory: SAF-OVH
+    intended_rule: RES-SAF-OVH-03
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:PRD-DOA"]
+    primary_issue: "New power station arrived warm with an odd smell (hazard or transit damage)"
+    order_profile: {name: delivered_within_doa, params: {days: [0, 2]}}
+    products: [LUM-PWR-400]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: polite
+        title: "New power station seems odd"
+        body: >-
+          Hello, our {product} arrived on {date:delivered} feeling warm through the box and with a slight chemical
+          odour, and the corner is dented. It may have been knocked in the van. Should I send it back for a
+          replacement, or is this a battery concern? {order_ref}.
+        emotions: [Confusion]
+
+  - scenario_id: H-AMB-PRV-TECHPHOTOS
+    pool: holdout
+    subcategory: PRV-BRC
+    intended_rule: RES-PRV-BRC-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:STF-MIS"]
+    primary_issue: "Technician took photographs inside the home (privacy or conduct)"
+    requested_resolution: explanation
+    include: {product: false}
+    lexical_traps: [technician_damage_theft]
+    texts:
+      - style: calm
+        title: "Installer photographed our rooms"
+        body: >-
+          The installer who came yesterday took pictures of several rooms on his own phone, including the hallway with
+          our alarm panel. Is that part of your process, or should I be worried about where those images go?
+        emotions: [Confusion]
+
+  - scenario_id: H-AMB-RFM-REFDLY
+    pool: holdout
+    subcategory: BIL-RFM
+    intended_rule: RES-BIL-RFM-01
+    difficulty_type: ambiguous
+    tags: [ambiguous, "alt_subcategory:REF-DLY"]
+    primary_issue: "Refund confirmation but no money (missing refund or refund never issued)"
+    requested_resolution: refund
+    include: {product: false}
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Refund 'confirmed' - was it ever sent?"
+        body: >-
+          An email told me my refund was confirmed, but my bank has nothing. Did you actually send it, or is it stuck
+          with the bank? I need someone to check which it is.
+        emotions: [Frustration, Confusion]

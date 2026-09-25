@@ -1,0 +1,449 @@
+# =============================================================================
+# Scenario bank - WAR (Warranty & Care+): WAR-CLM, WAR-DEN, WAR-CPL
+# Warranty periods: 12 months (cameras, vacuum, speaker, plug, bulbs) or 24 months
+# (thermostat, power station, lock, hub, purifier); Care+ extends to 36 months.
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ WAR-CLM
+  - scenario_id: WAR-CLM-COVERED
+    pool: dev
+    subcategory: WAR-CLM
+    intended_rule: RES-WAR-CLM-02
+    primary_issue: "Warranty claim for {product} within the warranty period"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 10]}}
+    products: [LUM-CAM-200, LUM-CAM-210, LUM-VAC-300, LUM-SPK-500, LUM-TH-100, LUM-HUB-800, LUM-AIR-900]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Warranty claim - {product}"
+        body: >-
+          I would like to make a warranty claim for my {product}, delivered on {date:delivered}. It has stopped
+          turning on completely. I have tried the reset steps from your help page. Order {order_ref}.
+      - style: polite
+        title: "Repair under warranty"
+        body: >-
+          Hello, my {product} is still under warranty and has developed a fault: it shuts down after a few minutes
+          of use. Could you arrange a warranty repair or replacement? The order number is {order_ref}. Thank you.
+        signals_add: [replacement_request]
+      - style: frustrated
+        title: "Faulty after a few months - warranty"
+        body: >-
+          My {product} is only {age:delivered} old and it has already failed - it makes a clicking noise and then
+          stops. This must be covered by the warranty. Please tell me how to get it repaired. {order_ref}.
+      - style: angry
+        title: "Honour your warranty"
+        body: >-
+          My {product} died after {age:delivered}. It is under warranty, so I expect you to repair or replace it
+          without making me jump through hoops. Order {order_ref}. I am tired of cheap electronics.
+        signals_add: [replacement_request]
+
+  - scenario_id: WAR-CLM-EXPIRED
+    pool: dev
+    subcategory: WAR-CLM
+    intended_rule: RES-WAR-CLM-03
+    primary_issue: "Warranty claim after the warranty period ended"
+    order_profile: {name: delivered_months_ago, params: {months: [14, 22]}}
+    products: [LUM-CAM-200, LUM-CAM-210, LUM-VAC-300, LUM-SPK-500]
+    customer_types: [individual, business, vip]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Warranty repair for an older {product:short}"
+        body: >-
+          My {product} from {date:delivered} has stopped charging. Could this be repaired under warranty? Order
+          {order_ref}.
+      - style: frustrated
+        title: "Warranty should cover this"
+        body: >-
+          My {product} broke down after {age:delivered}. I believe the warranty should still cover a fault like
+          this - it has barely been used. Please arrange a repair. Order {order_ref}.
+      - style: angry
+        title: "Warranty excuses"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Do not tell me the warranty is over. The {product} is a little over a year old and it is already junk.
+          This is outrageous, products should last longer than this! Repair it for free. Order {order_ref}.
+
+  - scenario_id: WAR-CLM-MISUSE
+    pool: dev
+    subcategory: WAR-CLM
+    intended_rule: RES-WAR-CLM-04
+    primary_issue: "Warranty claim for physical or liquid damage"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 9]}}
+    products: [LUM-CAM-210, LUM-SPK-500, LUM-VAC-300, LUM-TH-100, LUM-AIR-900]
+    customer_types: [individual, business, vip]
+    requested_resolution: repair
+    signals: [misuse_damage]
+    texts:
+      - style: calm
+        title: "Warranty claim after water damage"
+        body: >-
+          I left my {product} out on the balcony and it got wet during a storm. Now it will not power on. Is this
+          covered under the warranty? Order {order_ref}.
+      - style: frustrated
+        title: "Dropped it once and it broke"
+        body: >-
+          I dropped it once from about waist height and my {product} stopped working. Surely the warranty covers
+          that? It should not be this fragile. Order {order_ref}.
+      - style: polite
+        title: "Accidental spill - warranty question"
+        body: >-
+          Hello, I am afraid I spilled coffee on my {product} and since then the buttons do not respond. I wondered
+          whether the warranty would cover a repair? Thank you. Order {order_ref}.
+
+  - scenario_id: WAR-CLM-NOORDER
+    pool: dev
+    subcategory: WAR-CLM
+    intended_rule: RES-WAR-CLM-01
+    primary_issue: "Warranty claim - proof of purchase not supplied"
+    products: [LUM-TH-100, LUM-HUB-800, LUM-LCK-700]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Warranty claim without receipt"
+        body: >-
+          My {product} has a fault and I would like to make a warranty claim. I bought it on {date:c-200} but I no
+          longer have the order confirmation. Can you find it on my account?
+      - style: frustrated
+        title: "Faulty under warranty"
+        body: >-
+          My {product} is broken and it is still under warranty. I do not have the order number. Please just tell
+          me how to get it repaired.
+
+  # ------------------------------------------------------------------ WAR-DEN
+  - scenario_id: WAR-DEN-APPEAL
+    pool: dev
+    subcategory: WAR-DEN
+    intended_rule: RES-WAR-DEN-01
+    primary_issue: "Appeal against a warranty denial (within 30 days)"
+    order_profile: {name: delivered_months_ago, params: {months: [4, 10]}}
+    products: [LUM-CAM-210, LUM-VAC-300, LUM-TH-100, LUM-AIR-900, LUM-HUB-800]
+    customer_types: [individual, business, vip]
+    requested_resolution: repair
+    params: {denied: [4, 25]}
+    texts:
+      - style: calm
+        title: "Appeal of warranty decision"
+        lexical_traps: [misuse_damage]
+        body: >-
+          My warranty claim for the {product} was rejected {dur:denied} ago. The reason given was water damage, but
+          the device has only ever been used indoors. I would like to appeal the decision. Order {order_ref}.
+      - style: frustrated
+        title: "Warranty wrongly denied"
+        body: >-
+          You denied my warranty claim {dur:denied} ago saying the {product} was damaged by the user. I did nothing
+          to it - it simply stopped working one morning. I disagree with the decision and want it reviewed.
+      - style: angry
+        title: "Rejected claim - I want an appeal"
+        body: >-
+          Your warranty team rejected my claim for a {product} that failed by itself. That was {dur:denied} ago and
+          I have been fuming ever since. I want this appealed and looked at by someone competent. {order_ref}.
+      - style: angry
+        title: "Denied claim - my solicitor is involved"
+        signals_add: [legal_threat]
+        body: >-
+          You rejected my warranty claim for the {product} {dur:denied} ago with no real explanation. My solicitor
+          has advised me to appeal formally, and we will take legal action if the decision stands. {order_ref}.
+
+  - scenario_id: WAR-DEN-LATE
+    pool: dev
+    subcategory: WAR-DEN
+    intended_rule: RES-WAR-DEN-02
+    primary_issue: "Warranty denial appealed after the 30-day appeal window"
+    order_profile: {name: delivered_months_ago, params: {months: [6, 11]}}
+    products: [LUM-CAM-200, LUM-SPK-500, LUM-TH-100, LUM-LCK-700]
+    customer_types: [individual, business, vip]
+    requested_resolution: repair
+    params: {denied: [35, 42, 49, 60, 70]}
+    texts:
+      - style: calm
+        title: "Late appeal of a warranty denial"
+        body: >-
+          My warranty claim for the {product} was denied {dur:denied} ago. I was abroad and could not respond
+          earlier. I would still like to appeal, as I believe the fault is a manufacturing defect. Order
+          {order_ref}.
+      - style: frustrated
+        title: "Claim denied - asking you to reconsider"
+        body: >-
+          It has been {dur:denied} since you denied my warranty claim for the {product}, and I have only now
+          gathered the evidence from an independent repair shop. The shop says it is a component failure. Please
+          reconsider.
+
+  - scenario_id: WAR-DEN-CAREPLUS
+    pool: dev
+    subcategory: WAR-DEN
+    intended_rule: RES-WAR-DEN-03
+    primary_issue: "Care+ member disputing a warranty denial"
+    order_profile: {name: delivered_months_ago, params: {months: [8, 20]}}
+    products: [LUM-VAC-300, LUM-CAM-210, LUM-SPK-500, LUM-AIR-900]
+    customer_types: [care_plus]
+    requested_resolution: repair
+    params: {denied: [3, 20]}
+    texts:
+      - style: frustrated
+        title: "Care+ member - claim denied"
+        body: >-
+          I pay for Care+ and my claim for the {product} was still denied {dur:denied} ago. The reason given makes
+          no sense for a device covered by my plan. I want this decision reviewed. Order {order_ref}.
+      - style: polite
+        title: "Query about a rejected claim"
+        body: >-
+          Hello, I have an active Care+ plan and I was surprised that my warranty claim for the {product} was
+          rejected. Could the decision be reviewed? My order number is {order_ref}. Thank you.
+
+  # ------------------------------------------------------------------ WAR-CPL
+  - scenario_id: WAR-CPL-CLAIM
+    pool: dev
+    subcategory: WAR-CPL
+    intended_rule: RES-WAR-CPL-02
+    primary_issue: "Care+ accidental-damage claim (claims available)"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 14], careplus_claims: 0}}
+    products: [LUM-CAM-210, LUM-SPK-500, LUM-VAC-300, LUM-AIR-900, LUM-TH-100]
+    customer_types: [care_plus]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: calm
+        title: "Care+ accidental damage claim"
+        signals_add: [misuse_damage]
+        body: >-
+          I knocked my {product} off the counter and it fell from about a metre onto tiles - the housing is cracked
+          and it no longer works. I have Care+ with accidental damage cover. Could I claim an advance replacement?
+          Order {order_ref}.
+      - style: polite
+        title: "Using my Care+ cover"
+        body: >-
+          Hi, my toddler-proofing failed and my {product} was pulled off a shelf and broken. I understand my Care+
+          plan covers accidental damage - how do I get a replacement? Order {order_ref}. Thank you!
+        lexical_traps: [child_involved]
+      - style: frustrated
+        title: "Care+ claim taking too long"
+        body: >-
+          I submitted a Care+ claim for my {product} after it was damaged in a fall and I still do not know when
+          the replacement will be sent. I pay for this protection plan precisely so I am not left without a device.
+          Order {order_ref}.
+
+  - scenario_id: WAR-CPL-LIMIT
+    pool: dev
+    subcategory: WAR-CPL
+    intended_rule: RES-WAR-CPL-04
+    primary_issue: "Care+ accidental-damage claim limit reached"
+    order_profile: {name: careplus_claims, params: {n: 2, months: [4, 14]}}
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-VAC-300]
+    customer_types: [care_plus]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: frustrated
+        title: "Care+ claim refused - limit?"
+        body: >-
+          Your system says I have used up my Care+ claims for the year, but I pay for the plan every month. My
+          {product} was damaged again and I need a replacement. This does not feel fair. Order {order_ref}.
+      - style: angry
+        title: "What is Care+ even for?"
+        difficulty_type: emotional_low_priority
+        body: >-
+          What is Care+ even for?! You refuse my accidental damage claim for the {product} because of some claim
+          limit nobody told me about. I am furious. Send me the replacement I am paying for. {order_ref}.
+
+  - scenario_id: WAR-CPL-NOPLAN
+    pool: dev
+    subcategory: WAR-CPL
+    intended_rule: RES-WAR-CPL-03
+    primary_issue: "Care+ claim from a customer without an active plan"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 10], care_plus: false}}
+    products: [LUM-CAM-210, LUM-SPK-500, LUM-VAC-300, LUM-AIR-900]
+    customer_types: [individual, business, vip]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: calm
+        title: "Care+ claim for my {product:short}"
+        body: >-
+          I would like to use Care+ to get a replacement for my {product}, which cracked when it fell off the wall
+          bracket. I
+          thought I added Care+ at checkout, but the app does not show a plan. Order {order_ref}.
+        signals_add: [misuse_damage]
+      - style: frustrated
+        title: "Care+ not showing on my account"
+        body: >-
+          I was told at the time of purchase that Care+ protection was included. Now that my {product} is damaged
+          and I need a replacement, my account says there is no plan. Please check your records. Order {order_ref}.
+
+  - scenario_id: WAR-CPL-NOORDER
+    pool: dev
+    subcategory: WAR-CPL
+    intended_rule: RES-WAR-CPL-01
+    primary_issue: "Care+ coverage question - device not identified"
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-TH-100]
+    customer_types: [care_plus]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: calm
+        title: "Care+ advance replacement"
+        body: >-
+          I have a Care+ plan and my {product} has been damaged. How do I request the advance replacement? I do not
+          have the order number to hand.
+      - style: polite
+        title: "Care+ claim process"
+        body: >-
+          Hello, could you explain how to claim on my Care+ protection plan for my {product}? It stopped working
+          after an accident at home and I would like a replacement. Thanks.
+
+  # ============================================================ HOLDOUT (WAR)
+  - scenario_id: H-WAR-CLM-COVERED
+    pool: holdout
+    subcategory: WAR-CLM
+    intended_rule: RES-WAR-CLM-02
+    primary_issue: "Warranty claim within coverage"
+    order_profile: {name: delivered_months_ago, params: {months: [4, 9]}}
+    products: [LUM-SPK-500, LUM-AIR-900]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Fault within the warranty period"
+        body: >-
+          Our {product} developed a rattle and now switches off unexpectedly. It was delivered on {date:delivered},
+          so it should be within warranty. Please open a claim for {order_ref}.
+      - style: frustrated
+        title: "Warranty repair needed"
+        body: >-
+          {age:delivered} of ownership and the {product} is already faulty. I want a warranty repair and I want it
+          handled quickly this time. Reference {order_ref}.
+
+  - scenario_id: H-WAR-CLM-EXPIRED
+    pool: holdout
+    subcategory: WAR-CLM
+    intended_rule: RES-WAR-CLM-03
+    primary_issue: "Warranty claim after coverage ended"
+    order_profile: {name: delivered_months_ago, params: {months: [15, 19]}}
+    products: [LUM-CAM-210, LUM-VAC-300]
+    customer_types: [individual, vip]
+    requested_resolution: repair
+    texts:
+      - style: polite
+        title: "Is my device still covered?"
+        body: >-
+          Hi, my {product} bought {dur:delivered} ago has stopped working. I think it might be just outside the
+          warranty, but I hoped you could still repair it under warranty. Order {order_ref}.
+        signals_add: [policy_exception_request]
+
+  - scenario_id: H-WAR-CLM-MISUSE
+    pool: holdout
+    subcategory: WAR-CLM
+    intended_rule: RES-WAR-CLM-04
+    primary_issue: "Warranty claim for accidental damage"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 7]}}
+    products: [LUM-SPK-500, LUM-TH-100]
+    customer_types: [individual, vip]
+    requested_resolution: repair
+    signals: [misuse_damage]
+    texts:
+      - style: frustrated
+        title: "Cat knocked it off - still warranty?"
+        body: >-
+          My cat knocked the {product} off the windowsill and the screen went black. It is well within the warranty
+          period so I expect a free repair. Order {order_ref}.
+
+  - scenario_id: H-WAR-DEN-APPEAL
+    pool: holdout
+    subcategory: WAR-DEN
+    intended_rule: RES-WAR-DEN-01
+    primary_issue: "Warranty denial appeal within 30 days"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 8]}}
+    products: [LUM-HUB-800, LUM-CAM-200]
+    customer_types: [individual, vip]
+    requested_resolution: repair
+    params: {denied: [3, 14]}
+    texts:
+      - style: polite
+        title: "Requesting a second look at my claim"
+        body: >-
+          Hello, my warranty claim for the {product} was declined {dur:denied} ago as "cosmetic". The fault is that
+          it will not boot, which is not cosmetic. Could the decision be appealed? {order_ref}.
+
+  - scenario_id: H-WAR-DEN-LATE
+    pool: holdout
+    subcategory: WAR-DEN
+    intended_rule: RES-WAR-DEN-02
+    primary_issue: "Late appeal of a warranty denial"
+    order_profile: {name: delivered_months_ago, params: {months: [7, 10]}}
+    products: [LUM-TH-100]
+    customer_types: [individual, business]
+    requested_resolution: repair
+    params: {denied: [40, 55]}
+    texts:
+      - style: calm
+        title: "Appeal after some delay"
+        body: >-
+          The decision to deny my warranty claim came {dur:denied} ago. Only now have I had time to get the
+          {product} inspected by an electrician, who says the relay failed. I would like to appeal.
+
+  - scenario_id: H-WAR-DEN-CAREPLUS
+    pool: holdout
+    subcategory: WAR-DEN
+    intended_rule: RES-WAR-DEN-03
+    primary_issue: "Care+ member disputing a claim denial"
+    order_profile: {name: delivered_months_ago, params: {months: [10, 18]}}
+    products: [LUM-CAM-210]
+    customer_types: [care_plus]
+    requested_resolution: repair
+    params: {denied: [2, 10]}
+    texts:
+      - style: angry
+        title: "Care+ is worthless if you deny everything"
+        body: >-
+          I have Care+ and you still denied my claim {dur:denied} ago for a camera that simply stopped recording.
+          If you deny everything, what is the plan for? Review the decision.
+
+  - scenario_id: H-WAR-CPL-CLAIM
+    pool: holdout
+    subcategory: WAR-CPL
+    intended_rule: RES-WAR-CPL-02
+    primary_issue: "Care+ accidental-damage claim"
+    order_profile: {name: delivered_months_ago, params: {months: [3, 12], careplus_claims: 1}}
+    products: [LUM-VAC-300, LUM-SPK-500]
+    customer_types: [care_plus]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: calm
+        title: "Accidental damage under Care+"
+        body: >-
+          During a house move the {product} slid off the van ramp and the casing split. I have Care+ and would like
+          to arrange the advance replacement, paying the service fee. Order {order_ref}.
+
+  - scenario_id: H-WAR-CPL-LIMIT
+    pool: holdout
+    subcategory: WAR-CPL
+    intended_rule: RES-WAR-CPL-04
+    primary_issue: "Care+ claim limit reached"
+    order_profile: {name: careplus_claims, params: {n: 3, months: [5, 12]}}
+    products: [LUM-CAM-200]
+    customer_types: [care_plus]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: polite
+        title: "Another accidental damage claim"
+        body: >-
+          Hi, I know I have claimed on Care+ before this year, but my {product} was damaged again this week. Is a
+          replacement still possible under my plan? Order {order_ref}.
+
+  - scenario_id: H-WAR-CPL-NOPLAN
+    pool: holdout
+    subcategory: WAR-CPL
+    intended_rule: RES-WAR-CPL-03
+    primary_issue: "Care+ claim without an active plan"
+    order_profile: {name: delivered_months_ago, params: {months: [2, 8], care_plus: false}}
+    products: [LUM-SPK-500]
+    customer_types: [individual, vip]
+    requested_resolution: replacement
+    signals: [replacement_request]
+    texts:
+      - style: frustrated
+        title: "Where is my protection plan?"
+        body: >-
+          My {product} broke and when I tried to claim on Care+ the app said no plan exists. I am sure I ticked the
+          box when I ordered. I need a replacement. Order {order_ref}.

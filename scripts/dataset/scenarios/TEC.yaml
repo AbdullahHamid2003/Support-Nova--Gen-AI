@@ -1,0 +1,375 @@
+# =============================================================================
+# Scenario bank - TEC (Technical Support): TEC-CON, TEC-APP, TEC-SET
+# Note: RES-TEC-CON-02 matches "already tried / have restarted / tried everything /
+# factory reset"; RES-TEC-APP-02 matches "after/since the (latest) (firmware|app) update".
+# Texts for the default rules avoid those phrasings on purpose.
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ TEC-CON
+  - scenario_id: TEC-CON-BASIC
+    pool: dev
+    subcategory: TEC-CON
+    intended_rule: RES-TEC-CON-01
+    primary_issue: "{product} keeps losing its Wi-Fi connection"
+    products: [LUM-TH-100, LUM-VAC-300, LUM-SPK-500, LUM-PLG-600, LUM-BLB-610, LUM-AIR-900]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "{product} dropping off Wi-Fi"
+        body: >-
+          My {product} keeps dropping off our Wi-Fi a few times a day and shows as offline in the app until I power
+          cycle it. Other devices on the same network are fine. Is there a setting I should change?
+      - style: angry
+        title: "Offline AGAIN - useless {product:short}"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Your stupid {product} goes offline every evening! I am so sick of standing in the kitchen waving my phone
+          at it. Worst smart home purchase I have ever made. Make it stay connected!
+      - style: polite
+        title: "Connection question"
+        customer_types: [vip]
+        difficulty_type: vip_minor
+        body: >-
+          Hello, my {product} occasionally loses connection with the router overnight. It is only a minor annoyance
+          but I would love to know if there is a fix. Many thanks.
+      - style: frustrated
+        title: "Pairing keeps failing"
+        body: >-
+          I cannot get my {product} to pair with the app over Bluetooth. It finds the device, starts pairing, and
+          then says connection failed. It is getting really frustrating.
+
+  - scenario_id: TEC-CON-TRIED
+    pool: dev
+    subcategory: TEC-CON
+    intended_rule: RES-TEC-CON-02
+    primary_issue: "{product} connectivity problem persists after troubleshooting"
+    products: [LUM-TH-100, LUM-VAC-300, LUM-SPK-500, LUM-PLG-600, LUM-AIR-900, LUM-PWR-400]
+    requested_resolution: repair
+    texts:
+      - style: frustrated
+        title: "Tried everything - still disconnecting"
+        body: >-
+          My {product} keeps disconnecting from Wi-Fi. I have tried everything in your help pages: restarted the
+          router, moved it closer, reinstalled the app. It still drops out every hour. What now?
+      - style: calm
+        title: "Connection issue after a factory reset"
+        body: >-
+          I have already reset the {product} twice and even did a factory reset, but it still will not stay
+          connected to my 2.4 GHz network. The signal strength shows as good. Could you advise on the next step?
+      - style: angry
+        title: "Already rebooted it ten times"
+        body: >-
+          I have already rebooted the {product} ten times, reset my router and moved it next to the router, and it
+          STILL keeps going offline. Do not send me the same troubleshooting list again. I want someone who knows
+          what they are doing.
+
+  - scenario_id: TEC-CON-SECURITY
+    pool: dev
+    subcategory: TEC-CON
+    intended_rule: RES-TEC-CON-03
+    primary_issue: "Security or hub device ({product}) keeps going offline"
+    products: [LUM-CAM-200, LUM-CAM-210, LUM-HUB-800, LUM-LCK-700]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "{product} goes offline at night"
+        body: >-
+          My {product} goes offline most nights between midnight and 6am, then reconnects in the morning. It is
+          the only device that does this. Could you help me work out why?
+      - style: frustrated
+        title: "{product:short} keeps disconnecting"
+        body: >-
+          The {product} disconnects from my network several times a day, so I get no alerts when it matters. I
+          bought it for peace of mind and it is doing the opposite. Please help me fix this.
+        signals_add: [repeat_indicator]
+      - style: polite
+        title: "Intermittent connection on my {product:short}"
+        body: >-
+          Good afternoon, my {product} loses its connection to the hub every couple of days and I have to
+          re-pair it. Would you be able to take a look at the logs? Thank you.
+      - style: calm
+        title: "Outdoor camera offline - home unprotected"
+        products: [LUM-CAM-210]
+        signals_add: [critical_impact]
+        body: >-
+          My {product} has been offline since yesterday evening and will not reconnect. We are away until Friday so
+          our home is unprotected while it is down. Could someone help me get it back online remotely?
+
+  # ------------------------------------------------------------------ TEC-APP
+  - scenario_id: TEC-APP-BUG
+    pool: dev
+    subcategory: TEC-APP
+    intended_rule: RES-TEC-APP-01
+    primary_issue: "Lumora Home app bug"
+    products: [SVC-APP]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "App crashes when opening the schedule"
+        body: >-
+          The {product} crashes every time I open the schedule screen for my thermostat. Everything else in the app
+          works. I am on the newest version from the app store. Could you look into it?
+      - style: angry
+        title: "Your app is GARBAGE"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Your app is GARBAGE. Dark mode makes half the buttons invisible and the widget has not refreshed once
+          all week. Do you even test this rubbish before you release it? I am furious. Fix it!!
+      - style: polite
+        title: "Notifications not showing"
+        customer_types: [vip]
+        difficulty_type: vip_minor
+        body: >-
+          Hello, I have noticed that push notifications from the {product} no longer appear on my phone's lock
+          screen, although they show inside the app. It is a small thing, but could you advise? Thank you.
+      - style: frustrated
+        title: "Automations not running"
+        body: >-
+          My automations in the {product} just do not run any more - the evening lights routine has not fired for a
+          week. I have checked the times and the devices. It is a bug on your side, please sort it out.
+      - style: angry
+        title: "App keeps logging me out - ridiculous"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Every single morning the {product} logs me out and makes me sign in again. Every morning! This is
+          ridiculous and pathetic for a company charging these prices. Sort out your app.
+      - style: polite
+        title: "Love the new app - one small bug"
+        sentiment: Positive
+        body: >-
+          I love the new look of the {product}, great work! Just one small bug to report: the energy tab shows
+          yesterday's figures until I refresh. Thanks for all the improvements, I am very happy with it.
+
+  - scenario_id: TEC-APP-UPDATE
+    pool: dev
+    subcategory: TEC-APP
+    intended_rule: RES-TEC-APP-02
+    primary_issue: "Firmware or app update caused a malfunction"
+    products: [LUM-TH-100, LUM-CAM-200, LUM-SPK-500, LUM-HUB-800, LUM-VAC-300, LUM-AIR-900]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "{product} misbehaving since the firmware update"
+        body: >-
+          Since the latest firmware update my {product} ignores its schedule and resets to default settings every
+          morning. It worked perfectly before. Is it possible to roll back the update?
+      - style: frustrated
+        title: "Update broke my {product:short}"
+        body: >-
+          After the update last Tuesday my {product} will not respond to voice commands any more and the app shows
+          an error. It was fine before the update. Please fix it or roll it back.
+      - style: angry
+        title: "Your update wrecked everything"
+        body: >-
+          Since the new update my {product} is completely broken. It reboots over and over. Why would you push an
+          update that was clearly not tested? Undo it immediately.
+
+  # ------------------------------------------------------------------ TEC-SET
+  - scenario_id: TEC-SET-GENERIC
+    pool: dev
+    subcategory: TEC-SET
+    intended_rule: RES-TEC-SET-01
+    primary_issue: "Customer cannot complete setup of the {product}"
+    products: [LUM-CAM-200, LUM-CAM-210, LUM-VAC-300, LUM-SPK-500, LUM-HUB-800, LUM-AIR-900, LUM-BLB-610]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Stuck on setup for my {product:short}"
+        body: >-
+          I am setting up my new {product} and the app is stuck on the "scan QR code" step. It never finds the code
+          even in good light. How can I finish the setup?
+      - style: frustrated
+        title: "Setup will not complete"
+        body: >-
+          I have been trying to set up the {product} for an hour. It gets to 90% and then says setup failed. The
+          instructions do not mention this at all. Very frustrating.
+      - style: angry
+        title: "Setup instructions are useless"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Your setup instructions are USELESS. Three diagrams and no words. I have been going round in circles with
+          this {product} all evening and I am ready to throw it out of the window. Awful.
+      - style: polite
+        title: "Help with initial setup"
+        body: >-
+          Hi, I am new to smart home devices and I am not sure how to configure the {product} with my hub. Is there a
+          step-by-step guide you could send me? Thank you for your patience.
+
+  - scenario_id: TEC-SET-WIRING
+    pool: dev
+    subcategory: TEC-SET
+    intended_rule: RES-TEC-SET-02
+    primary_issue: "Thermostat wiring compatibility during setup"
+    products: [LUM-TH-100]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Does the Aura need a C-wire?"
+        body: >-
+          I am installing my {product} and my old thermostat only has two wires, no C-wire. The app says the device
+          is not getting enough power. Is my system compatible, or do I need an adapter?
+      - style: frustrated
+        title: "Thermostat wiring doesn't match"
+        body: >-
+          The wiring diagram in the {product} box does not match the terminals on my wall at all. I have a red, a
+          white and a green wire and no idea where they go. I do not want to damage anything.
+      - style: polite
+        title: "Compatibility check before installing"
+        body: >-
+          Hello, before I remove my current thermostat, could you confirm whether the {product} is compatible with a
+          heat pump system with seven wires? I would rather check than guess. Thanks.
+
+  - scenario_id: TEC-SET-LOCK
+    pool: dev
+    subcategory: TEC-SET
+    intended_rule: RES-TEC-SET-03
+    primary_issue: "Smart lock setup or calibration failure"
+    products: [LUM-LCK-700]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Keystone calibration keeps failing"
+        body: >-
+          I have fitted my {product} but the calibration step keeps failing - the app says the door position is
+          unknown. The bolt moves fine by hand. What should I check?
+      - style: frustrated
+        title: "Lock setup fails at the last step"
+        body: >-
+          Setting up the {product} fails at the very last step every time: "calibration error 12". The door is
+          aligned and the batteries are new. I need this working before we go on holiday.
+      - style: polite
+        title: "Help pairing my new lock"
+        body: >-
+          Good evening, I cannot get the {product} to finish setup - it pairs with my phone but the auto-lock
+          configuration never saves. Could you walk me through it? Many thanks.
+
+  # ============================================================ HOLDOUT (TEC)
+  - scenario_id: H-TEC-CON-BASIC
+    pool: holdout
+    subcategory: TEC-CON
+    intended_rule: RES-TEC-CON-01
+    primary_issue: "{product} connection drops"
+    products: [LUM-PLG-600, LUM-BLB-610, LUM-AIR-900]
+    requested_resolution: repair
+    texts:
+      - style: angry
+        title: "Connection drops every single day"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Every single day the {product} vanishes from the app and I have to unplug it to bring it back. I am
+          absolutely fed up with this nonsense. It is a simple job - stay online!
+      - style: calm
+        title: "Device shows offline intermittently"
+        body: >-
+          The {product} in our bedroom shows offline in the app a couple of times a week, usually after the router
+          updates overnight. Is there a way to make it reconnect automatically?
+
+  - scenario_id: H-TEC-CON-TRIED
+    pool: holdout
+    subcategory: TEC-CON
+    intended_rule: RES-TEC-CON-02
+    primary_issue: "Connectivity problem persists after troubleshooting"
+    products: [LUM-SPK-500, LUM-TH-100]
+    requested_resolution: repair
+    texts:
+      - style: polite
+        title: "Still offline after following the guide"
+        body: >-
+          I have followed your connectivity guide to the letter - I have restarted everything twice and done a
+          factory reset - but the {product} will not hold a connection for more than an hour. What else could it be?
+
+  - scenario_id: H-TEC-CON-SECURITY
+    pool: holdout
+    subcategory: TEC-CON
+    intended_rule: RES-TEC-CON-03
+    primary_issue: "Security camera or hub offline"
+    products: [LUM-CAM-200, LUM-HUB-800]
+    requested_resolution: repair
+    texts:
+      - style: frustrated
+        title: "Camera drops off constantly"
+        body: >-
+          The {product} drops its connection whenever the microwave is on and then takes ages to come back. That is
+          exactly when I would want it working. Can this be fixed?
+
+  - scenario_id: H-TEC-APP-BUG
+    pool: holdout
+    subcategory: TEC-APP
+    intended_rule: RES-TEC-APP-01
+    primary_issue: "Lumora Home app bug"
+    products: [SVC-APP]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Energy graph shows the wrong week"
+        body: >-
+          In the {product}, the energy usage graph for my plugs always shows last week's data instead of this
+          week's. Refreshing does not help. Probably a small bug, but it would be good to have it fixed.
+      - style: angry
+        title: "Widget broken, again and again"
+        difficulty_type: emotional_low_priority
+        body: >-
+          The home screen widget of your app is broken AGAIN. It shows everything as "unavailable". I am so angry
+          at how sloppy this app is. Pull yourselves together.
+      - style: polite
+        title: "Happy customer, tiny glitch"
+        sentiment: Positive
+        body: >-
+          Really pleased with the {product} overall - it has made our evenings so much easier, thank you. A tiny
+          glitch: the sunset automation fires about ten minutes late. Not a big deal at all.
+
+  - scenario_id: H-TEC-APP-UPDATE
+    pool: holdout
+    subcategory: TEC-APP
+    intended_rule: RES-TEC-APP-02
+    primary_issue: "Update caused a malfunction"
+    products: [LUM-VAC-300, LUM-CAM-210]
+    requested_resolution: repair
+    texts:
+      - style: calm
+        title: "Problems began after the app update"
+        body: >-
+          My {product} has refused to follow its saved routine ever since the app update on Monday. Before that it
+          was flawless. Could you check whether the update changed something?
+
+  - scenario_id: H-TEC-SET-GENERIC
+    pool: holdout
+    subcategory: TEC-SET
+    intended_rule: RES-TEC-SET-01
+    primary_issue: "Setup cannot be completed"
+    products: [LUM-SPK-500, LUM-CAM-200]
+    requested_resolution: explanation
+    texts:
+      - style: frustrated
+        title: "Onboarding never finishes"
+        body: >-
+          The onboarding for my {product} gets to "almost done" and then starts over. I have now done it five
+          times. Is there a known problem with the setup flow?
+
+  - scenario_id: H-TEC-SET-WIRING
+    pool: holdout
+    subcategory: TEC-SET
+    intended_rule: RES-TEC-SET-02
+    primary_issue: "Thermostat wiring compatibility"
+    products: [LUM-TH-100]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Two-wire boiler compatibility"
+        body: >-
+          Our boiler has a two-wire connection to the old thermostat. Before I start, is the {product} compatible,
+          or does it need the power adapter kit for the missing C-wire?
+
+  - scenario_id: H-TEC-SET-LOCK
+    pool: holdout
+    subcategory: TEC-SET
+    intended_rule: RES-TEC-SET-03
+    primary_issue: "Smart lock calibration problem"
+    products: [LUM-LCK-700]
+    requested_resolution: explanation
+    texts:
+      - style: polite
+        title: "Auto-lock calibration question"
+        body: >-
+          Hi team, the {product} completes pairing but reports "door state not calibrated" every time I try the
+          auto-lock setting. Could you suggest what I might be doing wrong?

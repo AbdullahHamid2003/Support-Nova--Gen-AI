@@ -1,0 +1,20 @@
+# One lint configuration for all Python in the repository: `ruff check .` from the repo root.
+line-length = 110
+target-version = "py312"
+src = ["backend/src", "scripts", "tests"]
+extend-exclude = ["tools", "frontend", "storage"]
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
+ignore = [
+  "S101",   # assert is fine in tests
+  "S311",   # random is used for deterministic dataset seeds, not crypto
+  "B008",   # FastAPI Depends in defaults
+  "RUF001", "RUF002", "RUF003",
+  "E501",
+  "SIM905", # a split() word list reads better than a 120-item list literal
+]
+
+[lint.per-file-ignores]
+"tests/**" = ["S105", "S106", "S108"]
+"scripts/**" = ["E402"]  # scripts put backend/src on sys.path before importing the application

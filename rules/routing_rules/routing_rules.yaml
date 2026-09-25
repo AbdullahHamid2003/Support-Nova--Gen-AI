@@ -1,0 +1,58 @@
+# =============================================================================
+# Department Routing Rules (RTE-RUL-14 v2.0). Ground truth for SRS Step 23
+# (Python routing validation) and Step 24 (multi-department detection).
+# =============================================================================
+routing_rules:
+  - {rule_id: RTE-001, subcategory: PRD-DOA, primary_department: DEPT-RET, supporting_departments: [DEPT-LOG], policy_refs: ["RTE-RUL-14:3", "RPL-POL-03:3.1"]}
+  - {rule_id: RTE-002, subcategory: PRD-MAL, primary_department: DEPT-TEC, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "TEC-GDL-20:2"]}
+  - {rule_id: RTE-003, subcategory: PRD-MIS, primary_department: DEPT-LOG, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "RPL-POL-03:5.2"]}
+  - {rule_id: RTE-004, subcategory: BIL-DUP, primary_department: DEPT-BIL, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "BIL-POL-05:4.1"]}
+  - {rule_id: RTE-005, subcategory: BIL-INC, primary_department: DEPT-BIL, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "BIL-POL-05:4.2"]}
+  - {rule_id: RTE-006, subcategory: BIL-RFM, primary_department: DEPT-BIL, supporting_departments: [DEPT-RET], policy_refs: ["RTE-RUL-14:3", "BIL-POL-05:6.1"]}
+  - {rule_id: RTE-007, subcategory: BIL-SUB, primary_department: DEPT-BIL, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "SUB-POL-22:4"]}
+  - {rule_id: RTE-008, subcategory: BIL-CAN, primary_department: DEPT-BIL, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "CAN-POL-06:5.1"]}
+  - {rule_id: RTE-009, subcategory: DEL-DLY, primary_department: DEPT-LOG, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "DEL-POL-04:5.1"]}
+  - {rule_id: RTE-010, subcategory: DEL-LST, primary_department: DEPT-LOG, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "DEL-POL-04:6.1"]}
+  - {rule_id: RTE-011, subcategory: DEL-WRG, primary_department: DEPT-LOG, supporting_departments: [DEPT-RET], policy_refs: ["RTE-RUL-14:3", "RPL-POL-03:5.1"]}
+  - {rule_id: RTE-012, subcategory: REF-REQ, primary_department: DEPT-RET, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "REF-POL-02:3.1"]}
+  - {rule_id: RTE-013, subcategory: REF-DLY, primary_department: DEPT-RET, supporting_departments: [DEPT-BIL], policy_refs: ["RTE-RUL-14:3", "REF-POL-02:5.1"]}
+  - {rule_id: RTE-014, subcategory: REF-PAR, primary_department: DEPT-RET, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "REF-POL-02:6.1"]}
+  - {rule_id: RTE-015, subcategory: ACC-LGN, primary_department: DEPT-SEC, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "SEC-POL-09:7.1"]}
+  - {rule_id: RTE-016, subcategory: ACC-UNA, primary_department: DEPT-SEC, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "SEC-POL-09:4.1"]}
+  - {rule_id: RTE-017, subcategory: ACC-UPD, primary_department: DEPT-TEC, supporting_departments: [], policy_refs: ["RTE-RUL-14:3"]}
+  - {rule_id: RTE-018, subcategory: TEC-CON, primary_department: DEPT-TEC, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "TEC-GDL-20:3"]}
+  - {rule_id: RTE-019, subcategory: TEC-APP, primary_department: DEPT-TEC, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "TEC-GDL-20:4"]}
+  - {rule_id: RTE-020, subcategory: TEC-SET, primary_department: DEPT-TEC, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "TEC-GDL-20:5"]}
+  - {rule_id: RTE-021, subcategory: SVC-SUP, primary_department: DEPT-CRL, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "STF-POL-21:3"]}
+  - {rule_id: RTE-022, subcategory: SVC-INS, primary_department: DEPT-CRL, supporting_departments: [DEPT-TEC], policy_refs: ["RTE-RUL-14:3", "INS-POL-24:5.1"]}
+  - {rule_id: RTE-023, subcategory: SVC-OUT, primary_department: DEPT-TEC, supporting_departments: [DEPT-BIL], policy_refs: ["RTE-RUL-14:3", "SUB-POL-22:6.1"]}
+  - {rule_id: RTE-024, subcategory: WAR-CLM, primary_department: DEPT-WAR, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "WAR-POL-07:4.1"]}
+  - {rule_id: RTE-025, subcategory: WAR-DEN, primary_department: DEPT-WAR, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "WAR-POL-07:7.1"]}
+  - {rule_id: RTE-026, subcategory: WAR-CPL, primary_department: DEPT-WAR, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "WAR-POL-07:6"]}
+  - {rule_id: RTE-027, subcategory: PRV-BRC, primary_department: DEPT-CMP, supporting_departments: [DEPT-SEC], policy_refs: ["RTE-RUL-14:3", "PRV-POL-08:7.1"]}
+  - {rule_id: RTE-028, subcategory: PRV-CON, primary_department: DEPT-CMP, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "PRV-POL-08:5.2"]}
+  - {rule_id: RTE-029, subcategory: PRV-DSR, primary_department: DEPT-CMP, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "PRV-POL-08:4.2"]}
+  - {rule_id: RTE-030, subcategory: SAF-OVH, primary_department: DEPT-SAF, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "SAF-POL-10:4"]}
+  - {rule_id: RTE-031, subcategory: SAF-ELC, primary_department: DEPT-SAF, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "SAF-POL-10:4"]}
+  - {rule_id: RTE-032, subcategory: SAF-INJ, primary_department: DEPT-SAF, supporting_departments: [DEPT-CMP], policy_refs: ["RTE-RUL-14:3", "SAF-POL-10:7.3"]}
+  - {rule_id: RTE-033, subcategory: STF-RUD, primary_department: DEPT-CRL, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "STF-POL-21:5.1"]}
+  - {rule_id: RTE-034, subcategory: STF-MIS, primary_department: DEPT-CRL, supporting_departments: [DEPT-MGT], policy_refs: ["RTE-RUL-14:3", "STF-POL-21:6"]}
+  - {rule_id: RTE-035, subcategory: STF-MIN, primary_department: DEPT-CRL, supporting_departments: [], policy_refs: ["RTE-RUL-14:3", "STF-POL-21:4.2"]}
+
+# Signal-driven supporting departments (RTE-RUL-14 s4). Applied on top of the
+# routing table; never replace the primary department.
+conditional_routing:
+  - {rule_id: RTE-101, name: Privacy signal adds Compliance, when: {signal: privacy_breach}, add_supporting: [DEPT-CMP], policy_refs: ["RTE-RUL-14:4.2"]}
+  - {rule_id: RTE-102, name: Legal threat adds Compliance, when: {signal: legal_threat}, add_supporting: [DEPT-CMP], policy_refs: ["RTE-RUL-14:4.2"]}
+  - {rule_id: RTE-103, name: Security signal adds Account Security, when: {signal: security_breach}, add_supporting: [DEPT-SEC], policy_refs: ["RTE-RUL-14:4.4"]}
+  - {rule_id: RTE-104, name: Critical escalation adds Management, when: {escalation_level_at_least: Critical Management Escalation}, add_supporting: [DEPT-MGT], policy_refs: ["RTE-RUL-14:4.3"]}
+  - {rule_id: RTE-105, name: Safety signal outside Safety category adds Product Safety, when: {any_signal: [fire_event, overheating, electrical_hazard, injury]}, add_supporting: [DEPT-SAF], policy_refs: ["RTE-RUL-14:4"]}
+  - {rule_id: RTE-106, name: Secondary issues add their primary department, when: {secondary_issues: true}, add_supporting: [$secondary_primary_departments], policy_refs: ["RTE-RUL-14:4.1"]}
+
+# Primary-issue precedence when several issues compete (RTE-RUL-14 s5, CHP-POL-01 s3.2)
+routing_precedence:
+  policy_ref: "RTE-RUL-14:5"
+  # LEGAL = legal_threat signal. Root-cause issues (product, delivery, warranty) outrank the refund
+  # consequences they cause (e.g. "arrived damaged and the refund has not been processed" -> primary
+  # Damaged on Arrival, secondary Refund Delay). Remaining categories share the lowest rank.
+  order: [SAF, ACC-UNA, PRV, LEGAL, BIL, PRD, DEL, WAR]

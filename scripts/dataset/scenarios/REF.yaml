@@ -1,0 +1,562 @@
+# =============================================================================
+# Scenario bank - REF (Refund): REF-REQ, REF-DLY, REF-PAR
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ REF-REQ
+  - scenario_id: REF-REQ-WINDOW
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-02
+    primary_issue: "Refund requested within the refund window"
+    order_profile: {name: delivered_days_ago, params: {days: [3, 25]}}
+    products: [LUM-TH-100, LUM-SPK-500, LUM-CAM-210, LUM-AIR-900, LUM-VAC-300, LUM-HUB-800, LUM-BLB-610]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Return for a refund - {order_ref}"
+        body: >-
+          I would like to return my {product} for a refund. It arrived on {date:delivered} and works fine, but it
+          does not suit our home as well as I hoped. Order {order_ref}. Could you send me a return label?
+      - style: polite
+        title: "Returning an unopened gift"
+        signals_add: [item_unopened]
+        body: >-
+          Hello, I bought a {product} as a gift but the person already has one. It is still sealed in the original
+          packaging. Could I return it for a refund? The order number is {order_ref}. Thank you so much.
+      - style: frustrated
+        title: "Not what I expected - refund please"
+        body: >-
+          The {product} is much louder than the website made it sound and it is driving me mad. I have had it since
+          {date:delivered}. I want my money back. How do I send it back? Order {order_ref}.
+      - style: angry
+        title: "Want a refund, not a runaround"
+        body: >-
+          I have been trying to find the return option in your app for twenty minutes. It does not exist. I want a
+          refund for the {product} from order {order_ref}, it has been less than a month, just process it.
+
+  - scenario_id: REF-REQ-OUTSIDE
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-03
+    difficulty_type: unsupported_refund
+    primary_issue: "Refund requested outside the 30-day refund window"
+    order_profile: {name: delivered_old, params: {days: [36, 80]}}
+    products: [LUM-TH-100, LUM-SPK-500, LUM-CAM-200, LUM-AIR-900, LUM-VAC-300, LUM-HUB-800]
+    customer_types: [individual, business, vip]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Refund for a little-used {product:short}"
+        body: >-
+          I bought a {product} which was delivered on {date:delivered}. I have hardly used it and it is in perfect
+          condition, so I would like to return it for a refund. Order {order_ref}.
+      - style: frustrated
+        title: "Why can't I return this?"
+        body: >-
+          Your app will not let me start a return for my {product}. It arrived {dur:delivered} ago and I have barely
+          touched it. I paid {amt:total}. I just want my money back.
+      - style: polite
+        title: "Request for an exception to the return window"
+        signals_add: [policy_exception_request]
+        difficulty_type: policy_exception
+        body: >-
+          Hello, I realise I am past the 30-day return window for order {order_ref} - the {product} arrived on
+          {date:delivered} - but I was in hospital for most of that time and could not deal with it. Would you be
+          willing to make an exception and accept a return for a refund?
+        lexical_traps: [injury]
+      - style: angry
+        title: "Refund refused - disgraceful"
+        body: >-
+          Absolutely disgraceful. {age:delivered} after delivery and suddenly I cannot get a refund for a {product}
+          I do not want? It is practically brand new! I am furious. Refund order {order_ref} now.
+
+  - scenario_id: REF-REQ-INSTALL
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-04
+    difficulty_type: unsupported_refund
+    primary_issue: "Refund requested for a completed Pro Install service"
+    order_profile: {name: install_completed, params: {days: [3, 20]}}
+    products: [SVC-INSTALL]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Refund of installation fee"
+        body: >-
+          The {product} technician came on {date:appointment} and installed my devices. The job was fine, but it
+          only took twenty minutes and I feel I could have done it myself. Could I have the {amt:total} fee
+          refunded? Order {order_ref}.
+      - style: frustrated
+        title: "Pro Install not worth the money"
+        body: >-
+          I paid {amt:total} for {product} and honestly the installer did nothing I could not have done. I want the
+          installation fee refunded. Order {order_ref}.
+      - style: angry
+        title: "Rip-off installation charge"
+        difficulty_type: emotional_low_priority
+        body: >-
+          {amt:total} for someone to screw a bracket to a wall?! What a rip-off. I am disgusted. I want a full
+          refund of the {product} charge on order {order_ref}.
+
+  - scenario_id: REF-REQ-MISUSE
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-05
+    difficulty_type: unsupported_refund
+    primary_issue: "Refund requested for a product damaged by accident or misuse"
+    order_profile: {name: delivered_days_ago, params: {days: [5, 25]}}
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-TH-100, LUM-AIR-900, LUM-HUB-800]
+    customer_types: [individual, business, vip]
+    requested_resolution: refund
+    signals: [refund_request, misuse_damage]
+    texts:
+      - style: calm
+        title: "{product} cracked after a fall"
+        body: >-
+          My {product} fell off the shelf when I was cleaning and now the front is cracked and it will not turn
+          on. It is only {age:delivered} old. Can I get a refund? Order {order_ref}.
+      - style: frustrated
+        title: "Drink spill - want my money back"
+        body: >-
+          I spilled a drink on my {product} and it stopped working straight away. I think a device like this
+          should survive a small spill. I would like a refund please, order {order_ref}.
+      - style: angry
+        title: "Flimsy rubbish"
+        difficulty_type: emotional_low_priority
+        body: >-
+          My dog chewed the corner of the {product} and now it is dead. Flimsy rubbish! A proper product would not
+          break that easily. I am so angry. Give me a full refund for order {order_ref}.
+
+  - scenario_id: REF-REQ-NOORDER
+    pool: dev
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-01
+    primary_issue: "Refund request - purchase not yet verified"
+    products: [LUM-SPK-500, LUM-BLB-610, LUM-CAM-200]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Refund request"
+        body: >-
+          I would like a refund for my {product}. It is not what I expected and I would prefer to return it.
+          Please let me know how to go about it.
+      - style: frustrated
+        title: "Return and refund"
+        body: >-
+          I want to send back the {product} I bought on {date:c-12} and get a refund. I can't find the order
+          email anywhere.
+
+  # ------------------------------------------------------------------ REF-DLY
+  - scenario_id: REF-DLY-LATE-APPROVED
+    pool: dev
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-02
+    primary_issue: "Approved refund not issued within 5 business days"
+    order_profile: {name: return_received_late, params: {mode: approved, bdays: [7, 11], reason: changed_mind}}
+    products: [LUM-SPK-500, LUM-TH-100, LUM-CAM-200, LUM-HUB-800, LUM-BLB-610]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Refund not issued after return approval"
+        body: >-
+          You received my returned {product} on {date:return_received} and approved the return on
+          {date:inspection_approved}, but the refund has not been issued yet. Could you check on it? Order
+          {order_ref}.
+      - style: frustrated
+        title: "Return approved, refund missing"
+        body: >-
+          My return was approved on {date:inspection_approved}. It has been {dur:inspection_approved} since then and
+          my refund is still missing. I have done everything you asked. When will I get my money? Order {order_ref}.
+      - style: angry
+        title: "You have my item AND my money"
+        body: >-
+          You have had my {product} back since {date:return_received}. You approved the return. And I STILL do not
+          have my {amt:refund_amount}. So you now have my item and my money. Refund me today. {order_ref}.
+        signals_add: []
+      - style: frustrated
+        title: "Refund overdue - legal action"
+        signals_add: [legal_threat]
+        body: >-
+          My return was approved on {date:inspection_approved} and the refund of {amt:refund_amount} is overdue. If
+          it is not paid within five days I will start a small claims case. Order {order_ref}.
+
+  - scenario_id: REF-DLY-LATE-RECEIVED
+    pool: dev
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-02
+    primary_issue: "Return received but refund not processed within the policy timeline"
+    order_profile: {name: return_received_late, params: {mode: received, bdays: [9, 12], reason: not_needed}}
+    products: [LUM-AIR-900, LUM-VAC-300, LUM-CAM-210]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Waiting for my refund"
+        body: >-
+          The tracking shows my returned {product} was delivered to your returns centre on {date:return_received}.
+          I am still waiting for the refund of {amt:refund_amount}. Could you give me an update? Order {order_ref}.
+      - style: polite
+        title: "Update on a return, please"
+        body: >-
+          Hi, I sent back my {product} and it reached you on {date:return_received}. I was expecting the refund by
+          now and wondered if something is holding it up. Many thanks for checking - order {order_ref}.
+
+  - scenario_id: REF-DLY-NOTRECEIVED
+    pool: dev
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-04
+    primary_issue: "Returned item not yet received by Lumora"
+    order_profile: {name: return_not_received, params: {days: [5, 12], reason: changed_mind}}
+    products: [LUM-SPK-500, LUM-TH-100, LUM-LCK-700, LUM-CAM-200]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Return sent but not showing as received"
+        body: >-
+          I sent my {product} back on {date:return_requested} with your prepaid label, but my account still says
+          the return is awaiting receipt. When will my refund be processed? Order {order_ref}.
+      - style: frustrated
+        title: "You lost my return?"
+        body: >-
+          I dropped the parcel with my {product} at the post office on {date:return_requested}. Your system says you
+          have not received it and my refund is on hold. I have the receipt from the counter. Order {order_ref}.
+      - style: polite
+        title: "Return status query"
+        body: >-
+          Hello, could you check whether my returned {product} (order {order_ref}) has arrived? I posted it on
+          {date:return_requested}. I am keen to get the refund sorted. Thank you!
+
+  - scenario_id: REF-DLY-WITHIN
+    pool: dev
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-03
+    primary_issue: "Refund still within the inspection and refund timeline"
+    order_profile: {name: return_received_recent, params: {bdays: [1, 3], reason: changed_mind}}
+    products: [LUM-SPK-500, LUM-BLB-610, LUM-PLG-600, LUM-CAM-200, LUM-TH-100]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: angry
+        title: "Refund NOW"
+        difficulty_type: emotional_low_priority
+        body: >-
+          You got my {product} back on {date:return_received}. So where is my refund?! Every other shop pays out the
+          same day. This is shocking service and I am fed up. Order {order_ref}.
+      - style: polite
+        title: "When will my refund arrive?"
+        customer_types: [vip]
+        difficulty_type: vip_minor
+        body: >-
+          Hi, I see my return for order {order_ref} was received on {date:return_received}. Could you let me know
+          roughly when the refund will be issued? No rush, I just like to keep track. Thanks!
+      - style: frustrated
+        title: "Still waiting on refund"
+        body: >-
+          My {product} return arrived at your warehouse on {date:return_received} and my refund has not appeared
+          since. It is annoying not knowing where it is. Order {order_ref}.
+
+  - scenario_id: REF-DLY-NOORDER
+    pool: dev
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-01
+    primary_issue: "Refund delay reported without an order reference"
+    products: [LUM-VAC-300, LUM-SPK-500]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Refund taking too long"
+        body: >-
+          I returned my {product} weeks ago and my refund is still missing. I have lost the order confirmation.
+          Can you look me up and tell me what is going on?
+
+  # ------------------------------------------------------------------ REF-PAR
+  - scenario_id: REF-PAR-EXEMPT-DEFECT
+    pool: dev
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-02
+    primary_issue: "Restocking fee deducted from a refund for a defective item"
+    order_profile: {name: restocking_fee, params: {reason: defective, return_day: [15, 18]}}
+    products: [LUM-TH-100, LUM-CAM-210, LUM-AIR-900, LUM-HUB-800, LUM-SPK-500]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Restocking fee on a faulty item"
+        body: >-
+          I returned my {product} because it was faulty, and the return was accepted. However, the refund of
+          {amt:refund_amount} is {amt:restocking_fee} short - a restocking fee was deducted. As the item was
+          defective, please refund the fee. Order {order_ref}.
+      - style: frustrated
+        title: "Charged a restocking fee for your fault"
+        body: >-
+          Why was I charged a restocking fee of {amt:restocking_fee} when I returned the {product} because it was
+          broken? That makes no sense. I want the full {amt:expected_refund} refunded. Order {order_ref}.
+      - style: angry
+        title: "Deducting fees for a DEFECTIVE product?!"
+        body: >-
+          You sold me a defective {product}, I sent it back, and then you had the nerve to keep {amt:restocking_fee}
+          as a "restocking fee"?! Refund the rest of my money immediately. Order {order_ref}.
+
+  - scenario_id: REF-PAR-EXEMPT-CAREPLUS
+    pool: dev
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-02
+    primary_issue: "Restocking fee charged to a Care+ member"
+    order_profile: {name: restocking_fee, params: {reason: changed_mind, return_day: [15, 20]}}
+    products: [LUM-VAC-300, LUM-SPK-500, LUM-CAM-200]
+    customer_types: [care_plus]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: polite
+        title: "Care+ member charged a restocking fee"
+        body: >-
+          Hello, I returned my {product} (order {order_ref}) and was refunded {amt:refund_amount}, with
+          {amt:restocking_fee} kept as a restocking fee. I have an active Care+ plan and understood members do not
+          pay this fee. Could you refund the difference? Thank you.
+      - style: frustrated
+        title: "Restocking fee - but I have Care+"
+        body: >-
+          I pay for Care+ every month and you still took a {amt:restocking_fee} restocking fee off my refund for the
+          {product}. What am I paying for? Please return the fee. {order_ref}.
+
+  - scenario_id: REF-PAR-CORRECT
+    pool: dev
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-03
+    difficulty_type: unsupported_refund
+    primary_issue: "Restocking fee correctly applied (opened item returned after day 14)"
+    order_profile: {name: restocking_fee, params: {reason: changed_mind, return_day: [15, 18]}}
+    products: [LUM-SPK-500, LUM-TH-100, LUM-CAM-210, LUM-HUB-800, LUM-AIR-900]
+    customer_types: [individual, business, vip]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Why was my refund reduced?"
+        body: >-
+          I returned my {product} (order {order_ref}) because I changed my mind, and I received {amt:refund_amount}
+          instead of the full price. Could you explain the deduction of {amt:restocking_fee}?
+      - style: angry
+        title: "Stealing {amt:restocking_fee} from my refund"
+        difficulty_type: emotional_low_priority
+        body: >-
+          You have STOLEN {amt:restocking_fee} from my refund! I sent the {product} back in perfect condition and you
+          only refunded {amt:refund_amount}. Pathetic, greedy company. I want the rest back. Order {order_ref}.
+      - style: frustrated
+        title: "Partial refund for my return"
+        body: >-
+          I only got a partial refund for my returned {product}: {amt:refund_amount} out of
+          {amt:expected_refund}. Nobody told me about a restocking fee when I bought it. Please refund the full
+          amount. {order_ref}.
+
+  - scenario_id: REF-PAR-SHIPPING
+    pool: dev
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-01
+    primary_issue: "Refund excluded the original express shipping fee"
+    order_profile: {name: shipping_fee_deducted, params: {reason: defective}}
+    products: [LUM-SPK-500, LUM-CAM-200, LUM-TH-100, LUM-HUB-800]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Shipping fee not refunded"
+        body: >-
+          My {product} was faulty so I returned it. I paid {amt:total} including {amt:shipping_fee} express
+          shipping, but only {amt:refund_amount} was refunded. Could you refund the shipping as well? Order
+          {order_ref}.
+      - style: frustrated
+        title: "Refund short by the delivery charge"
+        body: >-
+          You refunded {amt:refund_amount} for my returned {product}, but I paid {amt:total} in total. The
+          {amt:shipping_fee} delivery charge is missing from the refund. The item was faulty, so I should not be out
+          of pocket. {order_ref}.
+
+  # ============================================================ HOLDOUT (REF)
+  - scenario_id: H-REF-REQ-WINDOW
+    pool: holdout
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-02
+    primary_issue: "Refund requested within the refund window"
+    order_profile: {name: delivered_days_ago, params: {days: [4, 20]}}
+    products: [LUM-AIR-900, LUM-BLB-610, LUM-HUB-800]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Sending the {product:short} back"
+        body: >-
+          We have decided the {product} is not for us after all - it came on {date:delivered}. I would like to send
+          it back and be refunded to my card. Reference {order_ref}.
+      - style: polite
+        title: "Return within the return period"
+        body: >-
+          Good morning, we moved flat before we could use the {product} and the new place already has one. Could we
+          return it for a refund? It has only been out of the box once. Order {order_ref}.
+
+  - scenario_id: H-REF-REQ-OUTSIDE
+    pool: holdout
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-03
+    difficulty_type: unsupported_refund
+    primary_issue: "Refund requested after the refund window"
+    order_profile: {name: delivered_old, params: {days: [40, 75]}}
+    products: [LUM-VAC-300, LUM-SPK-500]
+    customer_types: [individual, vip]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Return rejected by the app"
+        body: >-
+          The return form keeps saying my order {order_ref} is not eligible. The {product} has hardly been used
+          since {date:delivered}. I want a refund, full stop.
+      - style: angry
+        title: "Unacceptable refund refusal"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Unacceptable. {age:delivered} is nothing and you refuse to take back a {product} that is basically new?
+          Worst customer policy I have ever seen. Refund {order_ref}.
+
+  - scenario_id: H-REF-REQ-INSTALL
+    pool: holdout
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-04
+    difficulty_type: unsupported_refund
+    primary_issue: "Refund requested for a completed installation service"
+    order_profile: {name: install_completed, params: {days: [2, 10]}}
+    products: [SVC-INSTALL]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: polite
+        title: "Installation fee refund question"
+        body: >-
+          The installer finished the {product} job on {date:appointment} and everything works. In hindsight I
+          did not really need the service - would you consider refunding the {amt:total}?
+
+  - scenario_id: H-REF-REQ-MISUSE
+    pool: holdout
+    subcategory: REF-REQ
+    intended_rule: RES-REF-REQ-05
+    difficulty_type: unsupported_refund
+    primary_issue: "Refund requested after accidental damage"
+    order_profile: {name: delivered_days_ago, params: {days: [6, 20]}}
+    products: [LUM-SPK-500, LUM-CAM-200]
+    customer_types: [individual, vip]
+    requested_resolution: refund
+    signals: [refund_request, misuse_damage]
+    texts:
+      - style: calm
+        title: "Speaker damaged after it got wet"
+        body: >-
+          The {product} was left on the patio table and got wet during a downpour. It no longer switches on. It is
+          only {age:delivered} old, so I would like to ask for a refund. Order {order_ref}.
+
+  - scenario_id: H-REF-DLY-LATE
+    pool: holdout
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-02
+    primary_issue: "Approved refund overdue"
+    order_profile: {name: return_received_late, params: {mode: approved, bdays: [7, 10], reason: not_needed}}
+    products: [LUM-TH-100, LUM-HUB-800]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Approved {date:inspection_approved}, still unpaid"
+        body: >-
+          Inspection passed on {date:inspection_approved} according to your own email, yet my card has not seen a
+          cent of the refund. What exactly is the hold-up with {order_ref}?
+
+  - scenario_id: H-REF-DLY-NOTRECEIVED
+    pool: holdout
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-04
+    primary_issue: "Return not yet logged as received"
+    order_profile: {name: return_not_received, params: {days: [6, 10], reason: changed_mind}}
+    products: [LUM-CAM-200]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Return parcel not logged"
+        body: >-
+          I handed my return to the courier on {date:return_requested} (order {order_ref}). Your portal still shows
+          'awaiting return'. Can you check the courier tracking so my refund can go through?
+
+  - scenario_id: H-REF-DLY-WITHIN
+    pool: holdout
+    subcategory: REF-DLY
+    intended_rule: RES-REF-DLY-03
+    primary_issue: "Refund enquiry while still within the processing timeline"
+    order_profile: {name: return_received_recent, params: {bdays: [1, 2], reason: changed_mind}}
+    products: [LUM-SPK-500, LUM-PLG-600]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: angry
+        title: "Pay me back already"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Your warehouse signed for my {product} on {date:return_received}. Pay me back already! I am sick of
+          companies that are quick to take money and slow to refund it. {order_ref}.
+
+  - scenario_id: H-REF-PAR-EXEMPT
+    pool: holdout
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-02
+    primary_issue: "Restocking fee wrongly applied to a wrong-item return"
+    order_profile: {name: restocking_fee, params: {reason: wrong_item, return_day: [15, 17]}}
+    products: [LUM-CAM-210, LUM-LCK-700]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Fee deducted from a wrong-item return"
+        body: >-
+          You sent me the wrong product, so I returned it. The credit I received was {amt:refund_amount}, with
+          {amt:restocking_fee} withheld as restocking. Since the mistake was on your side, I'd like that amount
+          refunded too. {order_ref}.
+
+  - scenario_id: H-REF-PAR-CORRECT
+    pool: holdout
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-03
+    difficulty_type: unsupported_refund
+    primary_issue: "Restocking fee correctly applied"
+    order_profile: {name: restocking_fee, params: {reason: not_needed, return_day: [16, 18]}}
+    products: [LUM-SPK-500, LUM-AIR-900]
+    customer_types: [individual, vip]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: polite
+        title: "Question about a deduction"
+        body: >-
+          Hello, my refund for {order_ref} came through as {amt:refund_amount}. I had expected {amt:expected_refund}.
+          Could you tell me why {amt:restocking_fee} was held back and whether it can be refunded?
+
+  - scenario_id: H-REF-PAR-SHIPPING
+    pool: holdout
+    subcategory: REF-PAR
+    intended_rule: RES-REF-PAR-01
+    primary_issue: "Refund excluded the express delivery fee"
+    order_profile: {name: shipping_fee_deducted, params: {reason: damaged_on_arrival}}
+    products: [LUM-HUB-800, LUM-SPK-500]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Express fee kept after a damaged delivery"
+        body: >-
+          The {product} arrived damaged, I returned it, and you refunded {amt:refund_amount} - but kept the
+          {amt:shipping_fee} I paid for express delivery. Please refund that as well for {order_ref}.

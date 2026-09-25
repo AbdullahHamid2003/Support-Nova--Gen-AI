@@ -1,0 +1,173 @@
+﻿AI vs rules comparison report
+"Evaluation run #1 on the 'holdout' dataset (154 unseen cases, AI openai/gpt-4.1-mini)"
+Generated,2026-09-25 11:53 UTC
+Scope,all operational complaints
+AI model,openai (gpt-4.1-mini)
+
+## Summary
+Cases compared,154
+Full key-field match,154
+Mismatch,0
+Verified,22
+Manual review,130
+
+## Field agreement
+Field,Match,Partial,Mismatch,Agreement
+
+## Case comparison
+Complaint,Expected category,AI category,Rules category,AI department,Rules department,AI urgency,Rules urgency,AI escalation,Rules escalation,Policy reference,Match,Verification,Explanation of disagreement
+EVL-00001,TEC/TEC-APP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00002,PRD/PRD-MAL,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00003,TEC/TEC-APP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00004,ACC/ACC-UPD,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00005,REF/REF-REQ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00006,BIL/BIL-INC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00007,PRV/PRV-BRC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00008,SAF/SAF-INJ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00009,SAF/SAF-OVH,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00010,PRV/PRV-BRC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00011,SAF/SAF-OVH,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00012,ACC/ACC-UNA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00013,SAF/SAF-ELC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00014,PRD/PRD-DOA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00015,REF/REF-REQ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00016,REF/REF-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00017,ACC/ACC-UNA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00018,SVC/SVC-INS,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00019,TEC/TEC-CON,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00020,BIL/BIL-SUB,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00021,DEL/DEL-DLY,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00022,SAF/SAF-ELC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00023,PRV/PRV-CON,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00024,ACC/ACC-UNA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00025,REF/REF-REQ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00026,SVC/SVC-SUP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00027,STF/STF-RUD,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00028,PRV/PRV-DSR,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00029,WAR/WAR-CLM,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00030,PRD/PRD-DOA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00031,ACC/ACC-LGN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00032,BIL/BIL-CAN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00033,SVC/SVC-SUP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00034,DEL/DEL-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00035,BIL/BIL-CAN,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00036,SVC/SVC-INS,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00037,DEL/DEL-LST,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00038,SVC/SVC-SUP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00039,STF/STF-MIN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00040,ACC/ACC-LGN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00041,BIL/BIL-RFM,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00042,PRV/PRV-BRC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00043,PRV/PRV-DSR,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00044,DEL/DEL-LST,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00045,SAF/SAF-ELC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00046,ACC/ACC-UPD,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00047,TEC/TEC-CON,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00048,TEC/TEC-APP,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00049,BIL/BIL-DUP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00050,STF/STF-RUD,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00051,PRD/PRD-MAL,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00052,SVC/SVC-OUT,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00053,BIL/BIL-CAN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00054,SVC/SVC-INS,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00055,PRV/PRV-DSR,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00056,SAF/SAF-OVH,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00057,PRD/PRD-DOA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00058,DEL/DEL-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00059,PRV/PRV-DSR,None/None,None/None,,,,,,,,Match,Duplicate,'-
+EVL-00060,DEL/DEL-LST,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00061,SVC/SVC-OUT,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00062,SVC/SVC-SUP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00063,BIL/BIL-SUB,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00064,PRD/PRD-DOA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00065,SVC/SVC-SUP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00066,REF/REF-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00067,REF/REF-REQ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00068,DEL/DEL-DLY,None/None,None/None,,,,,,,,Match,Duplicate,'-
+EVL-00069,ACC/ACC-UNA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00070,TEC/TEC-SET,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00071,BIL/BIL-RFM,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00072,WAR/WAR-CLM,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00073,ACC/ACC-UNA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00074,PRV/PRV-BRC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00075,ACC/ACC-LGN,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00076,DEL/DEL-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00077,WAR/WAR-CPL,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00078,BIL/BIL-RFM,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00079,PRD/PRD-MAL,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00080,SAF/SAF-OVH,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00081,BIL/BIL-INC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00082,WAR/WAR-DEN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00083,PRV/PRV-CON,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00084,DEL/DEL-WRG,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00085,SAF/SAF-OVH,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00086,DEL/DEL-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00087,STF/STF-MIN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00088,DEL/DEL-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00089,WAR/WAR-CPL,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00090,BIL/BIL-INC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00091,TEC/TEC-APP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00092,STF/STF-MIN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00093,PRV/PRV-CON,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00094,TEC/TEC-APP,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00095,BIL/BIL-DUP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00096,SAF/SAF-OVH,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00097,STF/STF-RUD,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00098,PRV/PRV-BRC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00099,ACC/ACC-UNA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00100,DEL/DEL-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00101,STF/STF-MIS,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00102,SAF/SAF-INJ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00103,DEL/DEL-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00104,WAR/WAR-CPL,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00105,REF/REF-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00106,DEL/DEL-LST,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00107,STF/STF-MIS,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00108,DEL/DEL-WRG,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00109,TEC/TEC-APP,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00110,TEC/TEC-CON,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00111,REF/REF-PAR,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00112,SVC/SVC-OUT,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00113,REF/REF-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00114,WAR/WAR-DEN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00115,SAF/SAF-OVH,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00116,ACC/ACC-UPD,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00117,SVC/SVC-SUP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00118,TEC/TEC-SET,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00119,SAF/SAF-INJ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00120,BIL/BIL-DUP,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00121,PRD/PRD-MIS,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00122,REF/REF-PAR,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00123,ACC/ACC-LGN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00124,BIL/BIL-SUB,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00125,DEL/DEL-LST,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00126,WAR/WAR-DEN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00127,PRD/PRD-MIS,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00128,SVC/SVC-OUT,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00129,WAR/WAR-CPL,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00130,REF/REF-REQ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00131,PRD/PRD-MIS,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00132,STF/STF-MIS,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00133,PRD/PRD-MAL,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00134,REF/REF-PAR,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00135,ACC/ACC-UNA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00136,REF/REF-PAR,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00137,PRD/PRD-DOA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00138,TEC/TEC-CON,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00139,DEL/DEL-LST,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00140,TEC/TEC-SET,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00141,SVC/SVC-INS,None/None,None/None,,,,,,,,Match,Verified,'-
+EVL-00142,REF/REF-REQ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00143,PRD/PRD-MAL,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00144,WAR/WAR-CLM,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00145,REF/REF-REQ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00146,ACC/ACC-UNA,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00147,WAR/WAR-DEN,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00148,TEC/TEC-SET,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00149,WAR/WAR-CLM,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00150,WAR/WAR-CLM,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00151,REF/REF-DLY,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00152,REF/REF-REQ,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00153,SAF/SAF-ELC,None/None,None/None,,,,,,,,Match,Manual Review,'-
+EVL-00154,BIL/BIL-RFM,None/None,None/None,,,,,,,,Match,Manual Review,'-
+The rules decide the final outcome; the AI columns show what the AI proposed.

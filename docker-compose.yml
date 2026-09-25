@@ -1,0 +1,44 @@
+# Local full stack:  docker compose up --build   ->  http://localhost:8000
+# First start: migrations, reference data, demo users and the synthetic complaint dataset are loaded
+# automatically. Set AI_API_KEY (and AI_PROVIDER / AI_MODEL if not OpenAI) in your shell or a .env file
+# next to this file (never committed); without a key the GenAI step reports "not configured" and every
+# complaint goes to manual review.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: supportnova
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supportnova-local-only}
+      POSTGRES_DB: supportnova
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U supportnova -d supportnova"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://supportnova:${POSTGRES_PASSWORD:-supportnova-local-only}@db:5432/supportnova
+      APP_ENV: ${APP_ENV:-development}           # production requires a 32+ character SECRET_KEY
+      SECRET_KEY: ${SECRET_KEY:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}     # true behind HTTPS
+      CORS_ORIGINS: http://localhost:8000
+      AI_PROVIDER: ${AI_PROVIDER:-openai}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+      SEED_DEMO_USERS: ${SEED_DEMO_USERS:-true}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-}
+    volumes:
+      - storage:/app/storage
+
+volumes:
+  pgdata:
+  storage:

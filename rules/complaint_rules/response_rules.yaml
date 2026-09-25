@@ -1,0 +1,56 @@
+# =============================================================================
+# Customer-response validation rules (RSP-*), SRS Steps 32-35, CHP-SOP-13 s4,
+# TPL-COM-18 s9. Applied by Python to every generated customer response and
+# follow-up message. Prohibited behaviours come from config/actions.yaml
+# (prohibited_actions.patterns); this file defines required elements, tone
+# heuristics, timeline and amount grounding.
+# =============================================================================
+required_elements:
+  - rule_id: RSP-001
+    element: acknowledgement
+    name: Acknowledges the complaint
+    severity: major
+    patterns: ['\b(thank\s+you|thanks)\s+(for|you)\b', '\bwe\s+(have\s+)?(received|reviewed|looked\s+into)\b', '\b(regarding|about|concerning)\s+your\s+(complaint|message|request|order|case|report)\b', '\bi\s+(am|''m)\s+writing\s+(to|about|regarding)\b', '\bwe\s+acknowledge\b']
+    policy_refs: ["CHP-SOP-13:4"]
+  - rule_id: RSP-002
+    element: empathy
+    name: Shows appropriate empathy
+    severity: minor
+    patterns: ['\b(sorry|apologi[sz]e|apologies|regret)\b', '\bunderstand\s+(how|that|your|this)\b', '\b(frustrating|inconvenien(t|ce)|concerning|stressful|worrying|upsetting)\b', '\bappreciate\s+your\s+(patience|understanding)\b']
+    policy_refs: ["CHP-SOP-13:4"]
+  - rule_id: RSP-003
+    element: issue_summary
+    name: Summarises the issue
+    severity: minor
+    method: overlap          # response must mention the complaint reference or >= 2 key complaint terms
+    min_key_terms: 2
+    policy_refs: ["CHP-SOP-13:4"]
+  - rule_id: RSP-004
+    element: next_step
+    name: Explains the next step
+    severity: major
+    patterns: ['\b(next\s+step|what\s+happens\s+next|we\s+will|we''ll|our\s+(team|specialists?|department)\s+will|you\s+will\s+(receive|hear)|please\s+(reply|send|provide|share|confirm|stop|do\s+not))\b']
+    policy_refs: ["CHP-SOP-13:4"]
+
+# Timeline extraction (SRS Step 32 "realistic timelines only where supported").
+timeline_patterns:
+  duration: '\b(within|in|up\s+to|over\s+the\s+next|no\s+later\s+than|inside)\s+(\d{1,3}|one|two|three|four|five|six|seven|eight|nine|ten|fourteen|thirty|twenty[- ]four|forty[- ]eight|seventy[- ]two)\s+(business\s+|working\s+|calendar\s+)?(hours?|days?|weeks?)\b'
+  deadline: '\b(by\s+(tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|end\s+of\s+(the\s+)?(day|week))|tomorrow|today|within\s+the\s+hour|right\s+away|immediately)\b'
+number_words: {one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, fourteen: 14, thirty: 30, twenty-four: 24, "twenty four": 24, forty-eight: 48, "forty eight": 48, seventy-two: 72, "seventy two": 72}
+# A deadline phrase is allowed only in these contexts (e.g. safety advice "stop using it immediately").
+deadline_allowed_context: '\b(stop\s+using|unplug|disconnect|contact\s+us|call\s+us|reply|keep\s+(it|the\s+device)\s+away|do\s+not\s+use)\b'
+
+tone_rules:
+  - {rule_id: RSP-101, tone: concise, check: max_words, value: 120, severity: minor, policy_refs: ["TPL-COM-18:9"]}
+  - {rule_id: RSP-102, tone: formal, check: no_contractions, severity: minor, policy_refs: ["TPL-COM-18:9"]}
+  - {rule_id: RSP-103, tone: formal, check: formal_salutation, severity: minor, policy_refs: ["TPL-COM-18:9"]}
+  - {rule_id: RSP-104, tone: empathetic, check: min_empathy_markers, value: 2, severity: minor, policy_refs: ["TPL-COM-18:9"]}
+  - {rule_id: RSP-105, tone: "*", check: professional_language, severity: major, policy_refs: ["CHP-SOP-13:4"]}
+  - {rule_id: RSP-106, tone: "*", check: max_words, value: 320, severity: minor, policy_refs: ["CHP-SOP-13:4"]}
+unprofessional_patterns: ['!{2,}', '\b(lol|omg|wtf|dude|gonna|wanna|ain''t|chill)\b', '[\U0001F300-\U0001FAFF]', '\b(stupid|idiot|dumb|shut\s+up)\b']
+formal_salutations: ['^\s*dear\b', '^\s*(good\s+(morning|afternoon|evening))\b']
+contraction_pattern: '\b\w+''(s|re|ve|ll|d|t|m)\b'
+
+# Amount grounding: every currency amount in a response must be traceable to the
+# complaint, the order ledger or the validated decision (entitlements/limits).
+amount_pattern: '(\$|usd\s?)\s?(\d{1,3}(,\d{3})*(\.\d{2})?|\d+(\.\d{2})?)'

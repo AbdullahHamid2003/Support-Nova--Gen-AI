@@ -1,0 +1,11 @@
+# =============================================================================
+# SLA rules (SLA-*), SLA-RUL-15 v2.0 section 3 and 7. Configurable at runtime
+# (Admin > SLA). Clocks run continuously in calendar hours from submission.
+# =============================================================================
+sla_rules:
+  - {rule_id: SLA-P0, priority: P0, first_response_hours: 1,  resolution_hours: 24,  policy_refs: ["SLA-RUL-15:3.1"]}
+  - {rule_id: SLA-P1, priority: P1, first_response_hours: 4,  resolution_hours: 48,  policy_refs: ["SLA-RUL-15:3.2"]}
+  - {rule_id: SLA-P2, priority: P2, first_response_hours: 24, resolution_hours: 120, policy_refs: ["SLA-RUL-15:3.3"]}
+  - {rule_id: SLA-P3, priority: P3, first_response_hours: 48, resolution_hours: 240, policy_refs: ["SLA-RUL-15:3.4"]}
+at_risk_param: sla_at_risk_pct      # rules/parameters.yaml (75%)
+states: [On Track, At Risk, Breached, Met]

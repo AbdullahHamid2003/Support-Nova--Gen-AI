@@ -1,0 +1,181 @@
+"""Application settings, read from environment variables / the repository .env file.
+
+Secrets (SECRET_KEY, AI_API_KEY, EMBEDDING_API_KEY, DATABASE_URL credentials) are
+read only on the server and never sent to the React frontend.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+from functools import lru_cache
+from typing import Annotated, Literal
+
+from pydantic import Field, SecretStr, ValidationInfo, field_validator, model_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+
+from .paths import REPO_ROOT
+
+ProviderName = Literal["anthropic", "openai", "gemini"]
+DEV_SECRET_KEY = "dev-only-insecure-secret-change-me"  # noqa: S105 - development placeholder, refused in production
+DEFAULT_DEMO_PASSWORD = "Lumora#Demo2026"  # noqa: S105 - documented demo-only credential for the fictional demo users
+
+DEFAULT_MODELS: dict[str, str] = {
+    "anthropic": "claude-opus-5",
+    "openai": "gpt-4.1-mini",
+    "gemini": "gemini-2.5-flash",
+}
+
+
+def _env_files() -> tuple[str, ...]:
+    """``.env`` holds ordinary settings; ``.env.secrets`` (optional, git-ignored) holds keys and overrides it.
+    SUPPORTNOVA_ENV_FILE replaces both - the test suite points it at nothing so it never sees a real API key."""
+    override = os.environ.get("SUPPORTNOVA_ENV_FILE")
+    return (override,) if override else (str(REPO_ROOT / ".env"), str(REPO_ROOT / ".env.secrets"))
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=_env_files(), env_file_encoding="utf-8", extra="ignore")
+
+    app_env: Literal["development", "test", "production"] = "development"
+    app_name: str = "SupportNova"
+    api_prefix: str = "/api/v1"
+    secret_key: SecretStr = SecretStr(DEV_SECRET_KEY)
+    access_token_minutes: int = 480
+    cookie_secure: bool = False
+
+    database_url: str = "postgresql+psycopg://supportnova:postgres@127.0.0.1:5433/supportnova"
+    db_echo: bool = False
+
+    # ---- GenAI (Pipeline 1) --------------------------------------------------
+    # AI_PROVIDER: openai | anthropic | gemini | real (real = infer the vendor from the key / model)
+    ai_provider: str = "openai"
+    ai_api_key: SecretStr | None = None
+    ai_model: str | None = None
+    ai_base_url: str | None = None
+    ai_timeout_seconds: float = 60.0
+    ai_max_retries: int = 2
+    ai_temperature: float = 0.1
+    ai_max_output_tokens: int = 4096
+    ai_effort: str | None = "medium"          # Claude output_config.effort: low|medium|high|xhigh|max
+    ai_refusal_fallback: bool = True          # Claude server-side refusal fallbacks (beta)
+
+    # ---- Embeddings / retrieval ----------------------------------------------------
+    embedding_provider: Literal["local", "openai", "gemini"] = "local"
+    embedding_model: str | None = None
+    embedding_api_key: SecretStr | None = None
+    vector_database_url: str | None = None   # optional external vector store (not required)
+    retrieval_top_k: int = 10
+
+    redis_url: str | None = None              # optional; in-process worker pool is used when unset
+
+    # ---- Web / security -------------------------------------------------------------
+    # comma-separated in the environment (NoDecode: not parsed as JSON)
+    cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"])
+    rate_limit_per_minute: int = 240
+    login_rate_limit_per_minute: int = 20
+    max_upload_mb: int = 15
+    max_attachment_mb: int = 5
+    serve_frontend: bool = True
+
+    # ---- Complaint processing ------------------------------------------------------------
+    duplicate_window_hours: int = 24
+    reject_exact_duplicates: bool = True
+    near_duplicate_threshold: float = 0.86
+    repeat_similarity_threshold: float = 0.30
+    background_workers: int = 2
+    batch_workers: int = 4                    # dataset import / evaluation: customers processed in parallel
+    sla_monitor_interval_seconds: int = 60
+
+    # ---- First-run setup -----------------------------------------------------------------
+    auto_migrate: bool = True                 # apply Alembic migrations on startup
+    auto_seed: bool = True                    # roles, rules, prompts, knowledge base, demo users
+    seed_dataset_on_startup: bool = True      # import + process the demo complaint dataset in the background
+    seed_demo_users: bool = True              # one demo login per role (disable in real deployments)
+    seed_simulate_lifecycle: bool = True      # demo time-lapse of old dataset complaints (labelled simulated history)
+    demo_password: SecretStr = SecretStr(DEFAULT_DEMO_PASSWORD)  # demo-only; override with DEMO_PASSWORD
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def _split_origins(cls, value: object) -> object:
+        if isinstance(value, str):
+            if value.strip().startswith("["):
+                return json.loads(value)
+            return [v.strip() for v in value.split(",") if v.strip()]
+        return value
+
+    @field_validator("ai_api_key", "ai_model", "ai_base_url", "ai_effort", "embedding_model", "embedding_api_key",
+                     "vector_database_url", "redis_url", mode="before")
+    @classmethod
+    def _blank_is_unset(cls, value: object) -> object:
+        """``AI_MODEL=`` in a .env file means "not set", not an empty model name."""
+        return None if isinstance(value, str) and not value.strip() else value
+
+    @field_validator("ai_provider")
+    @classmethod
+    def _known_provider(cls, value: str) -> str:
+        name = (value or "").strip().lower()
+        if name not in ("openai", "anthropic", "gemini", "real"):
+            raise ValueError("AI_PROVIDER must be openai, anthropic, gemini or real")
+        return name
+
+    @field_validator("secret_key", "demo_password", mode="before")
+    @classmethod
+    def _blank_secret_is_default(cls, value: object, info: ValidationInfo) -> object:
+        """A blank value (e.g. docker compose ``${SECRET_KEY:-}``) means "use the default", never an empty key."""
+        if isinstance(value, str) and not value.strip():
+            return DEV_SECRET_KEY if info.field_name == "secret_key" else DEFAULT_DEMO_PASSWORD
+        return value
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _psycopg_driver(cls, value: object) -> object:
+        """Managed hosts hand out ``postgres://`` / ``postgresql://`` URLs; SQLAlchemy needs the psycopg 3 driver name."""
+        if isinstance(value, str):
+            for prefix in ("postgres://", "postgresql://"):
+                if value.startswith(prefix):
+                    return "postgresql+psycopg://" + value[len(prefix):]
+        return value
+
+    @model_validator(mode="after")
+    def _production_guard(self) -> Settings:
+        """Refuse to run a production deployment with the development signing key."""
+        if self.app_env == "production":
+            key = self.secret_key.get_secret_value()
+            if key == DEV_SECRET_KEY or len(key) < 32:
+                raise ValueError("APP_ENV=production requires SECRET_KEY: a random value of at least 32 characters "
+                                 "(for example: python -c \"import secrets; print(secrets.token_urlsafe(48))\").")
+        return self
+
+    # ---- derived -----------------------------------------------------------------------
+    @property
+    def resolved_provider(self) -> ProviderName:
+        """The vendor AI_PROVIDER names; ``real`` infers it from the API key prefix or the model name."""
+        name = (self.ai_provider or "openai").strip().lower()
+        if name in ("anthropic", "openai", "gemini"):
+            return name  # type: ignore[return-value]
+        key = self.ai_api_key.get_secret_value() if self.ai_api_key else ""
+        model = (self.ai_model or "").lower()
+        if key.startswith("sk-ant-") or model.startswith("claude"):
+            return "anthropic"
+        if key.startswith("AIza") or model.startswith("gemini"):
+            return "gemini"
+        return "openai"
+
+    @property
+    def resolved_model(self) -> str:
+        return self.ai_model or DEFAULT_MODELS[self.resolved_provider]
+
+    @property
+    def ai_configured(self) -> bool:
+        """True when an API key is set - without one the GenAI step reports not_configured (nothing is faked)."""
+        return bool(self.ai_api_key and self.ai_api_key.get_secret_value())
+
+    @property
+    def is_sqlite(self) -> bool:
+        return self.database_url.startswith("sqlite")
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    return Settings()

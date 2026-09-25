@@ -1,0 +1,694 @@
+# =============================================================================
+# Scenario bank - BIL (Billing): BIL-DUP, BIL-INC, BIL-RFM, BIL-SUB, BIL-CAN
+# =============================================================================
+scenarios:
+  # ------------------------------------------------------------------ BIL-DUP
+  - scenario_id: BIL-DUP-VERIFIED
+    pool: dev
+    subcategory: BIL-DUP
+    intended_rule: RES-BIL-DUP-02
+    primary_issue: "Order charged twice (duplicate verified in the ledger)"
+    order_profile: {name: duplicate_charge, params: {days: [3, 25], gap_days: [0, 2]}}
+    products: [LUM-TH-100, LUM-CAM-210, LUM-SPK-500, LUM-HUB-800, LUM-AIR-900, LUM-LCK-700]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Charged twice for order {order_ref}"
+        include: {transaction_reference: true}
+        body: >-
+          I have been charged twice for order {order_ref}. My card shows two identical payments of {amt:charge}
+          ({txn:1} and {txn:2}), but I only placed the order once for one {product}. Could you refund the
+          duplicate payment please?
+      - style: frustrated
+        title: "Double charged for my {product:short}"
+        body: >-
+          Double charged. I bought one {product} and {amt:charge} has come out of my account two times. That is
+          money I need for rent this month. Order {order_ref}. Please refund the second payment quickly.
+      - style: angry
+        title: "Duplicate charge - reverse it or I go to my bank"
+        signals_add: [chargeback_threat]
+        body: >-
+          You have taken {amt:charge} from me TWICE for the same {product}. Order {order_ref}. I want the duplicate
+          refunded this week or I will dispute the charge with my bank and file a chargeback. Sort it out.
+      - style: polite
+        title: "Possible duplicate payment"
+        body: >-
+          Hi, I think there may have been a payment error. I can see the charge for my {product} on
+          {date:charge1} listed twice on my statement, {amt:charge} each time. The order number is {order_ref}.
+          Would you be able to check and refund one of them? Thank you.
+      - style: angry
+        title: "Duplicate charge - small claims next"
+        signals_add: [legal_threat]
+        body: >-
+          Two identical charges of {amt:charge} for order {order_ref}. I have asked nicely. Refund the duplicate
+          within seven days or I will file a claim in small claims court.
+
+  - scenario_id: BIL-DUP-NOTFOUND
+    pool: dev
+    subcategory: BIL-DUP
+    intended_rule: RES-BIL-DUP-03
+    primary_issue: "Suspected duplicate charge - only one charge in the ledger"
+    order_profile: {name: single_charge, params: {days: [1, 6]}}
+    products: [LUM-VAC-300, LUM-CAM-200, LUM-TH-100, LUM-AIR-900]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Two payments showing for one order"
+        body: >-
+          My banking app shows two payments to Lumora of {amt:total} for order {order_ref}. One of them might be a
+          temporary hold, I am not sure. Can you confirm whether I have actually paid twice and refund the extra
+          one if so?
+      - style: frustrated
+        title: "Why have you taken {amt:total} twice?"
+        body: >-
+          Why is my account showing {amt:total} twice for my {product}? I only clicked pay once. I want the extra
+          money refunded, and I want an explanation of how this happened. Order {order_ref}.
+
+  - scenario_id: BIL-DUP-LATE
+    pool: dev
+    subcategory: BIL-DUP
+    intended_rule: RES-BIL-DUP-04
+    primary_issue: "Duplicate charge raised after the 60-day dispute window"
+    order_profile: {name: duplicate_charge_old, params: {days: [68, 110]}}
+    products: [LUM-SPK-500, LUM-HUB-800, LUM-TH-100, LUM-CAM-210]
+    customer_types: [individual, vip, care_plus]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Old duplicate charge found on my statement"
+        body: >-
+          While going through my bank statements I noticed I was charged twice for order {order_ref} back on
+          {date:charge1}, {amt:charge} each time. I know it is a while ago, but I would still like the duplicate
+          refunded, please.
+      - style: frustrated
+        title: "Charged twice months ago and nobody noticed"
+        body: >-
+          I only just spotted that you took {amt:charge} twice for my {product} on {date:charge1}. Your system
+          should have caught this. Order {order_ref}. I expect a refund of the extra payment.
+
+  - scenario_id: BIL-DUP-NOORDER
+    pool: dev
+    subcategory: BIL-DUP
+    intended_rule: RES-BIL-DUP-01
+    primary_issue: "Duplicate charge reported without an order or transaction reference"
+    requested_resolution: refund
+    signals: [refund_request]
+    products: [LUM-SPK-500, LUM-BLB-610, LUM-PLG-600]
+    params:
+      price: {LUM-SPK-500: 99, LUM-BLB-610: 49, LUM-PLG-600: 39}
+    texts:
+      - style: calm
+        title: "Charged twice"
+        body: >-
+          Hello, I was charged twice for my {product} on {date:c-5}, {amt:price} both times. I do not have the order
+          number to hand. Could you check and refund one of the payments?
+      - style: frustrated
+        title: "Double payment taken"
+        channels: [chat, phone]
+        body: >-
+          I have been charged two times for one purchase. Please refund the extra payment, it is really annoying to
+          have to chase this.
+        include: {product: false}
+
+  # ------------------------------------------------------------------ BIL-INC
+  - scenario_id: BIL-INC-OVER
+    pool: dev
+    subcategory: BIL-INC
+    intended_rule: RES-BIL-INC-02
+    primary_issue: "Card charged more than the order total"
+    order_profile: {name: overcharged, params: {days: [3, 20], diff: [14.99, 20.00, 25.00, 30.00]}}
+    products: [LUM-TH-100, LUM-CAM-200, LUM-SPK-500, LUM-HUB-800, LUM-AIR-900, LUM-LCK-700]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Charged more than my order total"
+        body: >-
+          My order {order_ref} for a {product} came to {amt:total} at checkout, but my card was charged
+          {amt:charge}. I have the confirmation email showing the lower total. Please refund the difference.
+      - style: frustrated
+        title: "Overcharged on {order_ref}"
+        body: >-
+          I was overcharged. The {product} was {amt:unit_price} and the checkout said {amt:total}, yet
+          {amt:charge} came out of my account on {date:charge}. This is not what I agreed to pay. Refund the
+          extra please.
+      - style: angry
+        title: "Where did the extra {amt:overcharge} come from?!"
+        body: >-
+          Explain to me why I was charged {amt:charge} when my order said {amt:total}! That is an extra
+          {amt:overcharge} you just helped yourselves to. I want it refunded immediately. Order {order_ref}.
+      - style: polite
+        title: "Query about the amount charged"
+        body: >-
+          Good morning. I wonder if you could look at order {order_ref}. The total on my receipt is {amt:total},
+          but the payment taken was {amt:charge}. I suspect the discount did not go through at the payment stage.
+          I would be grateful for a refund of the difference.
+
+  - scenario_id: BIL-INC-CORRECT
+    pool: dev
+    subcategory: BIL-INC
+    intended_rule: RES-BIL-INC-01
+    primary_issue: "Customer believes the charge is wrong (charge matches the order total incl. shipping)"
+    order_profile: {name: charged_correctly, params: {days: [3, 15]}}
+    products: [LUM-PLG-600, LUM-BLB-610]
+    requested_resolution: explanation
+    texts:
+      - style: calm
+        title: "Charge does not match the product price"
+        body: >-
+          I bought a {product} which is listed at {amt:unit_price}, but I was charged {amt:total} for order
+          {order_ref}. Could you explain the difference? I do not remember agreeing to anything extra.
+      - style: frustrated
+        title: "Wrong amount taken for {product:short}"
+        body: >-
+          The price on your site was {amt:unit_price}. You took {amt:total}. What is the extra for? Nobody
+          mentioned a fee. Order {order_ref}. I would like this corrected.
+      - style: angry
+        title: "Hidden fees - disgraceful"
+        body: >-
+          Disgraceful. Your website says {amt:unit_price} for the {product} and then you sneak in a hidden fee and
+          charge {amt:total}! I am absolutely livid about being treated like an idiot. Order {order_ref}. Explain
+          yourselves.
+
+  - scenario_id: BIL-INC-LATE
+    pool: dev
+    subcategory: BIL-INC
+    intended_rule: RES-BIL-INC-03
+    primary_issue: "Incorrect-charge dispute raised after the 60-day window"
+    order_profile: {name: charge_old, params: {days: [66, 120]}}
+    products: [LUM-VAC-300, LUM-TH-100, LUM-AIR-900, LUM-CAM-210]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Incorrect charge from earlier this year"
+        body: >-
+          Reviewing my finances I believe I was charged the wrong amount for order {order_ref} on {date:charge}:
+          {amt:charge} instead of the sale price I saw at the time. I realise this was a while ago, but I would
+          like it checked and any overcharge refunded.
+      - style: polite
+        title: "Late query about a charge"
+        body: >-
+          Hello, apologies for raising this so late. I think the charge of {amt:charge} for my {product} on
+          {date:charge} included a fee I had not expected. Order {order_ref}. Could you look into it and refund
+          anything that was charged in error?
+
+  # ------------------------------------------------------------------ BIL-RFM
+  - scenario_id: BIL-RFM-TRACE
+    pool: dev
+    subcategory: BIL-RFM
+    intended_rule: RES-BIL-RFM-02
+    primary_issue: "Confirmed refund not received after 10+ business days"
+    order_profile: {name: refund_issued_bd_ago, params: {bdays: [10, 16], reason: defective}}
+    products: [LUM-SPK-500, LUM-TH-100, LUM-CAM-200, LUM-HUB-800, LUM-AIR-900]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Refund confirmed but not on my statement"
+        include: {transaction_reference: true}
+        params: {txn_key: refund}
+        body: >-
+          You confirmed my refund of {amt:refund_amount} on {date:refund_issued} (reference {txn:refund}) for
+          order {order_ref}, but it has still not appeared on my bank statement. Could you check what has happened
+          to it?
+      - style: frustrated
+        title: "Still waiting for my refund money"
+        body: >-
+          My refund for the {product} was apparently sent on {date:refund_issued}. It has been {dur:refund_issued}
+          since then and the money is still missing from my account. My bank says there is nothing pending. Order
+          {order_ref}. Please chase this.
+      - style: angry
+        title: "Your 'refund' never arrived"
+        signals_add: [chargeback_threat]
+        body: >-
+          Your email said my refund of {amt:refund_amount} was processed on {date:refund_issued}. Nothing has
+          arrived. Either you are lying or it got lost. Find my money or I will report this to my bank and do a
+          chargeback. Order {order_ref}.
+
+  - scenario_id: BIL-RFM-WAIT
+    pool: dev
+    subcategory: BIL-RFM
+    intended_rule: RES-BIL-RFM-03
+    primary_issue: "Issued refund not yet visible (still within bank posting time)"
+    order_profile: {name: refund_issued_bd_ago, params: {bdays: [2, 6], reason: changed_mind}}
+    products: [LUM-SPK-500, LUM-BLB-610, LUM-PLG-600, LUM-CAM-200]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Refund email received, money not yet"
+        body: >-
+          I got an email on {date:refund_issued} saying my refund of {amt:refund_amount} for order {order_ref} had
+          been sent, but I cannot see it in my account yet. Is there anything I need to do?
+      - style: angry
+        title: "WHERE is my refund"
+        difficulty_type: emotional_low_priority
+        body: >-
+          WHERE is my refund? You said on {date:refund_issued} that {amt:refund_amount} was on its way and my
+          account still shows NOTHING. This is typical of your useless company. I want my money back in my account.
+          Order {order_ref}.
+      - style: polite
+        title: "Checking on a refund"
+        customer_types: [vip]
+        difficulty_type: vip_minor
+        body: >-
+          Hi there, just checking in on the refund for order {order_ref}. Your email of {date:refund_issued}
+          confirmed it, but it is not showing with my bank yet. I am sure it is on its way - could you let me know
+          the usual timescale? Thanks.
+
+  - scenario_id: BIL-RFM-NOORDER
+    pool: dev
+    subcategory: BIL-RFM
+    intended_rule: RES-BIL-RFM-01
+    primary_issue: "Refund reported missing - no order or transaction reference"
+    requested_resolution: refund
+    signals: [refund_request]
+    products: [LUM-VAC-300, LUM-SPK-500]
+    texts:
+      - style: frustrated
+        title: "Refund confirmation but no money"
+        body: >-
+          Someone from your team confirmed a refund for my returned {product} weeks ago and the money has still
+          not shown up on my card statement. I cannot find the email with the reference number. What is going on?
+      - style: calm
+        title: "Missing refund"
+        channels: [phone, chat]
+        body: >-
+          I was told my refund was sent back to my card but it hasn't appeared. Can you look it up under my
+          name please?
+        include: {product: false}
+
+  # ------------------------------------------------------------------ BIL-SUB
+  - scenario_id: BIL-SUB-COOLOFF-CLOUD
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-02
+    primary_issue: "Annual Cloud Vault renewal disputed within 14 days"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [2, 12]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "{product} renewed - please refund"
+        body: >-
+          My {product} renewed automatically on {date:renewal} and I was charged {amt:charge}. I stopped using my
+          cameras a few months ago, so please stop the plan and refund the renewal. Order {order_ref}.
+      - style: frustrated
+        title: "Unwanted annual renewal"
+        body: >-
+          I did not realise my {product} was set to renew every year and {amt:charge} was taken on
+          {date:renewal}. I do not need it any more. I want this renewal refunded and the plan shut down.
+      - style: polite
+        title: "Refund for an accidental renewal"
+        body: >-
+          Hello, I would like to ask for a refund of the {product} annual renewal charged on {date:renewal}
+          ({amt:charge}). We have moved house and no longer have any cameras. Thank you very much.
+
+  - scenario_id: BIL-SUB-COOLOFF-CARE
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-02
+    primary_issue: "Annual Care+ renewal disputed within 14 days"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [3, 11]}}
+    products: [SVC-CARE]
+    customer_types: [care_plus]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Care+ renewal refund request"
+        body: >-
+          I see my {product} renewed on {date:renewal} for {amt:charge}. I sold most of my Lumora devices this year
+          so the plan is not worth it for me any more. Please end the plan and refund this year's charge.
+
+  - scenario_id: BIL-SUB-LATE
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-03
+    difficulty_type: unsupported_refund
+    primary_issue: "Annual renewal disputed more than 14 days after renewal"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [20, 50]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: frustrated
+        title: "Renewal I never wanted"
+        body: >-
+          I have just noticed that my {product} renewed on {date:renewal} and took {amt:charge}. I never got a
+          reminder email, or if I did it went to spam. I have not used it once since. I want a full refund.
+      - style: calm
+        title: "Refund of last month's renewal"
+        body: >-
+          My {product} renewed {dur:renewal} ago ({amt:charge}). I only use the free tier now. Could you refund the
+          renewal and switch the plan off? Order {order_ref}.
+      - style: angry
+        title: "Renewed without warning"
+        difficulty_type: emotional_low_priority
+        body: >-
+          This is a scam. You renewed my {product} for {amt:charge} without warning me and now you probably want
+          to keep my money. Absolutely disgusting business practice. Refund it NOW.
+        signals_add: []
+
+  - scenario_id: BIL-SUB-MONTHLY
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-04
+    primary_issue: "Refund requested for a partial month of a monthly plan"
+    order_profile: {name: monthly_subscription, params: {months: [2, 12], last_charge_days: [2, 20]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Partial month refund"
+        body: >-
+          I have just switched off my monthly {product}. I was charged {amt:charge} on {date:renewal}, but I only
+          need it for a few more days. Can I get a refund for the unused part of the month?
+      - style: angry
+        title: "Charging me for days I won't use"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Ridiculous. I end my {product} and you still keep the full {amt:charge} for this month even though I
+          will not use most of it. That is daylight robbery. Refund the unused days, it is the least you can do.
+      - style: frustrated
+        title: "Monthly plan charge after I stopped using it"
+        body: >-
+          My monthly {product} took {amt:charge} on {date:renewal}. I stopped using it the day after. I think it is
+          unfair to pay for a whole month - please refund me for the rest of it.
+
+  - scenario_id: BIL-SUB-NOORDER
+    pool: dev
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-01
+    primary_issue: "Subscription renewal dispute - subscription not yet identified"
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Unexpected subscription renewal"
+        body: >-
+          I have been charged for a {product} renewal and I would like it refunded. I do not remember signing up
+          for automatic renewal. Could you look at my account?
+      - style: frustrated
+        title: "Subscription charge I don't recognise"
+        body: >-
+          There is a renewal charge on my card from Lumora for {product}. I thought I had turned auto renew off.
+          Please explain and refund it.
+
+  # ------------------------------------------------------------------ BIL-CAN
+  - scenario_id: BIL-CAN-CONFIRMED
+    pool: dev
+    subcategory: BIL-CAN
+    intended_rule: RES-BIL-CAN-02
+    primary_issue: "Charged after a confirmed subscription cancellation"
+    order_profile: {name: cancelled_then_charged, params: {plan: monthly, cancel_days: [12, 26]}}
+    products: [SVC-CLOUD, SVC-CARE]
+    requested_resolution: refund
+    signals: [cancellation_mentioned, refund_request]
+    texts:
+      - style: calm
+        title: "Charged after cancelling {product}"
+        body: >-
+          I cancelled my {product} on {date:cancel_requested} and received a confirmation email the same day.
+          However, I was charged {amt:charge} again on {date:charge}. Please refund this charge.
+      - style: frustrated
+        title: "Still charged after cancellation"
+        body: >-
+          I have the cancellation confirmation for my {product} dated {date:cancel_requested} in front of me, and
+          yet you took another {amt:charge} on {date:charge}. How is that possible? I want that payment refunded.
+      - style: angry
+        title: "I CANCELLED and you still took my money"
+        signals_add: [chargeback_threat]
+        body: >-
+          I CANCELLED. I have the email to prove it. And you still took {amt:charge} from my account on
+          {date:charge}. Refund it this week or I will contact my bank to reverse the charge. Unbelievable.
+
+  - scenario_id: BIL-CAN-UNCONFIRMED
+    pool: dev
+    subcategory: BIL-CAN
+    intended_rule: RES-BIL-CAN-03
+    primary_issue: "Charged after a cancellation request that was never confirmed"
+    order_profile: {name: cancelled_not_confirmed, params: {plan: monthly, cancel_days: [12, 25]}}
+    products: [SVC-CLOUD, SVC-CARE]
+    requested_resolution: refund
+    signals: [cancellation_mentioned, refund_request]
+    texts:
+      - style: calm
+        title: "Cancellation not processed"
+        body: >-
+          I asked for my {product} to be cancelled through live chat on {date:cancel_requested}. The agent said it
+          would be done, but I was charged {amt:charge} on {date:charge}. Can you check the cancellation and refund
+          the charge?
+      - style: frustrated
+        title: "My cancellation was ignored"
+        body: >-
+          I sent a cancellation request for {product} weeks ago and it has obviously been ignored because another
+          {amt:charge} left my account on {date:charge}. I would like the charge refunded and the plan closed.
+      - style: angry
+        title: "Trading standards will hear about this"
+        signals_add: [legal_threat]
+        body: >-
+          I asked to cancel my {product} on {date:cancel_requested}, you ignored it and took {amt:charge} again.
+          Refund the charge or I am reporting you to trading standards.
+
+  - scenario_id: BIL-CAN-NORECORD
+    pool: dev
+    subcategory: BIL-CAN
+    intended_rule: RES-BIL-CAN-03
+    primary_issue: "Customer says they cancelled - no cancellation on record"
+    order_profile: {name: subscription_no_cancellation, params: {plan: monthly}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [cancellation_mentioned, refund_request]
+    texts:
+      - style: angry
+        title: "Charged after I cancelled"
+        body: >-
+          I cancelled this {product} in the app ages ago and you are STILL charging me {amt:charge} a month. The
+          latest one was {date:charge}. Stop taking my money and refund the charges.
+
+  - scenario_id: BIL-CAN-PREDISPATCH
+    pool: dev
+    subcategory: BIL-CAN
+    intended_rule: RES-BIL-CAN-04
+    primary_issue: "Order cancellation requested before dispatch not processed"
+    order_profile: {name: not_dispatched, params: {days: [1, 3], cancellation: true, confirmed: false}}
+    products: [LUM-VAC-300, LUM-CAM-210, LUM-TH-100, LUM-AIR-900, LUM-SPK-500]
+    requested_resolution: cancellation
+    signals: [cancellation_mentioned]
+    texts:
+      - style: calm
+        title: "Please cancel order {order_ref}"
+        body: >-
+          I placed order {order_ref} for a {product} on {date:order} and asked to cancel my order shortly afterwards, but
+          the order still shows as processing and I have been charged {amt:total}. Please cancel it before it ships.
+      - style: frustrated
+        title: "Cancellation request not actioned"
+        signals_add: [refund_request]
+        body: >-
+          I requested a cancellation of order {order_ref} on {date:cancel_requested}, before it was dispatched, and
+          nothing has happened. The {amt:total} is still on my card. I want the order cancelled and the money
+          refunded.
+      - style: polite
+        title: "Cancel my order please"
+        body: >-
+          Hello, I ordered the {product} by mistake - I meant to buy it as a gift for later in the year. The order
+          ({order_ref}) has not shipped yet, so could you cancel my order? I made the request in the app but it
+          did not seem to go through. Thank you!
+
+  - scenario_id: BIL-CAN-SHIPPED
+    pool: dev
+    subcategory: BIL-CAN
+    intended_rule: RES-BIL-CAN-01
+    primary_issue: "Order shipped and charged despite a confirmed cancellation"
+    order_profile: {name: cancel_ignored_dispatched, params: {days: [4, 9], confirmed: true}}
+    products: [LUM-CAM-200, LUM-SPK-500, LUM-HUB-800]
+    requested_resolution: refund
+    signals: [cancellation_mentioned, refund_request]
+    texts:
+      - style: frustrated
+        title: "Cancelled order shipped anyway"
+        body: >-
+          I cancelled order {order_ref} on {date:cancel_requested}, the same day I placed it, and got a cancellation
+          email. The {product} was shipped anyway and I have been charged {amt:total}. I do not want it - please
+          refund me.
+
+  - scenario_id: BIL-CAN-NOORDER
+    pool: dev
+    subcategory: BIL-CAN
+    intended_rule: RES-BIL-CAN-01
+    primary_issue: "Charged after cancelling - order not identified"
+    requested_resolution: refund
+    signals: [cancellation_mentioned, refund_request]
+    products: [LUM-VAC-300, LUM-AIR-900]
+    texts:
+      - style: calm
+        title: "Charged after cancellation"
+        body: >-
+          I cancelled my {product} order a couple of weeks ago but I have still been charged. Could you check your
+          records and refund the charge please?
+
+  # ============================================================ HOLDOUT (BIL)
+  - scenario_id: H-BIL-DUP-VERIFIED
+    pool: holdout
+    subcategory: BIL-DUP
+    intended_rule: RES-BIL-DUP-02
+    primary_issue: "Single order billed twice"
+    order_profile: {name: duplicate_charge, params: {days: [4, 18], gap_days: [1, 2]}}
+    products: [LUM-AIR-900, LUM-LCK-700]
+    requested_resolution: refund
+    signals: [refund_request]
+    include: {transaction_reference: true}
+    texts:
+      - style: frustrated
+        title: "Same payment appears two times"
+        body: >-
+          Payment {txn:1} and payment {txn:2} are both {amt:charge}, both to Lumora, both for the {product} on
+          {order_ref}. I am out of pocket for something I bought once. Refund the second one to my card.
+      - style: calm
+        title: "Duplicate transaction on my card"
+        body: >-
+          Looking at my card activity, the purchase of my {product} went through twice ({amt:charge} on
+          {date:charge1} and again on {date:charge2}). Order reference {order_ref}. I'd like the repeat payment
+          refunded, please.
+
+  - scenario_id: H-BIL-INC-OVER
+    pool: holdout
+    subcategory: BIL-INC
+    intended_rule: RES-BIL-INC-02
+    primary_issue: "Payment higher than the confirmed order total"
+    order_profile: {name: overcharged, params: {days: [2, 12], diff: [14.99, 20.00]}}
+    products: [LUM-CAM-210, LUM-TH-100]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Payment higher than the order confirmation"
+        body: >-
+          The confirmation for {order_ref} lists {amt:total}. The debit on my account from {date:charge} is
+          {amt:charge}. I chose standard delivery, so I suspect an express surcharge was added by mistake. Kindly
+          refund the gap.
+
+  - scenario_id: H-BIL-INC-LATE
+    pool: holdout
+    subcategory: BIL-INC
+    intended_rule: RES-BIL-INC-03
+    primary_issue: "Charge query raised after the 60-day dispute window"
+    order_profile: {name: charge_old, params: {days: [70, 110]}}
+    products: [LUM-VAC-300]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: polite
+        title: "Query on an older charge"
+        body: >-
+          My accountant flagged a debit of {amt:charge} dated {date:charge} for the {product} that seems higher
+          than the promotion price I remember. I appreciate it was some time ago. Would it be possible to review it
+          and refund any excess?
+
+  - scenario_id: H-BIL-RFM-TRACE
+    pool: holdout
+    subcategory: BIL-RFM
+    intended_rule: RES-BIL-RFM-02
+    primary_issue: "Issued refund missing after 10+ business days"
+    order_profile: {name: refund_issued_bd_ago, params: {bdays: [11, 15], reason: wrong_item}}
+    products: [LUM-SPK-500, LUM-CAM-200]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: polite
+        title: "Refund confirmed but not received"
+        body: >-
+          Your returns team confirmed on {date:refund_issued} that {amt:refund_amount} had been refunded for
+          {order_ref}. My bank has checked twice and there is no incoming credit. Would you be able to trace the
+          payment?
+
+  - scenario_id: H-BIL-RFM-WAIT
+    pool: holdout
+    subcategory: BIL-RFM
+    intended_rule: RES-BIL-RFM-03
+    primary_issue: "Issued refund not yet visible (within bank posting time)"
+    order_profile: {name: refund_issued_bd_ago, params: {bdays: [1, 4], reason: changed_mind}}
+    products: [LUM-BLB-610, LUM-PLG-600]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: angry
+        title: "Refund email is worthless"
+        difficulty_type: emotional_low_priority
+        body: >-
+          Your so-called refund confirmation from {date:refund_issued} means NOTHING if the money is not in my
+          account! {amt:refund_amount} for {order_ref}. Fed up with waiting on you people. Get it sorted.
+
+  - scenario_id: H-BIL-SUB-COOLOFF
+    pool: holdout
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-02
+    primary_issue: "Annual plan renewal refund requested within 14 days"
+    order_profile: {name: annual_renewal_days_ago, params: {days: [1, 9]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: calm
+        title: "Undo my yearly renewal"
+        body: >-
+          The yearly {product} fee of {amt:charge} went out on {date:renewal}. We replaced our cameras with another
+          brand in the spring, so there is nothing left to store. Please reverse the renewal and refund it.
+
+  - scenario_id: H-BIL-SUB-MONTHLY
+    pool: holdout
+    subcategory: BIL-SUB
+    intended_rule: RES-BIL-SUB-04
+    primary_issue: "Pro-rata refund requested for a monthly plan"
+    order_profile: {name: monthly_subscription, params: {months: [4, 10], last_charge_days: [3, 12]}}
+    products: [SVC-CARE]
+    customer_types: [care_plus]
+    requested_resolution: refund
+    signals: [refund_request]
+    texts:
+      - style: polite
+        title: "Pro-rata refund on my monthly plan"
+        body: >-
+          Hello! I have decided to stop my monthly {product}. The {amt:charge} for this month was taken on
+          {date:renewal}; would a pro-rata refund for the remaining weeks be possible? Thank you for checking.
+
+  - scenario_id: H-BIL-CAN-CONFIRMED
+    pool: holdout
+    subcategory: BIL-CAN
+    intended_rule: RES-BIL-CAN-02
+    primary_issue: "Billed after a confirmed cancellation"
+    order_profile: {name: cancelled_then_charged, params: {plan: monthly, cancel_days: [10, 20]}}
+    products: [SVC-CLOUD]
+    requested_resolution: refund
+    signals: [cancellation_mentioned, refund_request]
+    texts:
+      - style: frustrated
+        title: "Billed after my plan was ended"
+        body: >-
+          Your own email dated {date:cancel_requested} says my {product} cancellation is complete. Then on
+          {date:charge} you billed me {amt:charge}. Refund that payment - there is no reason for it.
+
+  - scenario_id: H-BIL-CAN-PREDISPATCH
+    pool: holdout
+    subcategory: BIL-CAN
+    intended_rule: RES-BIL-CAN-04
+    primary_issue: "Pre-dispatch order cancellation not processed"
+    order_profile: {name: not_dispatched, params: {days: [1, 2], cancellation: true, confirmed: false}}
+    products: [LUM-VAC-300, LUM-AIR-900]
+    requested_resolution: cancellation
+    signals: [cancellation_mentioned]
+    texts:
+      - style: calm
+        title: "Stop order before it ships"
+        body: >-
+          Order {order_ref} ({product}) was placed on {date:order}. My cancellation request went in the same
+          evening, but the status is still processing and {amt:total} has been taken. Please stop the order before
+          it leaves the warehouse.
